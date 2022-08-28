@@ -1,6 +1,6 @@
 module.exports = {
-  title: `zoomkoding.com`,
-  description: `줌코딩의 개발일기`,
+  title: `korwoo93.github.io`,
+  description: `KORWOO'S Blog`,
   language: `ko`, // `ko`, `en` => currently support versions for Korean and English
   siteUrl: `https://www.zoomkoding.com`,
   ogImage: `/og-image.png`, // Path to your in the 'static' folder
@@ -11,9 +11,9 @@ module.exports = {
   },
   ga: '0', // Google Analytics Tracking ID
   author: {
-    name: `정진혁`,
+    name: `장우석`,
     bio: {
-      role: `개발자`,
+      role: `데브옵스엔지니어`,
       description: ['사람에 가치를 두는', '능동적으로 일하는', '이로운 것을 만드는'],
       thumbnail: 'sample.png', // Path to the image in the 'asset' folder
     },
