@@ -1,6 +1,6 @@
 ---
 emoji: 🧢
-title: Azure Kubernetes Service 생성 & Test
+title: Azure Devops PipeLine 구축 1
 date: '2022-08-28 21:00:00'
 author: KORWOO
 tags: AKS
