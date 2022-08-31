@@ -65,7 +65,9 @@ categories: Develop
       this.myService=myService;
     }
   }
+  
   ```
+
 
   3.  관점 지향 프로그래밍(AOP)
     관점 지향 프로그래밍(Aspect-Oriented Programming)은 스프링의 아주 중요한 특징입니다.
@@ -90,6 +92,7 @@ categories: Develop
     ![AOP_LOGIC.png](AOP_LOGIC.png)
 
     AOP의 관점에서는 부가 기능은 핵심 기능이 어떤 기능인지에 무관하게 로직이 수행되기 전 또는 후에 수행되기만 하면 됩니다.
+
 
 
 ```toc
