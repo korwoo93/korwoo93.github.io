@@ -30,8 +30,7 @@ Worker Node: 각기 다른 목적, 기능으로 세분화된 컨테이너들이 
 
 
 
-
-![Certi1_1.jpg](Certi1_1.jpg)
+![Certi1_1.png](Certi1_1.png)
 
 위의 그림이 Kubernetes에 대한 전반적인 구성 요소 입니다. 위의 구성요소에 대해 조금 더 자세히 살펴보겠습니다.
 
