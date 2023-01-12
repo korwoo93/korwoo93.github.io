@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-category-template-js",
+    "path": "/posts/Kubernetes",
+    "result": {"pageContext":{"currentCategory":"Kubernetes","categories":["All","Certification","Develop","Kubernetes","Devops","블로그","featured"],"edges":[{"node":{"id":"de8ec65d-6c14-548f-88a7-d69284a7c409","excerpt":"가시다님 스터디 : https://www.notion.so/gasidaseo/23-7635cc4f02c04954a3260b317588113e 1. KOPS란?? ubernetes eration KOPS 란 쉽게 설명하자면 쿠버네티스의 생성 및 관리를 쉽게 하도록 도와주는 오픈소스 툴 입니다.\r\n쿠버네티스 클러스터를 간단한 CLI 명령을 통하여 생성,관리, 업그레이드 등의 작업을 할수 있도록 지원해줍니다.  KOPS 공식 사이트 공식사이트에서 보면 현재 AWS와 GCP가 공식지원되며 Azure는 알파 지원이 가능하다고 명시되어 있는데\r\nAzure도 빨리 공식 지원이 됬으면 좋겠습니다.. 2. 실습환경 구성을 위한 사전 준비 사항 AWS Free Tier 계정 IAM User AWS Route53 퍼블릭 호스팅 영역  먼저 위의 화면과 같이 AdministratorAccess 정책이 부여된 별도의 계정을 생성해주도록 합니다.  계정을 생성하면 위의 화면과 같이 Access Key ID…","fields":{"slug":"/Kubernetes/Gasida_Study_homework_1/"},"frontmatter":{"categories":"Kubernetes","title":"Gasida Kubernetes Study 1주차","date":"August 29, 2022"}},"next":{"fields":{"slug":"/DevOps/AKS&DevOps2/"}},"previous":{"fields":{"slug":"/JAVA/Spring1/"}}}]}},
+    "staticQueryHashes": ["1073350324","1956554647","2938748437"]}
