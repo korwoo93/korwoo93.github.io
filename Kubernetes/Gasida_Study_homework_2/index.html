@@ -398,11 +398,875 @@ pod간의 통신은 무조건 첫번째 ENI로만 빠져나가게끔 설정이 �
 <code class="language-text">kubectl exec -it pod-1 -- ping -c 1 www.google.com</code></p>
 <p>다음 Pod-1에 접속해서 tcpdump를 해주겠습니다.
 <code class="language-text">sudo tcpdump -i any -nn icmp</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 35.55555555555556%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAHCAYAAAAIy204AAAACXBIWXMAAAsTAAALEwEAmpwYAAABEUlEQVQoz22R226DMBBEeUWgXCAmYMAYm6sDqdT//7epZqugNOrDapG9c5hZR6PW0LVBaXp459D3Pay1aNtWSmuNy+WCPM9xvV6RpqmUUkruiqKQ77qu5T7y3kOpAqooME0TqqrC6XSSQQ51XSfgpmmwLIsUNcYYOSOcnTP8joK18H6GHRc8HgHruooghCA1z7OcUUDnBI3jCOecOIvjWEBJkkhFum0weAfX/w5TyNhlWR5xGJexKXiJX9HfYeJwcw5r2BG+vrFtG/Z9P/rz+TwcE3673ZBl2fGz8/n8By4OrTGwvUNruuNBuLf33bHf73cBsfMxWIR/uo0I4Z6WecYwDOKGi39BKSSIsT/F/8X/AQXNtXAFFn4aAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="tcpdump_out.png"
+        title="tcpdump_out.png"
+        src="/static/4856f17c7f26d3939046356c461df536/37523/tcpdump_out.png"
+        srcset="/static/4856f17c7f26d3939046356c461df536/e9ff0/tcpdump_out.png 180w,
+/static/4856f17c7f26d3939046356c461df536/f21e7/tcpdump_out.png 360w,
+/static/4856f17c7f26d3939046356c461df536/37523/tcpdump_out.png 720w,
+/static/4856f17c7f26d3939046356c461df536/302a4/tcpdump_out.png 1080w,
+/static/4856f17c7f26d3939046356c461df536/07a9c/tcpdump_out.png 1440w,
+/static/4856f17c7f26d3939046356c461df536/95e59/tcpdump_out.png 1460w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>tcpdump 에서 확인해보면 POD1의 IP 에서 외부로의 트래픽을 확인하실 수 있습니다.</p>
+<p>작업용 EC2에서 해당 명령어를 입력하여 작업용 EC2에서 외부와 통신할 때 사용하는 public IP 를 확인합니다.
+<code class="language-text">kubectl exec -it pod-1 -- curl -s ipinfo.io/ip ; echo</code></p>
+<p>다음은 워커노드에서 아래 명령어를 입력하여 public IP를 확인합니다.
+<code class="language-text">curl -s ipinfo.io/ip ; echo</code></p>
+<p>흥미로운 점은 2개의 Public IP가 같다는 점을 확인하실 수 있습니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 38.33333333333333%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAICAYAAAD5nd/tAAAACXBIWXMAAAsTAAALEwEAmpwYAAABk0lEQVQoz0WR63KiQBSE8/5PltrUmqirsqKCXAQGkeE6MDB8W2DWdNX5M9Wn53T3m+/7+L6H414RiUDKgrZVJIngkUvqukEIQRiGuK6L47hEcUwuC+qmJRUpeS7puo4Zb3xDFhW7ry9uYUTVdHz83nC6eFR1jRnH/zSCW8L7r0+8IEYWNYfNGs8P6Xv9FJymickYZFlz2lnEsaAoa+xLQHBLKcuKvu+ZecYY0kxyvASkd4msmmUn8EK6vn8KbjZbLMvCDxKOqw1pnKB6jWX7i6BSLe71ysw7WBaJyDjYHlle0rQK+3NNHInl00VwdzgSJ3cGbWiKiiaJGIcBPTwtzNm4Xsh2vl5kr7fRGFSWoWTOBGj9bdn3A7KHfGVkVAuqRsqGKLpTliVxkuI41xfPTBNMhkE+aHu9lNK27VNQlu1ybqc69DBwti9sV2uOJ4+P1Z4sLxjGkX4Ylpmzmvnns8tu/YeTG/G++ruUugj2+qfBGc7lxmG9R2V3UA1jXaGr8mfKAi1znL2F4waYCUbDYptp4h/gkV4Q3J4lbgAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="Node&amp;Pod"
+        title="Node&amp;Pod"
+        src="/static/4c44c334b2ddbc4d1517b4c3ff673298/37523/Node%26Pod.png"
+        srcset="/static/4c44c334b2ddbc4d1517b4c3ff673298/e9ff0/Node%26Pod.png 180w,
+/static/4c44c334b2ddbc4d1517b4c3ff673298/f21e7/Node%26Pod.png 360w,
+/static/4c44c334b2ddbc4d1517b4c3ff673298/37523/Node%26Pod.png 720w,
+/static/4c44c334b2ddbc4d1517b4c3ff673298/76823/Node%26Pod.png 1038w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>위의 그림을 다시가져와 설명하자면
+POD가 외부로 인터넷을 사용할 때 POD의 IP가 워커노드의 ENI0로 NAT가 되고
+ENI0(192.168.1.64) -> 그림상 192.168.1.64로 표시되어 있지만 해당 실습에서는 다른 IP주소를 가지고 있습니다.
+ENI0가 외부로 통신할 때에는 Public IP가 인터넷 게이트웨이를 통해 NAT가 되는 구조입니다.</p>
+<h2 id="5-노드에서-pod-생성갯수-제한" style="position:relative;"><a href="#5-%EB%85%B8%EB%93%9C%EC%97%90%EC%84%9C-pod-%EC%83%9D%EC%84%B1%EA%B0%AF%EC%88%98-%EC%A0%9C%ED%95%9C" aria-label="5 노드에서 pod 생성갯수 제한 permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>5. 노드에서 POD 생성갯수 제한</h2>
+<p>아래의 명렁어를 통해 EC2 사이즈 별 생성 가능한 POD의 갯수를 확인해보도록 하겠습니다.
+<code class="language-text"> aws ec2 describe-instance-types --filters Name=instance-type,Values=c5.* \ --query "InstanceTypes[].{Type: InstanceType, MaxENI: NetworkInfo.MaximumNetworkInterfaces, IPv4addr: NetworkInfo.Ipv4AddressesPerInterface}" \ --output table</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 33.888888888888886%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAHCAYAAAAIy204AAAACXBIWXMAAAsTAAALEwEAmpwYAAAA4klEQVQoz5WQy3KEIBBFXSsPaUB8gaUYxUxlkU3m/7/sTsmUWY+LU7eh6QNFEQePbkmI6xeO48C6rgghYNu2XKeUEGPM6zOXZcG+75lzb57n/7Nnv/AhIO0bjiPl4RPn2izt+x5EBM45pJQQQuS86pOrd2XhvUeYpmxv2xbjOMA1FqquUVUVyrLM+SmFdSMa10FrC20s7PiAHb+hTQPBOaqKgbHPKZi0UGTBpIEiDRp+ocMfyA7g7H3rLaFQHcg4CNWAyMBMzwyZFpyz+0Jev1/IJUEpAvU/UN0Dda3yR98VvgClFaukrcnKQwAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="EC2_SIZE.png"
+        title="EC2_SIZE.png"
+        src="/static/4c045fef5ec7a933660702295241d464/37523/EC2_SIZE.png"
+        srcset="/static/4c045fef5ec7a933660702295241d464/e9ff0/EC2_SIZE.png 180w,
+/static/4c045fef5ec7a933660702295241d464/f21e7/EC2_SIZE.png 360w,
+/static/4c045fef5ec7a933660702295241d464/37523/EC2_SIZE.png 720w,
+/static/4c045fef5ec7a933660702295241d464/302a4/EC2_SIZE.png 1080w,
+/static/4c045fef5ec7a933660702295241d464/07a9c/EC2_SIZE.png 1440w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>현재 제가 생성한 워커노드의 사이즈는 C5d.large 입니다.</p>
+<p>생성가능한 POD의 계산법은 ((MaxENI * (IPv4addr-1)) + 2) 입니다.</p>
+<p>즉 C5d.large의 경우
+((3*(10-1))+2) 즉 29개의 POD를 생성할 수 있습니다.</p>
+<p>아래의 명렁어를 통해 생성가능한 POD의 갯수를 직접 확인하실 수도 있습니다.</p>
+<p><code class="language-text">kubectl describe node | grep Allocatable: -A6</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 42.77777777777778%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA9ElEQVQoz51Sy26DMBD0lZcx5WEwGLUmHAohR6Ko+f/fmmpWbZRDD6GH0Xrt8Xh212pMNWz/AWM9uq5DCAHeezRNA2stxnHEMAzo+172ySHatn3skUM+oT47h6GooHWOoihQVZUc1HUteZ7n0FoL/lozElmWCdT1dsN6PmNdV3mJrn5fpos4jpEkyctQX/c7ptNJBHjZOYdpmiSSkKbpIajROWRRjCiKRLAsS3FpjBHCUVEV6gbevEH/9OC5T8wPC26XC95DwDzPMk2WyvK55mDo+pDgvu9YlkW+Cx1xwhSl2HPJrzpV27Y9SmMfOVmKM/5H8BvdPtlj//lHNQAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="MAX_POD.png"
+        title="MAX_POD.png"
+        src="/static/532e5ec1bdca2ab0becc2928b132e9a5/37523/MAX_POD.png"
+        srcset="/static/532e5ec1bdca2ab0becc2928b132e9a5/e9ff0/MAX_POD.png 180w,
+/static/532e5ec1bdca2ab0becc2928b132e9a5/f21e7/MAX_POD.png 360w,
+/static/532e5ec1bdca2ab0becc2928b132e9a5/37523/MAX_POD.png 720w,
+/static/532e5ec1bdca2ab0becc2928b132e9a5/e2e58/MAX_POD.png 1069w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>그렇다면 여기서 POD의 갯수가 생성가능한 POD의 갯수를 초과했을 때 어떻게 생성 가능한 POD의 최대 갯수를
+늘릴 수 있을것인지에 대해 확인해보도록 하겠습니다.</p>
+<p>아래 명령의를 통하여 Test용 POD를 배포해보도록 하겠습니다.</p>
+<p><code class="language-text">kubectl apply -f ~/pkos/2/nginx-dp.yaml</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 22.77777777777778%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAFCAYAAABFA8wzAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAr0lEQVQY052QRw6FMBBDs6VG9F6EgAVL7n83f72RwgH+wpoW2zNxbduq6zqN46iQ932vpmmUZZm89xbLsrQ8TdMPcRxrGAZDVVWm4c7z1LqumqZJ931r33cTBHVd24wYSPM8W40hJkVRWI+cvnuex0QQft9Xx3GYE2Q22rbNHiZJYsCUOViW5TOFd12XHETWx4lz8zy3EwH9UIczwxeAMCMCZo5/wJkYRdG3yT9A4wdk+XpTL+NZqwAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="POD_WATCH.png"
+        title="POD_WATCH.png"
+        src="/static/bc401920973e7a174795d609b2edac4d/37523/POD_WATCH.png"
+        srcset="/static/bc401920973e7a174795d609b2edac4d/e9ff0/POD_WATCH.png 180w,
+/static/bc401920973e7a174795d609b2edac4d/f21e7/POD_WATCH.png 360w,
+/static/bc401920973e7a174795d609b2edac4d/37523/POD_WATCH.png 720w,
+/static/bc401920973e7a174795d609b2edac4d/302a4/POD_WATCH.png 1080w,
+/static/bc401920973e7a174795d609b2edac4d/07a9c/POD_WATCH.png 1440w,
+/static/bc401920973e7a174795d609b2edac4d/fe720/POD_WATCH.png 1448w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>POD가 정상적으로 기동되고 있는것을 확인하실 수 있습니다.</p>
+<p>그렇다면 POD의 갯수를 천천히 증가시켜보도록 하겠습니다.</p>
+<p><code class="language-text">kubectl scale deployment nginx-deployment --replicas=10</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 41.11111111111111%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAICAYAAAD5nd/tAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA/ElEQVQoz3WSR27FMAwFvXbvvfdy//MxGAYyguRnIZCi6OF7kq15nqWqKinLUvI815xYFIUkSaIriiLdx3EsQRCI7/ti27bmdV1LGIbaw7l1nqccxyHDMMi+7/I8j/R9L2maakPbtgoDkmWZAhhCnXP25F3Xad0Csq6rNE2jYAaglmYmU0cxiqiZYUQAOJqmSXDKYAVu2/YCr+t6VfwEOo6jNQNEERHgOI4KpO8FIvsT0FhGobFK5IoA4gaFuHwV/rZM/p9C1BiF3OkfhQCA8iHq7vv+aNkoNMOwbv4KgMuyfCvkkMv2PO99enLXdXXxuuxRyN6cEc2ix/R9AbeFzQPc5X+XAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="POD_WATCH2.png"
+        title="POD_WATCH2.png"
+        src="/static/9a121df361351d8b8cd13e383d9dd077/37523/POD_WATCH2.png"
+        srcset="/static/9a121df361351d8b8cd13e383d9dd077/e9ff0/POD_WATCH2.png 180w,
+/static/9a121df361351d8b8cd13e383d9dd077/f21e7/POD_WATCH2.png 360w,
+/static/9a121df361351d8b8cd13e383d9dd077/37523/POD_WATCH2.png 720w,
+/static/9a121df361351d8b8cd13e383d9dd077/302a4/POD_WATCH2.png 1080w,
+/static/9a121df361351d8b8cd13e383d9dd077/07a9c/POD_WATCH2.png 1440w,
+/static/9a121df361351d8b8cd13e383d9dd077/16068/POD_WATCH2.png 1451w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>아직 POD 생성가능 갯수를 넘기지는 않았기에 별다른 이슈없이 POD 가 증가되었습니다.</p>
+<p>그렇다면 MAX POD를 넘어선갯수로 POD를 증가시켜 보도록 하겠습니다.
+<code class="language-text">kubectl scale deployment nginx-deployment --replicas=40</code></p>
+<p>다음 아래의 명령어를 통하여 Pending된 POD와 해당 원인에 대해 조회할 수 있습니다.
+<code class="language-text">kubectl get pods | grep Pending</code>
+<code class="language-text">kubectl describe pod &lt;Pending 파드> | grep Events: -A5</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 26.111111111111107%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAFCAYAAABFA8wzAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA7klEQVQY021P23KEIBTzsa5OvQGirALe1xZXrf3/T0vnMLN9aR8ynBySEAI3L3CfGz62Hfv+xHVdcM7BWAtZlviqFPpaIc0y1HUNKSXCMEQcx4ii6A+C1Tkcx+HDzvP0gdu2odUaLM/xzUr0ssLb7QbOuQ99Bf6H4Nm06MyAZlgwDgMe6wpjDLTWqKTEou4w6g4uBJRSaNsWQggfXJaln+khxhiyLENgawXBuRfSMkkSLyQD8fc0RcEY+r5HURRI09QbSUc8z3N/vuZAG4Ou6zBNE+Z59kYCcWo6juPvzlrrNaSnOyrRNI3/DbWn3Q/FroOM9PFc+QAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="POD_Pendding.png"
+        title="POD_Pendding.png"
+        src="/static/679eaf44b813df148ec5724906b7638c/37523/POD_Pendding.png"
+        srcset="/static/679eaf44b813df148ec5724906b7638c/e9ff0/POD_Pendding.png 180w,
+/static/679eaf44b813df148ec5724906b7638c/f21e7/POD_Pendding.png 360w,
+/static/679eaf44b813df148ec5724906b7638c/37523/POD_Pendding.png 720w,
+/static/679eaf44b813df148ec5724906b7638c/302a4/POD_Pendding.png 1080w,
+/static/679eaf44b813df148ec5724906b7638c/07a9c/POD_Pendding.png 1440w,
+/static/679eaf44b813df148ec5724906b7638c/ab3e6/POD_Pendding.png 1441w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>해당 이슈를 해결하기 위한 아주 간단한 방법은
+EC2의 성능을 업그레이드 해주어 자본주의의 참맛을 보여주면 됩니다.</p>
+<p>자본주의의 참맛을 보여주기 어렵다면 다른방법을 찾아봐야 합니다.</p>
+<p>해당 방법은 가시다님이 참조해주신 블로그
+<a href="https://blog.psnote.co.kr/186">https://blog.psnote.co.kr/186</a>
+<a href="https://trans.yonghochoi.com/translations/aws_vpc_cni_increase_pods_per_node_limits.ko">https://trans.yonghochoi.com/translations/aws_vpc_cni_increase_pods_per_node_limits.ko</a>
+에서 안내해준 방법을 참고하였습니다.</p>
+<p><code class="language-text">kubectl scale deployment nginx-deployment --replicas=0</code></p>
+<p>먼저 replicas를 0으로 조절해줍니다.(Deployment를 지우는것이 아닙니다.)</p>
+<p>다음 아래 명령어를 통해 limitrange를 제거해주도록 하겠습니다.
+<code class="language-text">kubectl delete limitranges limits</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 20.555555555555554%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAECAYAAACOXx+WAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA1klEQVQY01VQy46EMAzjylvALNDhWVrawtAOqx2hPfD/v+VVetuDlTqJ7LjB77ZjznI8ucb6vqDMDikElFKYpgmMMXRd59/jOP7jQgjUdY0wDBFFEeI4RuCsxdfjAcae2F8HjDHgnKPvewzDgKqqkOc5sixDmqa+EpIk8ZxmRVGgLEvfDz6LxE8/gm8nOn1CbS/Y48B937DWom1bfxVdtCyLNyJDMpNSYl1Xv0N9Eg0+ZoObObT9xmwc7PuE0RrXdcE552ORMH0BiTRN40EmxKlSZAJF/gNKQ2tXv/vgwAAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="limit_range.png"
+        title="limit_range.png"
+        src="/static/79dcb12f3a86b8f13244da83ad007fcf/37523/limit_range.png"
+        srcset="/static/79dcb12f3a86b8f13244da83ad007fcf/e9ff0/limit_range.png 180w,
+/static/79dcb12f3a86b8f13244da83ad007fcf/f21e7/limit_range.png 360w,
+/static/79dcb12f3a86b8f13244da83ad007fcf/37523/limit_range.png 720w,
+/static/79dcb12f3a86b8f13244da83ad007fcf/cc488/limit_range.png 928w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>다음 아래 명령어를 통해 POD를 증가시켜 보겠습니다.
+<code class="language-text">kubectl scale deployment nginx-deployment --replicas=50</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 15%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAADCAYAAACTWi8uAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAs0lEQVQI1z2OQWuEMBhEPbvarlQLIfliNFE2Rra2kUIvxf//p17RQ08Dw8ybKZIbcPUr91bxohztu8IYjfcerTXOOWKMzPPMOI6sKdFby7IsTNOEiFDXNWVZUlUVxdfzg1EEIxYZ/KUn5Awrpa5CCIGu65jCxOA99/aNR4yXdw5Zay/Y7XajyI9IHkbWbWf9/mV9frLvmeM4yDmzbdv/My3CrA0/YSYYQfoeo/UFTCnRNA1/cl1S2IW4StgAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="MAX_POD2.png"
+        title="MAX_POD2.png"
+        src="/static/86d59b41a7d5c7fe097a66c74a8d4f6a/37523/MAX_POD2.png"
+        srcset="/static/86d59b41a7d5c7fe097a66c74a8d4f6a/e9ff0/MAX_POD2.png 180w,
+/static/86d59b41a7d5c7fe097a66c74a8d4f6a/f21e7/MAX_POD2.png 360w,
+/static/86d59b41a7d5c7fe097a66c74a8d4f6a/37523/MAX_POD2.png 720w,
+/static/86d59b41a7d5c7fe097a66c74a8d4f6a/82b28/MAX_POD2.png 931w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>POD의 최대갯수가 49개까지 늘어났습니다만… 아직 목표인 100대 이상에는 모자릅니다.
+다시 replicas를 0으로 조절해주도록 하겠습니다.
+<code class="language-text">kubectl scale deployment nginx-deployment --replicas=0</code></p>
+<p>수정하기 전에 Node의 External IP 주소를 확인해보도록 하겠습니다.
+<code class="language-text">kubectl get node -owide</code></p>
+<p>저희가 해볼 방법은 kops cluster 를 수정하는 방법입니다.
+이 과정에서 노드에 대한 rolling update를 진행해 줄것인데 Node가 재배포되가 될것입니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 16.666666666666664%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAADCAYAAACTWi8uAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAjklEQVQI1zWOSw6EIBBEOQIaQVAHBggysMP7360m1YmLF2i6Pqj8CfiGiFQbUkporWGMIez7Du89rutCzhnOOdEYY4RSCrZtE12MEVprqBAjfr3jmRO9d1nUWnHfN0IIYqTphQUMWNdVipZlgbUW53lKoWILfzPnIydnBhIaKGIAofE4Dnln+FtIDe/c/QEbhFBRe6BnpgAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="node_externalIP1.png"
+        title="node_externalIP1.png"
+        src="/static/d4d4d062dd2c123151a536aaf59ea452/37523/node_externalIP1.png"
+        srcset="/static/d4d4d062dd2c123151a536aaf59ea452/e9ff0/node_externalIP1.png 180w,
+/static/d4d4d062dd2c123151a536aaf59ea452/f21e7/node_externalIP1.png 360w,
+/static/d4d4d062dd2c123151a536aaf59ea452/37523/node_externalIP1.png 720w,
+/static/d4d4d062dd2c123151a536aaf59ea452/302a4/node_externalIP1.png 1080w,
+/static/d4d4d062dd2c123151a536aaf59ea452/07a9c/node_externalIP1.png 1440w,
+/static/d4d4d062dd2c123151a536aaf59ea452/8b640/node_externalIP1.png 1454w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>다음 kops cluster 를 수정해주도록 하겠습니다.</p>
+<p><code class="language-text">kops edit cluster</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 77.22222222222223%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAIAAABr+ngCAAAACXBIWXMAABJ0AAASdAHeZh94AAAByElEQVQoz6XR227aMBjA8SC1DbHjJBAndjgkjnMgRyhpoYNm6qS16s32CHsStCIkrvKgiHuuIdM0saKJdpr21yff/WxZn1D27bskGdp2SMiA0MAw7wiVIZSPIYREUeScb7fbuq73+319TCj7zvNs/jyZPt3efvvydWQ7/4A9x7nJ85s8T3yfdTp900QAQAgRQn/HbV13GCOUtnRd0TSIkI6xqqqSJIHjLW/i8XhcluXsw+x+Pv/08BANBsM8Hw2HaZpy1+WcM8YMw3Bd9wzmnhelaZxlXhj+njCOTctqGxgipKpqs9k8/3Loup8nk4+j66TXswC0Va2LlJ6iEEmiAJjw3T9nhnmfZSljgWVxSh2MfUoZxj4hnNLMJJaiXFxdeWexL8t9hMbhIHNYyf2ibyeOE/V6OXMj2yk63a6iXIjieXwdx0/T6eNkOomigrHU6uSMxd1uZtsBIQQAVVHEtzC1rEGShHHcxvhSkpoQNiGU5F+nDN7fMyXU930DY03T2q1Wu/UzTVVfR9MAAEEQnMGmaRZFoes6OgYhFE5qNBqCIBBCNpvNn3i9XldVtVqtvp/0ctJyuVwsFlVV7Xa7uq4Ph8Mrrv+jH84uf1wi6pASAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="kops_edit.png"
+        title="kops_edit.png"
+        src="/static/458ef2f22e3c6ed321038d0308d1ff3a/37523/kops_edit.png"
+        srcset="/static/458ef2f22e3c6ed321038d0308d1ff3a/e9ff0/kops_edit.png 180w,
+/static/458ef2f22e3c6ed321038d0308d1ff3a/f21e7/kops_edit.png 360w,
+/static/458ef2f22e3c6ed321038d0308d1ff3a/37523/kops_edit.png 720w,
+/static/458ef2f22e3c6ed321038d0308d1ff3a/4c42d/kops_edit.png 896w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>위 그림의 표시된 부분을 수정해준 뒤 저장해주도록 하겠습니다.
+이때 들여쓰기에 유의해주시길 바랍니다.
+저는 아래의 amazonvpc.env 부분을 수정할때 들여쓰기랠 해주지 않았어서 cluster를 수정했음에도 불구하고 저장이 되지 않는 이슈가 있었습니다..ㅜㅜ
+만약 cluster 수정에 성공하였다면 저장하였을때 약간의 로딩시간이 있고
+다시 kops edit cluster로 들어가서 저장된 내용을 확인해주셔야 합니다.</p>
+<p>수정이 성공적으로 되었다면 아래의 명령어를 통해 rolling update를 진행해 주도록 하겠습니다.
+대략 10분 정도의 시간이 소요될것입니다.</p>
+<p><code class="language-text">kops update cluster --yes &amp;&amp; echo &amp;&amp; sleep 5 &amp;&amp; kops rolling-update cluster --yes</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 43.333333333333336%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAAsTAAALEwEAmpwYAAABHElEQVQoz42S27KCMAxF+4ioyKhcRKA4chXw//8uzspMHDxP52FN2rTZSZq6rKilKCtpvJf7/S5lWUpVVbq+3W4/68vlIkmSSJqmcr1e5Xw+y+FwkP1+rxac97U0jdfAuq4VRLkcRdEPx+NRQSAMwx8hE3ZkL4pCq7AKDfxbqBAQRdBAyMSd916aplGBx+Mh7IFK8bNu21bPSJjnuVrrCEsy/HEci1vXVd7vt3Rdp3aeZxnHUaZpkr7v1eIbhkGDaJ3ALafTSf1aIZcRpYplWb6C8Hq95Pl8fivmXYMg0DZ3u52ybR0cmRFBEBGqshbBnoO2sizTKSP8F6bOmbMB8BYE2IXtJBkC7WBpD7uduu3BoWp/a2sNMtuX+A8f/l7jiwPO1KQAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="rollingUpdate.png"
+        title="rollingUpdate.png"
+        src="/static/6069011ce3a561ff0483b664bbbaf121/37523/rollingUpdate.png"
+        srcset="/static/6069011ce3a561ff0483b664bbbaf121/e9ff0/rollingUpdate.png 180w,
+/static/6069011ce3a561ff0483b664bbbaf121/f21e7/rollingUpdate.png 360w,
+/static/6069011ce3a561ff0483b664bbbaf121/37523/rollingUpdate.png 720w,
+/static/6069011ce3a561ff0483b664bbbaf121/302a4/rollingUpdate.png 1080w,
+/static/6069011ce3a561ff0483b664bbbaf121/07a9c/rollingUpdate.png 1440w,
+/static/6069011ce3a561ff0483b664bbbaf121/9c6a1/rollingUpdate.png 1869w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 17.22222222222222%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAADCAYAAACTWi8uAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAiUlEQVQI1zVNSwqFMBBzXSyC9uOvtG5KXwW9/+nySMBFmMwkmQy9Vpwpo1wXev9h2zaEEOC9RykF67pq3/dd4C3GKE6Pc04ea63uw/M8eN8X930LKSWZlmVRYJom7eR8fByHgpwsJ885q4D60HtHaw21VoEGto3jiHmeYYzRcz7lztBXQFBj5tP/HGNNrf/LcfwAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="node_externalIP2.png"
+        title="node_externalIP2.png"
+        src="/static/5b542d5b657eb1e54a420cd0a92087a6/37523/node_externalIP2.png"
+        srcset="/static/5b542d5b657eb1e54a420cd0a92087a6/e9ff0/node_externalIP2.png 180w,
+/static/5b542d5b657eb1e54a420cd0a92087a6/f21e7/node_externalIP2.png 360w,
+/static/5b542d5b657eb1e54a420cd0a92087a6/37523/node_externalIP2.png 720w,
+/static/5b542d5b657eb1e54a420cd0a92087a6/302a4/node_externalIP2.png 1080w,
+/static/5b542d5b657eb1e54a420cd0a92087a6/07a9c/node_externalIP2.png 1440w,
+/static/5b542d5b657eb1e54a420cd0a92087a6/25be5/node_externalIP2.png 1893w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 58.88888888888889%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAABVUlEQVQoz5VT24rCMBTsm9pW7f2StEldsQW3irAq6v//1yxzoN1lWaF9GJKQZM7MJMc5xSn6MIGuOwR5Da0V2rZFXdfI8xxVVWG/38vYNA2MMbLHtbVW1tzXWqMoCjg7Y3BsO9R5BlUWiOMYWZahLEvBer3GcrnEarV6i2HfdV04xlo8nk+cLxccj0eEYThWS9NUCH3fnwynthaffY8gDLHdbqUaLXVdJ0pZlQc9zxsvvZsLoU4y6ChG7Pmj7CAI5CDJhwsc/17+V+FOaXTGQicpkjRFFEVIkgRKKQEjmEL0Y9kYXG83sc0MmRsfgxkSg9rJhHyUr+sVSmtRRpv8DofDQch/ZzjJclWUqLIMG9cdM6TtwersDD9KhbZUUHzlIBAigv+RijebzTzLtmnweL1wOp/R9710B/8hwW6g2lmEbKf7/S4tRLLFYiEZsv24ZgxzLH8DJjoi6ZnoBcUAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="MAX_POD3.png"
+        title="MAX_POD3.png"
+        src="/static/03f391b78a3bea60d0cb806d934c62c6/37523/MAX_POD3.png"
+        srcset="/static/03f391b78a3bea60d0cb806d934c62c6/e9ff0/MAX_POD3.png 180w,
+/static/03f391b78a3bea60d0cb806d934c62c6/f21e7/MAX_POD3.png 360w,
+/static/03f391b78a3bea60d0cb806d934c62c6/37523/MAX_POD3.png 720w,
+/static/03f391b78a3bea60d0cb806d934c62c6/84ee5/MAX_POD3.png 1076w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 18.88888888888889%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAECAYAAACOXx+WAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAtklEQVQY03WPyQ6DMAxEObMeIYkTskJAiFKJ//+1qWKpXKoeRrbH8rNdbS5B5jdcSLiuF+77xrqu8N7jOA5IKSGEgDEGzrmnJiL2xnHENE1QSnGv0kJB2AQyM1KMiDHCWovzPDnPOXNd8gLUWqPrOtR1jaZpnvhVZSRB+gxFBjmvWJaFtxVQuWDbNoYUf55nhvd9z8Nt2/6o0kTQLkARIYQAax2/tO87xwIsr6SUGFyuHIbhL/ADwidpX+/rMewAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="MAX_POD4.png"
+        title="MAX_POD4.png"
+        src="/static/4a5032fa8dd877fc2b42d644d1e3b541/37523/MAX_POD4.png"
+        srcset="/static/4a5032fa8dd877fc2b42d644d1e3b541/e9ff0/MAX_POD4.png 180w,
+/static/4a5032fa8dd877fc2b42d644d1e3b541/f21e7/MAX_POD4.png 360w,
+/static/4a5032fa8dd877fc2b42d644d1e3b541/37523/MAX_POD4.png 720w,
+/static/4a5032fa8dd877fc2b42d644d1e3b541/302a4/MAX_POD4.png 1080w,
+/static/4a5032fa8dd877fc2b42d644d1e3b541/84f4d/MAX_POD4.png 1208w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>POD의 최대개수 증설이 성공적으로 되었습니다.</p>
+<h2 id="6-k8s-service" style="position:relative;"><a href="#6-k8s-service" aria-label="6 k8s service permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>6. K8S Service</h2>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 38.33333333333333%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAICAYAAAD5nd/tAAAACXBIWXMAAAsTAAALEwEAmpwYAAABiElEQVQoz3WSW2vbQBCF/e/7nOf+iPYhcTCkUGjpDdyapApOsRNXlmxptbL2Iu2uY0tfkcBtCcmBgZnzcObMZXRwDXtjcFrjlMJZS6UUqtqhlMIYg9Yaay1aK2pr6bqO59Dzo+/TKUkc9yXt8Uh0PePr50+ExwNt2w5CURShtcEYS9M4Qgg45/E+4LwneP+3yWg8HvNjNqMv90co372mvDyjDTW0x0FAyB2FLMhEQZwkKG0RhWSz3ZILSS7Kf4K3UUScbDBNi1QBcXGGePMKvVrjc4lOVySrLb9u1yzuYh6WGdo68rxk/nNB/HvDJiuGCXvN0X8bYJHWzKKUUlZ4BSaDfKmYX82Zv5fcXEoevhi89aTLFfHdkq2oyHIJJ4e91VPcJ4bo5h6bp3QcB67dw8E84oucOttisxSVxNR5hm9qfAjDTrungj36o4jpFesPb6lUw/7Qke0aPk4ThCwpyhLnAy9huPIp6dG/x2Qy4eL8nFLKgROV49t1hlYaVVV454bxumeid/gHJbNeyoumGZkAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="LoadBalancer.png"
+        title="LoadBalancer.png"
+        src="/static/30d7c36ab2456d720e2492440df57f88/37523/LoadBalancer.png"
+        srcset="/static/30d7c36ab2456d720e2492440df57f88/e9ff0/LoadBalancer.png 180w,
+/static/30d7c36ab2456d720e2492440df57f88/f21e7/LoadBalancer.png 360w,
+/static/30d7c36ab2456d720e2492440df57f88/37523/LoadBalancer.png 720w,
+/static/30d7c36ab2456d720e2492440df57f88/1ff84/LoadBalancer.png 1040w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>이번 실습에서 저희가 진행 할 방법은 AWS LoadBalancer + NLB IP 모드 동작 방식으로 진행하도록 하겠습니다.
+POD의 IP가 LB의 백엔드풀에 바로 등록이 되는 방식 입니다
+(Node의 IP가 아닌 POD의 IP가 직접 등록되니 IP Table Rule또한 타지 않습니다.)</p>
+<p>실습을 위해서 먼저 LB 생성을 진행하도록 하겠습니다.</p>
+<p>그러기 위해서는 생성된 컨트롤플레인, 워커노드에 LB생성을 위한 권한을 부여해주도록 하겠습니다.
+<code class="language-text">curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.5/docs/install/iam_policy.json</code></p>
+<p><code class="language-text">aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.json</code></p>
+<p><code class="language-text">ACCOUNT_ID=`aws sts get-caller-identity --query 'Account' --output text`</code></p>
+<p><code class="language-text">aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy --role-name masters.$KOPS_CLUSTER_NAME</code></p>
+<p><code class="language-text">aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy --role-name nodes.$KOPS_CLUSTER_NAME</code></p>
+<p>위의 명렁어를 모두 입력해 주었다면 AWS Management Console -> IAM 역할로 이동하셔서 각 masters.도메인, nodes.도메인 으로 이동하셔서 아래와 같이
+권한이 잘 부여가 되었는지 확인을 해줍니다.
+권한이 부여되어있지 않다면 LB 생성이 불가능 합니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 44.99999999999999%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAAsTAAALEwEAmpwYAAABHklEQVQoz41SXXOEIBDj///F62N75weggAIimk52ivWe2p1ZI7KbbED1fL7weHzAWIvzPDFNE4wxgsuy4L9Ra0UIAWrbNqSUUeshhDklQQaRue+7NLQ8jkMwpYQYo7yXUmQAxQcbGkFYAtZ1Rc4ZFGNQhHVsJgn3iPM8v31nvfLhl/A4T/i0YK/1zQ73W81foWIulzXJsqFsm6jRRlNm3uvucV+L5fxjjRGChzYGa0yX7Tbh/Rx5LJO1chGss9aKdTU7hzXGS8l7j77vr5tuyfNiM/eJXI/jCK211A7DIKhkilIuQqq8Xh0+nwMGPaEbLebZwTsnZCTqug7OOSFugk1IcbpyEQIpRYza4KszGPUkZM55aWjJqUh8/9b+lm8u3rx1d0qG0QAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="IAM_CHECK.png"
+        title="IAM_CHECK.png"
+        src="/static/626693ed98bc89abc070896108b5b20a/37523/IAM_CHECK.png"
+        srcset="/static/626693ed98bc89abc070896108b5b20a/e9ff0/IAM_CHECK.png 180w,
+/static/626693ed98bc89abc070896108b5b20a/f21e7/IAM_CHECK.png 360w,
+/static/626693ed98bc89abc070896108b5b20a/37523/IAM_CHECK.png 720w,
+/static/626693ed98bc89abc070896108b5b20a/302a4/IAM_CHECK.png 1080w,
+/static/626693ed98bc89abc070896108b5b20a/07a9c/IAM_CHECK.png 1440w,
+/static/626693ed98bc89abc070896108b5b20a/d61c2/IAM_CHECK.png 1800w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>다음으로 kops cluster를 업데이트 해주도록 하겠습니다.</p>
+<p><code class="language-text">kops edit cluster --name ${KOPS_CLUSTER_NAME}</code></p>
+<p>다음 아래 그림에 표시된 내용을 입력해주도록 합니다.</p>
+<p>Cert-manager는 K8S Cluster 내 에서 TLS 인증서를 자동으로 프로비저닝 및 관리하는 오픈 소스 입니다.
+<span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 62.22222222222222%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAIAAADtbgqsAAAACXBIWXMAABJ0AAASdAHeZh94AAABNUlEQVQoz42SyW7DMAxEdYwkypYtVYvlVYbjLfXW5tBr//+jigTNIUnR+IEgBgSGnAMR5kcc9Tg+Yd7gqMPRcOANiUfgFeUVufSC8vKqPYkaCB2EhnIHgUDSeKGyWCbizcXSCZVJndFAUQAAeqsH/Qta5mk6jXVdWWu0lIkUmXqLgXJgATC4g8H9BJXer9vWtG3pfcy5ICAJaGAaGH849ASafT17P+Z5KYQBSAAkY/g54t9mpT+XZRvHtqpSrQspfRhioAxeg2Zjv4ZxKcvv7eM9z1shiyDEALvMxtq+77M0ZYzhw4FSSmEvyFq7LEvXdXVdc87ZjV3mJEnWde26Lr/inEvT1DlnjHm5Agkh5nmepinLMiklIeTyEHRXfEQpPR6P5/N5GIaiKLz3+opSKoqi/1f8AKvQM5ZMTpFwAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="Edit_Kops.png"
+        title="Edit_Kops.png"
+        src="/static/ae30b4022f40e4ff07c7441623e21121/37523/Edit_Kops.png"
+        srcset="/static/ae30b4022f40e4ff07c7441623e21121/e9ff0/Edit_Kops.png 180w,
+/static/ae30b4022f40e4ff07c7441623e21121/f21e7/Edit_Kops.png 360w,
+/static/ae30b4022f40e4ff07c7441623e21121/37523/Edit_Kops.png 720w,
+/static/ae30b4022f40e4ff07c7441623e21121/302a4/Edit_Kops.png 1080w,
+/static/ae30b4022f40e4ff07c7441623e21121/78415/Edit_Kops.png 1207w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>다음 Rolling update를 통하여 업데이트를 적용해주도록 하겠습니다.
+<code class="language-text">kops update cluster --yes &amp;&amp; echo &amp;&amp; sleep 5 &amp;&amp; kops rolling-update cluster</code></p>
+<p>성공적으로 업데이트 되었습니다!!</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 56.111111111111114%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAALCAYAAAB/Ca1DAAAACXBIWXMAAAsTAAALEwEAmpwYAAABaElEQVQoz12S2bKCQAxEfVVQBDcUVBAUVxa1yv//stw6sTIl96FrBk063ekZHI9HSdPUYblcynw+lyiKFNPpVDzPk9Fo5P6L41hms5me4/FYf/N9X+sG1+tVTqeTknEyYL/fK7Isk6Io3KDNZiPr9Vput5sjhYieIAi+hI/HQ+73uzY3TSNd18lqtdICMBwOtQlAAtq2deogKctSJpPJl5Bpl8tFttutEtd1reBeVZXkea6qfgkRYUNZBS5ZD/cBjZBikckGSLGKTdujEeKEE1UM6ik0QixzAlMJUE4hsB3+JzwcDv1QzuezKmS59o0dlh6GodsVZBAhAstGiBircaGwKxQxHVLSZQB2aCYcI7RQTBW1jtAUMQViAsI2gwiFYp4Min9D4WQQYfQUoogCGp/PpxK+32/5fD7yer1UFU0Qcgc8LU4eNIH1FCZJIgAVpGrfrGC328lisVC7FEPMTgmKu4WFUgvlD9VDIlwEt2aQAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="kops_check.png"
+        title="kops_check.png"
+        src="/static/cf49637587da42417c0eaa7870908515/37523/kops_check.png"
+        srcset="/static/cf49637587da42417c0eaa7870908515/e9ff0/kops_check.png 180w,
+/static/cf49637587da42417c0eaa7870908515/f21e7/kops_check.png 360w,
+/static/cf49637587da42417c0eaa7870908515/37523/kops_check.png 720w,
+/static/cf49637587da42417c0eaa7870908515/302a4/kops_check.png 1080w,
+/static/cf49637587da42417c0eaa7870908515/d318f/kops_check.png 1421w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>아래 명령어를 입력하여 Deployment &#x26; Service 를 생성해주도록 하겠습니다.</p>
+<p><code class="language-text">kubectl apply -f ~/pkos/2/echo-service-nlb.yaml</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 43.333333333333336%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAAsTAAALEwEAmpwYAAABMUlEQVQoz4WS3W6DMAyFc9lfWgpNCC2BAqUqiPd/PE+fJ0+TtmkXR06s+JxjO86XUfK6ldQ00nWdtG0rj8dDz33fK4ZhkKIoJM9z2e/3cjgc/oQLVZDKXyWEoEWXy0Xqupbr9TNHjDEqmqaR7Xb7VfwbuRuGUVLXy/v9lnVd1RGEVVXJ6/VSx5CCaZr+demCj1LERh2klGQcR233drvJsixKiMA8zyoGMYS73e4HyDsKmV9ZlpqAAGcUPp9PFTqfzxqPx6MClwZGBDhnWSaOueCARSh5SkpIzgAhgszUe6/R5stoAHfeufv9LkaKAhuFEGIemgsib0+nk2w2G22RCFiU5RxFqKNMIQVEW8R3QpszeVq37fM7iLxzDJpWSUCOU7vTBnc6IIew3e2bsVkTZMsf7jfhhi5IF18AAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="Service_Check.png"
+        title="Service_Check.png"
+        src="/static/67a7c218e9b1e2e50ba78a8db95ca152/37523/Service_Check.png"
+        srcset="/static/67a7c218e9b1e2e50ba78a8db95ca152/e9ff0/Service_Check.png 180w,
+/static/67a7c218e9b1e2e50ba78a8db95ca152/f21e7/Service_Check.png 360w,
+/static/67a7c218e9b1e2e50ba78a8db95ca152/37523/Service_Check.png 720w,
+/static/67a7c218e9b1e2e50ba78a8db95ca152/302a4/Service_Check.png 1080w,
+/static/67a7c218e9b1e2e50ba78a8db95ca152/07a9c/Service_Check.png 1440w,
+/static/67a7c218e9b1e2e50ba78a8db95ca152/16068/Service_Check.png 1451w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>AWS Management Console에서 LoadBalancer을 들어가보면 POD의 IP가 LB의 백엔드풀에 등록되어 있는것을 확인하실 수 있습니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 45.55555555555556%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAAsTAAALEwEAmpwYAAABS0lEQVQoz41R2U4DMQzc76eoQNWKFtSqQJH4M849mmzuZAeN2a1QHxCRLMexPR5Pqs3+BZvtAYvVBpfXK8yulriY32A2X2Cx3mJ1/4jl3cMftsft9gnr3TPWuwMqjCfnDKU1dN9Da43ueESIAf8/A0rJqKy1SCnhq67RNA2sNeAbTQZoLd4YvjsY62Cdg/d+rHNw3o+xQ2WMRcpZGLE4poxUBpkZQkAp5cSBORczUv7Js49kpsPaiivGGHFUCtZ5hJSRy4CYAoZhbPQeJeeTNNOQ83uIkQwNcilouw7tUUEpJWybthU/aUrfG3PSmXfJnd0rBkQnwOvbOz4+vyRBKZgz1Mk58TTnnGg3xRNg23ZCShhy5d9TYkqiH/VhjpZHvQg2xayZ+mkcXHFFAvCXCMaV2Nj3Rn6PAJweQoQPAbWqpZZ6MWYNgeMYfwMsaqepPBxM9gAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="LoadBalancer_2.png"
+        title="LoadBalancer_2.png"
+        src="/static/de5d9b190aab6fb275d2e145c71eb719/37523/LoadBalancer_2.png"
+        srcset="/static/de5d9b190aab6fb275d2e145c71eb719/e9ff0/LoadBalancer_2.png 180w,
+/static/de5d9b190aab6fb275d2e145c71eb719/f21e7/LoadBalancer_2.png 360w,
+/static/de5d9b190aab6fb275d2e145c71eb719/37523/LoadBalancer_2.png 720w,
+/static/de5d9b190aab6fb275d2e145c71eb719/302a4/LoadBalancer_2.png 1080w,
+/static/de5d9b190aab6fb275d2e145c71eb719/07a9c/LoadBalancer_2.png 1440w,
+/static/de5d9b190aab6fb275d2e145c71eb719/09262/LoadBalancer_2.png 1896w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<h2 id="7-external-dns" style="position:relative;"><a href="#7-external-dns" aria-label="7 external dns permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>7. External DNS</h2>
+<p>dns 관련 파드 갯수를 줄여보도록 하겠습니다.
+<code class="language-text">kubectl delete deploy -n kube-system coredns-autoscaler</code>
+<code class="language-text">kubectl scale deploy -n kube-system coredns --replicas 1</code></p>
+<p>아래 명령어를 입력하여 컨트롤플레인, 워커노드에 ExternalDNSUpdate 관련 정책을 업에이트 해주도록 하겠습니다.</p>
+<p><code class="language-text">curl -s -O https://s3.ap-northeast-2.amazonaws.com/cloudformation.cloudneta.net/AKOS/externaldns/externaldns-aws-r53-policy.json</code>
+<code class="language-text">aws iam create-policy --policy-name AllowExternalDNSUpdates --policy-document file://externaldns-aws-r53-policy.json</code>
+<code class="language-text">aws iam list-policies --query 'Policies[?PolicyName==`AllowExternalDNSUpdates`].Arn' --output text</code>
+<code class="language-text"> export POLICY_ARN=$(aws iam list-policies --query 'Policies[?PolicyName==`AllowExternalDNSUpdates`].Arn' --output text)</code>
+<code class="language-text">aws iam attach-role-policy --policy-arn $POLICY_ARN --role-name masters.$KOPS_CLUSTER_NAME</code>
+<code class="language-text">aws iam attach-role-policy --policy-arn $POLICY_ARN --role-name nodes.$KOPS_CLUSTER_NAME</code></p>
+<p>위에서 LB에 대한 권한을 확인했듯이 똑같이 IAM 에서 AllowExternalDNSIPdates를 확인해주도록 합니다.
+<span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 31.666666666666664%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAGCAYAAADDl76dAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAwUlEQVQY012Q266FIAxE+f/vNFELggp4Izon02w5xIeVlrZML2bfMraccZWCUgqu61JL7vuuPM+jvH6ba2vMuq5wziHGhJQS9n3HeZ5KaZocx1FhLucMP03w3uu/6eebZVnQ9z1ERjhnYa2FiGgTFr0wTsZxrD4ZhgHS5Ay7TWGG+Ag3J+Ttf8I61e/NSbkRoc9YuxFRwTCvKhiWhJQ3LSIU+1qKcas31sImJoSArusgYrU4xlin+MIc78X70X6h6B/Vks8j8Qs5hAAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="External_IAM.png"
+        title="External_IAM.png"
+        src="/static/f5522e7f7244697f68bf030165a33f8c/37523/External_IAM.png"
+        srcset="/static/f5522e7f7244697f68bf030165a33f8c/e9ff0/External_IAM.png 180w,
+/static/f5522e7f7244697f68bf030165a33f8c/f21e7/External_IAM.png 360w,
+/static/f5522e7f7244697f68bf030165a33f8c/37523/External_IAM.png 720w,
+/static/f5522e7f7244697f68bf030165a33f8c/302a4/External_IAM.png 1080w,
+/static/f5522e7f7244697f68bf030165a33f8c/07a9c/External_IAM.png 1440w,
+/static/f5522e7f7244697f68bf030165a33f8c/91b67/External_IAM.png 1527w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>다음 kops edit cluster 명령어를 통해 아래 표시된 부분을 수정 후 업데이트 해주도록 하겠습니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 63.33333333333333%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAANCAIAAAAmMtkJAAAACXBIWXMAABJ0AAASdAHeZh94AAABWklEQVQoz43QyW7CMBAGYIsLyXicxSGOnYWSJjhgcINAolIPfY8KDsCFM7z/oUpoeyvwaWRZsv/xQhy+dnjrcOsEc5evukk4h8gCNxBqyhvghgYvEE6BaxpqiFoaTKifoa8IjydBNObxeCS6MRKTUTLBIEPmI7rYoYgMf9C+EJmHyIiZ6UbXeZ4KMYrjKJGxSiUi0Numf3WrpF2t6qou8kIqFSNLARXQFL2ceQLZ/QbEGDOdTquqklIyih5Qhuj35eED5L2qt6/VW5brKKpCbqWqw5BSik8gH81s+1otEtnmxUKln3OziAUAPBXWWhdFIYRwe47jwHPHdmFr7XK5LMtSKSWlTJIEn0batt1sNnVdp2k66rFfj8Pr9dpaa4xRSrmu+/dVjDHP8/y7SNM0ZVlmWXa7MADcHj8cDgeDAbnvcrlcr9fz+bzf74/H4+l0OvYOh8Nut/u66xvxKkb2iwQddQAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="kops_edit_2.png"
+        title="kops_edit_2.png"
+        src="/static/518428931357f86b32d3aae38868918d/37523/kops_edit_2.png"
+        srcset="/static/518428931357f86b32d3aae38868918d/e9ff0/kops_edit_2.png 180w,
+/static/518428931357f86b32d3aae38868918d/f21e7/kops_edit_2.png 360w,
+/static/518428931357f86b32d3aae38868918d/37523/kops_edit_2.png 720w,
+/static/518428931357f86b32d3aae38868918d/302a4/kops_edit_2.png 1080w,
+/static/518428931357f86b32d3aae38868918d/db3a5/kops_edit_2.png 1087w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>업데이트가 정상적으루 수행되었습니다!!</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 12.777777777777777%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAADCAYAAACTWi8uAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAmUlEQVQI12WOzQ6EIBCDvfoHWVCRhYCsIGji+z9eDXPYw+7hSydN02kjtMdLe7yNQUoRIQSs64qUEo7jQIwR931j2zaUUnBdF3lV53mGtRbeezjn6G6MC7D+g1wKzrNQ2BhDxTlnKKWw7zuEEFiWBYwxcM6htUbbtn80XCowqSClpGU1OE0TFdSv4zii6zoMw0Da9/2X6v3yAJ2RTKbQSPaxAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="kops_edit_3.png"
+        title="kops_edit_3.png"
+        src="/static/b587e17428b8672ec0918260fc099fb5/37523/kops_edit_3.png"
+        srcset="/static/b587e17428b8672ec0918260fc099fb5/e9ff0/kops_edit_3.png 180w,
+/static/b587e17428b8672ec0918260fc099fb5/f21e7/kops_edit_3.png 360w,
+/static/b587e17428b8672ec0918260fc099fb5/37523/kops_edit_3.png 720w,
+/static/b587e17428b8672ec0918260fc099fb5/302a4/kops_edit_3.png 1080w,
+/static/b587e17428b8672ec0918260fc099fb5/4d383/kops_edit_3.png 1195w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>아래 명렁어를 통해 테스트용 서비스/파드를 배포해보도록 하겠습니다.</p>
+<p><code class="language-text">kubectl apply -f ~/pkos/2/echo-service-nlb.yaml</code></p>
+<p>다음 자신의 도메인 정보를 입력하겠습니다.
+<code class="language-text">MyDOMAIN1=nginx.korwoo.net</code>
+<code class="language-text">kubectl annotate service svc-nlb-ip-type "external-dns.alpha.kubernetes.io/hostname=$MyDOMAIN1."</code></p>
+<p>그럼 정상적으로 됬는지 확인해보도록 하겠습니다. 아래 명령어를 입력하면 IP주소가 출력될것입니다.(약 5분정도 시간이 필요합니다.)
+<code class="language-text">dig +short $MyDOMAIN1</code></p>
+<p>이후 Route53에 접속하시면 등록한 도메인이 A레코드로 등록된것을 확인하실 수 있습니다.
+<span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 49.44444444444444%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAKCAYAAAC0VX7mAAAACXBIWXMAAAsTAAALEwEAmpwYAAABiUlEQVQoz41RW24UMRCc+/8gkIKCSFixEbCAuATiDIgLAJmXx++xx/YWqk4ygvATSy17xtVVXeXu+P4z3p2+4NXVAS8vX+PZ8wu8uLjE9eGIw80HXB8/PqFOuHp7wpubT+jw1wopI6aMUgvO5zNaa3jqaq2gtYpOG4tSK4wx+PnrN/pxwqI11LJg0QbKeizGQVuPEIKUDwFaG1jnBTtrC/PjG/T3r+ic86LgvBdS7iFErOuKlDNCXPfiP+Ktc1hTQkoJOWfkvCEHB28WdFQTQucQY8S2bbtV2i6loJQNtVbUUjEMI6Zp3iOprQmmtTNKbehCjDuh9x5aaznT2rom8J5nErJxGAb0wwClFJRaxDr7OAhLCLdSxCqL6ta6HUCbJCQZv6dpwjzfkXGneN42sc4Y/ptQzQrjOEo+nOoxIe/6fhDrfd/LhMQSF9f13ww54TzN0sA8SSgPQ8J7y9M8wxgr4ux5EG73WXYP48oLO4eRlpSS7DgRdwoRx2ZmeHvb7zWOd3jJMgT8ARHE8mts6XBxAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="Route53.png"
+        title="Route53.png"
+        src="/static/3923e87e3c667f93a8111d8d0aa46f5c/37523/Route53.png"
+        srcset="/static/3923e87e3c667f93a8111d8d0aa46f5c/e9ff0/Route53.png 180w,
+/static/3923e87e3c667f93a8111d8d0aa46f5c/f21e7/Route53.png 360w,
+/static/3923e87e3c667f93a8111d8d0aa46f5c/37523/Route53.png 720w,
+/static/3923e87e3c667f93a8111d8d0aa46f5c/302a4/Route53.png 1080w,
+/static/3923e87e3c667f93a8111d8d0aa46f5c/07a9c/Route53.png 1440w,
+/static/3923e87e3c667f93a8111d8d0aa46f5c/e1250/Route53.png 1786w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>과제3. 서비스(NLB)/파드 배포 시 External DNS 설정해서 각자 자신의 도메인으로 NLB 통해 애플리케이션으로 접속해보기</p>
+<p>다음은 voteing-app 서비스를 배포해보도록 하겠습니다.</p>
+<p>아래의 명렁어를 입력해 git clone을 하겠습니다.</p>
+<p><code class="language-text">git clone https://github.com/dockersamples/example-voting-app</code></p>
+<p>다음 vote 라는 namespace를 만들겠습니다.
+<code class="language-text">kubectl create ns vote</code>
+<code class="language-text">kubectl ns vote</code></p>
+<p>다음 아래 명령어를 입력하여 서비스파일을 변경하도록 하겠습니다.</p>
+<p><code class="language-text">rm -rf vote-service.yaml result-service.yaml</code>
+<code class="language-text">cp ~/pkos/2/vote-service.yaml .</code>
+<code class="language-text">cp ~/pkos/2/result-service.yaml .</code>
+<code class="language-text">cat vote-service.yaml | yh</code>
+<code class="language-text">cat result-service.yaml | yh</code></p>
+<p>아래 명령어를 통해 서비스를 배포하겠습니다.</p>
+<p><code class="language-text">kubectl apply -f .</code></p>
+<p>다음 아래 명령어를 입력하여 자신의 도메인에 ExternalDNS를 추가하겠습니다.
+<code class="language-text"> MyDOMAIN1=vote.korwoo.net</code>
+<code class="language-text">MyDOMAIN2=result.korwoo.net</code></p>
+<p>이후 입력한 도메인으로 접속하여 확인해봅시다!</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 61.66666666666666%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAAsTAAALEwEAmpwYAAAA8ElEQVQoz52T3UrDQBBG84Z6UfARvPABBVFRkIIg+BLthWljfja7M7MtHMlqMKZpwFwcFnZnznwMbFY3joRr8UFOCCIQhWNwxLaGGDAV2onajkwt0iFqfwhiHMzY1sbNOrK681zcOlb3xsvW4GB4sZO+LIgyhRdNwk0jXL8XXL3tE5evOc8fLURLNeO+bDzhN6GialRBWFd7nsqcxzLnocrZ+Bb7qTlJeE4oYgTVdJoYsVuBRI4a06Ap2aywbxiuoGf4tlg45t/CpczsUGdTLk7YN+mZ+0UJnQ80ztO03yxLOBB233JXlOw+S4qqnhV+AXvdnlWwsjzgAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="vote.png"
+        title="vote.png"
+        src="/static/3c7cf000bbfd88062f370e9c115f6ea2/37523/vote.png"
+        srcset="/static/3c7cf000bbfd88062f370e9c115f6ea2/e9ff0/vote.png 180w,
+/static/3c7cf000bbfd88062f370e9c115f6ea2/f21e7/vote.png 360w,
+/static/3c7cf000bbfd88062f370e9c115f6ea2/37523/vote.png 720w,
+/static/3c7cf000bbfd88062f370e9c115f6ea2/302a4/vote.png 1080w,
+/static/3c7cf000bbfd88062f370e9c115f6ea2/07a9c/vote.png 1440w,
+/static/3c7cf000bbfd88062f370e9c115f6ea2/a8a6f/vote.png 1516w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span>
+<span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 54.44444444444444%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAALCAYAAAB/Ca1DAAAACXBIWXMAAAsTAAALEwEAmpwYAAABGUlEQVQoz6WRS0oDQRCG5wrGx0LjKwpuXfk4gPfwAJ7AA6iISQYmmegikKy8gBtxYUTITkXEpa4NkojVzSSTh5/0DDEhjOCYho+qprp+/uqyDisNDq7rHN18kK5q0lUVm5Mgao5vP7EmbUWfRFbGRGGtFoQBakwEa9lVRLGUF1JudONKIaxH9Vm/iZmYdISJTDhOPyYywrQtP+9GhSMFjbNZR9g51xQffQr3PmcPPu6dH9z3K00WcjEcmpGmssLeZRNz6l4viAqfDi2e37vMOeGX/FlwxhZ2Lzwa3hdPtS411eNF2ry12ly9duIJGhbzwtqpYqus2S5rNkqazVKYrxf/uRQjahZj3CSdQT6fi7mUYdFUBMP1UYffNQhm16EULE0AAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="result.png"
+        title="result.png"
+        src="/static/ffc10ddbcf4df4afc9fed957e3608cd2/37523/result.png"
+        srcset="/static/ffc10ddbcf4df4afc9fed957e3608cd2/e9ff0/result.png 180w,
+/static/ffc10ddbcf4df4afc9fed957e3608cd2/f21e7/result.png 360w,
+/static/ffc10ddbcf4df4afc9fed957e3608cd2/37523/result.png 720w,
+/static/ffc10ddbcf4df4afc9fed957e3608cd2/302a4/result.png 1080w,
+/static/ffc10ddbcf4df4afc9fed957e3608cd2/07a9c/result.png 1440w,
+/static/ffc10ddbcf4df4afc9fed957e3608cd2/5df5d/result.png 1572w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>과제4. NLB에 TLS 적용하기</p>
+<p>아래 명령어를 입력하여 CERT_ARN을 저장해주도록 합니다.</p>
+<p><code class="language-text">CERT_ARN=`aws acm list-certificates --query 'CertificateSummaryList[].CertificateArn[]' --output text`</code></p>
+<p>다음 아래 명령어를 입력해 Deployment를 생성해주도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="cat<<eof | kubectl create -f -"><pre class="language-cat<<eof | kubectl create -f -"><code class="language-cat<<eof | kubectl create -f -">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-echo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: deploy-websrv
+  template:
+    metadata:
+      labels:
+        app: deploy-websrv
+    spec:
+      terminationGracePeriodSeconds: 0
+      containers:
+      - name: akos-websrv
+        image: k8s.gcr.io/echoserver:1.5
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-nlb-ip-type
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: &quot;${MyDomain}&quot;
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-port: &quot;8080&quot;
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: &quot;true&quot;
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: &quot;https&quot;
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: ${CERT_ARN}
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: &quot;http&quot;
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+    - port: 443
+      targetPort: 8080
+      protocol: TCP
+      name: https
+  type: LoadBalancer
+  loadBalancerClass: service.k8s.aws/nlb
+  selector:
+    app: deploy-websrv
+EOF</code></pre></div>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 47.22222222222222%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAuklEQVQoz52R2wqDMBBE8/+/qK+KIEhUNLdNpkzaiC1qawMDubAns7NqXVeM44hpmmCdg7EWIQSIRIjILYUgUMMwZKBzDt57LMuClBL+XYrOmqbJIDqLKeGKl/L7uRTddV0HrXUWI6Bbylq77YtijBv40CEBVVWhbdsMK0C2X4rK74Tt706BdV2j7/tcwLYJo55Bh9eQ5K3t0wyZ3TzPMMZsxQVYznvgPq9D4J0J/jJ99W1qn46u3BH4AJg5xhoXo+poAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="TLS.png"
+        title="TLS.png"
+        src="/static/bf5ab6d75ec99a8420d9413af25c88a2/37523/TLS.png"
+        srcset="/static/bf5ab6d75ec99a8420d9413af25c88a2/e9ff0/TLS.png 180w,
+/static/bf5ab6d75ec99a8420d9413af25c88a2/f21e7/TLS.png 360w,
+/static/bf5ab6d75ec99a8420d9413af25c88a2/37523/TLS.png 720w,
+/static/bf5ab6d75ec99a8420d9413af25c88a2/302a4/TLS.png 1080w,
+/static/bf5ab6d75ec99a8420d9413af25c88a2/07a9c/TLS.png 1440w,
+/static/bf5ab6d75ec99a8420d9413af25c88a2/d76ab/TLS.png 1731w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
 <div class="table-of-contents">
 <ul>
 <li><a href="#1-kops-%EC%9B%90%ED%81%B4%EB%A6%AD-%EB%B0%B0%ED%8F%AC">1. KOPS 원클릭 배포</a></li>
 <li><a href="#2-aws-vpc-cni">2. AWS VPC CNI</a></li>
 <li><a href="#4-pod%EC%97%90%EC%84%9C-%EC%99%B8%EB%B6%80-%ED%86%B5%EC%8B%A0">4. Pod에서 외부 통신</a></li>
+<li><a href="#5-%EB%85%B8%EB%93%9C%EC%97%90%EC%84%9C-pod-%EC%83%9D%EC%84%B1%EA%B0%AF%EC%88%98-%EC%A0%9C%ED%95%9C">5. 노드에서 POD 생성갯수 제한</a></li>
+<li><a href="#6-k8s-service">6. K8S Service</a></li>
+<li><a href="#7-external-dns">7. External DNS</a></li>
 </ul>
 </div>
-<div class="gatsby-highlight" data-language="toc"><pre class="language-toc"><code class="language-toc"></code></pre></div></div></div><div class="post-navigator"><div class="post-navigator-card-wrapper"><a class="post-card prev" href="/Kubernetes/Gasida_Study_homework_3/"><div class="direction">이전 글</div><div class="title">Gasida Kubernetes Study 3주차</div></a></div><div class="post-navigator-card-wrapper"><a class="post-card next" href="/Kubernetes/Gasida_Study_homework_1/"><div class="direction">다음 글</div><div class="title">Gasida Kubernetes Study 1주차</div></a></div></div></main><footer class="page-footer-wrapper"><p class="page-footer">© <!-- -->2023<!-- --> <a href="https://www.github.com">장우석</a> powered by<a href="https://github.com/zoomKoding/zoomkoding-gatsby-blog"> zoomkoding-gatsby-blog</a></p></footer><div class="dark-mode-button-wrapper"><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium dark-mode-button css-1yxmbwk" tabindex="0" type="button"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeLarge dark-mode-icon css-6flbmm" focusable="false" viewBox="0 0 24 24" aria-hidden="true" data-testid="DarkModeIcon"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path></svg></button></div></div></div><div id="gatsby-announcer" style="position:absolute;top:0;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0" aria-live="assertive" aria-atomic="true"></div></div><script id="gatsby-script-loader">/*<![CDATA[*/window.pagePath="/Kubernetes/Gasida_Study_homework_2/";window.___webpackCompilationHash="be3df79066420fcf8434";/*]]>*/</script><script id="gatsby-chunk-mapping">/*<![CDATA[*/window.___chunkMapping={"polyfill":["/polyfill-9b356b5dc44213e24f34.js"],"app":["/app-0f9980b68d4a425d9725.js"],"component---cache-caches-gatsby-plugin-offline-app-shell-js":["/component---cache-caches-gatsby-plugin-offline-app-shell-js-0b8a70f65d0cff4a7a25.js"],"component---src-pages-404-js":["/component---src-pages-404-js-bc51420b294b9123f97d.js"],"component---src-pages-about-js":["/component---src-pages-about-js-39e57401fb032eafb2fb.js"],"component---src-pages-index-js":["/component---src-pages-index-js-0a6bbda26eb501968935.js"],"component---src-templates-blog-template-js":["/component---src-templates-blog-template-js-e3a4bb3c9603d1ed8af7.js"],"component---src-templates-category-template-js":["/component---src-templates-category-template-js-a0af7e239c6cf28d9bb9.js"]};/*]]>*/</script><script src="/polyfill-9b356b5dc44213e24f34.js" nomodule=""></script><script src="/component---src-templates-blog-template-js-e3a4bb3c9603d1ed8af7.js" async=""></script><script src="/f9d3028dbef90a6e9b8db85387d63dd9f4edf538-07f7733d8d97d93498cb.js" async=""></script><script src="/app-0f9980b68d4a425d9725.js" async=""></script><script src="/framework-043f1197be387cb18d15.js" async=""></script><script src="/webpack-runtime-121beace0d37eb670f34.js" async=""></script></body></html>
+<div class="gatsby-highlight" data-language="toc"><pre class="language-toc"><code class="language-toc"></code></pre></div></div></div><div class="post-navigator"><div class="post-navigator-card-wrapper"><a class="post-card prev" href="/Kubernetes/Gasida_Study_homework_1/"><div class="direction">이전 글</div><div class="title">Gasida Kubernetes Study 1주차</div></a></div><div class="post-navigator-card-wrapper"><a class="post-card next" href="/JAVA/Spring2/"><div class="direction">다음 글</div><div class="title">JAVA Spring Study 2</div></a></div></div></main><footer class="page-footer-wrapper"><p class="page-footer">© <!-- -->2023<!-- --> <a href="https://www.github.com">장우석</a> powered by<a href="https://github.com/zoomKoding/zoomkoding-gatsby-blog"> zoomkoding-gatsby-blog</a></p></footer><div class="dark-mode-button-wrapper"><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium dark-mode-button css-1yxmbwk" tabindex="0" type="button"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeLarge dark-mode-icon css-6flbmm" focusable="false" viewBox="0 0 24 24" aria-hidden="true" data-testid="DarkModeIcon"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path></svg></button></div></div></div><div id="gatsby-announcer" style="position:absolute;top:0;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0" aria-live="assertive" aria-atomic="true"></div></div><script id="gatsby-script-loader">/*<![CDATA[*/window.pagePath="/Kubernetes/Gasida_Study_homework_2/";window.___webpackCompilationHash="be3df79066420fcf8434";/*]]>*/</script><script id="gatsby-chunk-mapping">/*<![CDATA[*/window.___chunkMapping={"polyfill":["/polyfill-9b356b5dc44213e24f34.js"],"app":["/app-0f9980b68d4a425d9725.js"],"component---cache-caches-gatsby-plugin-offline-app-shell-js":["/component---cache-caches-gatsby-plugin-offline-app-shell-js-0b8a70f65d0cff4a7a25.js"],"component---src-pages-404-js":["/component---src-pages-404-js-bc51420b294b9123f97d.js"],"component---src-pages-about-js":["/component---src-pages-about-js-39e57401fb032eafb2fb.js"],"component---src-pages-index-js":["/component---src-pages-index-js-0a6bbda26eb501968935.js"],"component---src-templates-blog-template-js":["/component---src-templates-blog-template-js-e3a4bb3c9603d1ed8af7.js"],"component---src-templates-category-template-js":["/component---src-templates-category-template-js-a0af7e239c6cf28d9bb9.js"]};/*]]>*/</script><script src="/polyfill-9b356b5dc44213e24f34.js" nomodule=""></script><script src="/component---src-templates-blog-template-js-e3a4bb3c9603d1ed8af7.js" async=""></script><script src="/f9d3028dbef90a6e9b8db85387d63dd9f4edf538-07f7733d8d97d93498cb.js" async=""></script><script src="/app-0f9980b68d4a425d9725.js" async=""></script><script src="/framework-043f1197be387cb18d15.js" async=""></script><script src="/webpack-runtime-121beace0d37eb670f34.js" async=""></script></body></html>

@@ -1,12 +1,30 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="ie=edge"/><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/><meta data-react-helmet="true" property="og:type" content="website"/><meta data-react-helmet="true" property="og:image" content="/og-image.png"/><meta data-react-helmet="true" property="og:author" content="장우석"/><meta data-react-helmet="true" property="og:description" content="가시다님 스터디 : https://www.notion.so/gasidaseo/23-7635cc4f02c04954a3260b317588113e 원래대로 라면 2주차인 K8S 네트워크 부분을 업로드해야되나 애기 엔지니어인 저에게 있어
-이해가 힘든 부분이 많아서 제가 좀 더 완벽히 이해하고 확실히 정리해서 업로드 하고자 합니다..ㅜㅜ
-그래서 3주차 스터디인 Ingress &amp; Storage 부분을 먼저 업로드 하겠습니다. 1. KOPS 원클릭 배포 지난번 1주차에서 스터디장님인 가시다님이 제공해주신 CloudFormation을 통해 EC2등을 배포하고
-거기서 aws configure 등의 작업을 진행해 주었습니다.
-하지만 가시다님의 노력으로 인하여 저희는 몇줄의 명령어 만으로 쉽게 배포할 수 있게 되었습니다. kops 원클릭 배포 원클릭 배포를 위해서는 먼저 SSH 키페어, IAM 계정 키, S3 버킷이 필요합니다. 위에서 말씀드린 것들은 1주차에서 생성하였으므로 이번 포스팅에서는…"/><meta data-react-helmet="true" name="description" content="가시다님 스터디 : https://www.notion.so/gasidaseo/23-7635cc4f02c04954a3260b317588113e 원래대로 라면 2주차인 K8S 네트워크 부분을 업로드해야되나 애기 엔지니어인 저에게 있어
-이해가 힘든 부분이 많아서 제가 좀 더 완벽히 이해하고 확실히 정리해서 업로드 하고자 합니다..ㅜㅜ
-그래서 3주차 스터디인 Ingress &amp; Storage 부분을 먼저 업로드 하겠습니다. 1. KOPS 원클릭 배포 지난번 1주차에서 스터디장님인 가시다님이 제공해주신 CloudFormation을 통해 EC2등을 배포하고
-거기서 aws configure 등의 작업을 진행해 주었습니다.
-하지만 가시다님의 노력으로 인하여 저희는 몇줄의 명령어 만으로 쉽게 배포할 수 있게 되었습니다. kops 원클릭 배포 원클릭 배포를 위해서는 먼저 SSH 키페어, IAM 계정 키, S3 버킷이 필요합니다. 위에서 말씀드린 것들은 1주차에서 생성하였으므로 이번 포스팅에서는…"/><meta data-react-helmet="true" property="og:site_title" content="Gasida Kubernetes Study 3주차"/><meta data-react-helmet="true" property="og:title" content="Gasida Kubernetes Study 3주차"/><meta data-react-helmet="true" name="viewport" content="initial-scale=1, width=device-width"/><meta name="generator" content="Gatsby 4.9.3"/><style data-href="/styles.853e65090dc89bfbb4ac.css" data-identity="gatsby-global-css">@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:100;src:local("Montserrat Thin "),local("Montserrat-Thin"),url(/static/montserrat-latin-100-8d7d79679b70dbe27172b6460e7a7910.woff2) format("woff2"),url(/static/montserrat-latin-100-ec38980a9e0119a379e2a9b3dbb1901a.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:100;src:local("Montserrat Thin italic"),local("Montserrat-Thinitalic"),url(/static/montserrat-latin-100italic-e279051046ba1286706adc886cf1c96b.woff2) format("woff2"),url(/static/montserrat-latin-100italic-3b325a3173c8207435cd1b76e19bf501.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:200;src:local("Montserrat Extra Light "),local("Montserrat-Extra Light"),url(/static/montserrat-latin-200-9d266fbbfa6cab7009bd56003b1eeb67.woff2) format("woff2"),url(/static/montserrat-latin-200-2d8ba08717110d27122e54c34b8a5798.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:200;src:local("Montserrat Extra Light italic"),local("Montserrat-Extra Lightitalic"),url(/static/montserrat-latin-200italic-6e5b3756583bb2263eb062eae992735e.woff2) format("woff2"),url(/static/montserrat-latin-200italic-a0d6f343e4b536c582926255367a57da.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:300;src:local("Montserrat Light "),local("Montserrat-Light"),url(/static/montserrat-latin-300-00b3e893aab5a8fd632d6342eb72551a.woff2) format("woff2"),url(/static/montserrat-latin-300-ea303695ceab35f17e7d062f30e0173b.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:300;src:local("Montserrat Light italic"),local("Montserrat-Lightitalic"),url(/static/montserrat-latin-300italic-56f34ea368f6aedf89583d444bbcb227.woff2) format("woff2"),url(/static/montserrat-latin-300italic-54b0bf2c8c4c12ffafd803be2466a790.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:400;src:local("Montserrat Regular "),local("Montserrat-Regular"),url(/static/montserrat-latin-400-b71748ae4f80ec8c014def4c5fa8688b.woff2) format("woff2"),url(/static/montserrat-latin-400-0659a9f4e90db5cf51b50d005bff1e41.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:400;src:local("Montserrat Regular italic"),local("Montserrat-Regularitalic"),url(/static/montserrat-latin-400italic-6eed6b4cbb809c6efc7aa7ddad6dbe3e.woff2) format("woff2"),url(/static/montserrat-latin-400italic-7583622cfde30ae49086d18447ab28e7.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:500;src:local("Montserrat Medium "),local("Montserrat-Medium"),url(/static/montserrat-latin-500-091b209546e16313fd4f4fc36090c757.woff2) format("woff2"),url(/static/montserrat-latin-500-edd311588712a96bbf435fad264fff62.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:500;src:local("Montserrat Medium italic"),local("Montserrat-Mediumitalic"),url(/static/montserrat-latin-500italic-c90ced68b46050061d1a41842d6dfb43.woff2) format("woff2"),url(/static/montserrat-latin-500italic-5146cbfe02b1deea5dffea27a5f2f998.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:600;src:local("Montserrat SemiBold "),local("Montserrat-SemiBold"),url(/static/montserrat-latin-600-0480d2f8a71f38db8633b84d8722e0c2.woff2) format("woff2"),url(/static/montserrat-latin-600-b77863a375260a05dd13f86a1cee598f.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:600;src:local("Montserrat SemiBold italic"),local("Montserrat-SemiBolditalic"),url(/static/montserrat-latin-600italic-cf46ffb11f3a60d7df0567f8851a1d00.woff2) format("woff2"),url(/static/montserrat-latin-600italic-c4fcfeeb057724724097167e57bd7801.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:700;src:local("Montserrat Bold "),local("Montserrat-Bold"),url(/static/montserrat-latin-700-7dbcc8a5ea2289d83f657c25b4be6193.woff2) format("woff2"),url(/static/montserrat-latin-700-99271a835e1cae8c76ef8bba99a8cc4e.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:700;src:local("Montserrat Bold italic"),local("Montserrat-Bolditalic"),url(/static/montserrat-latin-700italic-c41ad6bdb4bd504a843d546d0a47958d.woff2) format("woff2"),url(/static/montserrat-latin-700italic-6779372f04095051c62ed36bc1dcc142.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:800;src:local("Montserrat ExtraBold "),local("Montserrat-ExtraBold"),url(/static/montserrat-latin-800-db9a3e0ba7eaea32e5f55328ace6cf23.woff2) format("woff2"),url(/static/montserrat-latin-800-4e3c615967a2360f5db87d2f0fd2456f.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:800;src:local("Montserrat ExtraBold italic"),local("Montserrat-ExtraBolditalic"),url(/static/montserrat-latin-800italic-bf45bfa14805969eda318973947bc42b.woff2) format("woff2"),url(/static/montserrat-latin-800italic-fe82abb0bcede51bf724254878e0c374.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:900;src:local("Montserrat Black "),local("Montserrat-Black"),url(/static/montserrat-latin-900-e66c7edc609e24bacbb705175669d814.woff2) format("woff2"),url(/static/montserrat-latin-900-8211f418baeb8ec880b80ba3c682f957.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:900;src:local("Montserrat Black italic"),local("Montserrat-Blackitalic"),url(/static/montserrat-latin-900italic-4454c775e48152c1a72510ceed3603e2.woff2) format("woff2"),url(/static/montserrat-latin-900italic-efcaa0f6a82ee0640b83a0916e6e8d68.woff) format("woff")}.search-input-wrapper{align-items:center;display:none;margin-top:3px;width:180px}@media(min-width:768px){.search-input-wrapper{display:flex}}.search-icon{color:var(--primary-text-color);margin-right:2px}.search-input{height:100%;width:100%}.search-input .MuiAutocomplete-inputRoot{padding-right:0!important}.search-input .MuiInputBase-input{color:var(--primary-text-color)!important;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;font-size:16px;font-weight:500;padding-bottom:2px!important}.search-input .MuiInput-underline:before{border-bottom-width:1px}.search-input .MuiInput-underline:after,.search-input .MuiInput-underline:before{border-bottom-color:var(--primary-text-color)}.page-header-wrapper{display:flex;height:60px;justify-content:center;width:100%}.page-header-wrapper .page-header{align-items:center;display:flex;justify-content:space-between;max-width:720px;width:100%}.page-header-wrapper .page-header .link{color:var(--primary-text-color);font-size:17px;font-weight:700}@media(min-width:768px){.page-header-wrapper .page-header .link{font-size:20px;font-weight:700}}.page-header-wrapper .page-header .trailing-section{align-items:center;display:flex}.page-header-wrapper .page-header .trailing-section .link{margin-right:10px}@media(min-width:768px){.page-header-wrapper .page-header .trailing-section .link{margin-right:20px}}.page-footer-wrapper{align-items:center;display:flex;height:62px;justify-content:center;margin-top:auto;width:100%}.page-footer-wrapper .page-footer{max-width:720px;text-align:center;width:100%}.page-footer-wrapper .page-footer .link{color:var(--primary-text-color);font-size:20px;font-weight:700;margin-right:20px}.page-footer-wrapper .page-footer a{color:#3a95ff}.dark-mode-button-wrapper{align-items:center;bottom:20px;display:flex;justify-content:center;position:fixed;right:20px}.dark-mode-button{-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);background-color:#363f47!important;border-radius:50px;box-shadow:0 5px 25px rgba(0,0,0,.12);cursor:pointer;height:50px;width:50px;z-index:3}.dark-mode-icon{color:#fff}a,abbr,acronym,address,applet,article,aside,audio,b,big,blockquote,body,canvas,caption,center,cite,code,dd,del,details,dfn,div,dl,dt,em,embed,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,html,i,iframe,img,ins,kbd,label,legend,li,mark,menu,nav,object,ol,output,p,pre,q,ruby,s,samp,section,small,span,strike,strong,sub,summary,sup,table,tbody,td,tfoot,th,thead,time,tr,tt,u,ul,var,video{border:0;font-size:100%;font:inherit;margin:0;padding:0;vertical-align:baseline}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:after,blockquote:before,q:after,q:before{content:"";content:none}table{border-collapse:collapse;border-spacing:0}a{outline:none;text-decoration:none}html{--background-color:#fff;--primary-text-color:#000;--secondary-text-color:#9e9e9e;--content-text-color:#37352f;--button-background-color:#f3f3f4;--button-text-color:#363f47;--tab-text-color:#6e6d7a;--tab-hover-text-color:#0d0c22;--tab-selected-background-color:rgba(13,12,34,.05);--bio-link-icon-color:rgba(0,0,0,.54);--about-link-icon-color:#a8a8a8;--chip-background-color:#f3f3f4;--link-text-color:rgba(55,53,47,.7);--post-card-border-color:rgba(0,0,0,.12);--markdown-table-even-cell-background-color:#f6f8fa;--markdown-table-border-color:#dfe2e5;--markdown-blockquote-border-color:#dfe2e5;--markdown-border-color:#e1e4e8}html[data-theme=dark]{--background-color:#232326;--primary-text-color:#e6e6e6;--secondary-text-color:#768390;--content-text-color:#e6e6e6;--button-background-color:#444c56;--button-text-color:#363f47;--tab-text-color:#768390;--tab-hover-text-color:#acbac7;--tab-selected-background-color:#373e47;--chip-background-color:#323a42;--bio-link-icon-color:#e6e6e6;--about-link-icon-color:#a8a8a8;--link-text-color:#90b0ec;--post-card-border-color:#363f47;--markdown-table-even-cell-background-color:#2d333b;--markdown-table-border-color:#444c56;--markdown-blockquote-border-color:#4f5864;--markdown-border-color:#e1e4e8}*{-webkit-appearance:none;appearance:none;box-sizing:border-box}html{font-size:14px;height:100%;overflow-y:scroll;width:100%}body{background-color:var(--background-color)!important}a{color:var(--link-text-color)}.page-wrapper{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;color:var(--primary-text-color);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;justify-content:center;min-height:100vh;padding-left:15px;padding-right:15px;word-break:keep-all}.page-wrapper,.page-wrapper .page-content{align-items:center;display:flex;flex-direction:column;width:100%}.page-wrapper .page-content{max-width:720px}.icon{color:var(--about-link-icon-color);font-size:20px}.social-links .icon{color:var(--bio-link-icon-color);font-size:30px}@-webkit-keyframes blinking-cursor{0%{opacity:0}50%{opacity:1}to{opacity:0}}@keyframes blinking-cursor{0%{opacity:0}50%{opacity:1}to{opacity:0}}.bio{color:var(--primary-text-color);display:flex;flex-direction:column;justify-content:space-between;margin-bottom:120px;margin-top:120px;width:100%}@media(min-width:768px){.bio{align-items:center;flex-direction:row}}.bio .introduction{display:flex;flex-direction:column;word-break:keep-all}.bio .introduction .react-rotating-text-cursor{-webkit-animation:blinking-cursor .8s cubic-bezier(.68,.01,.01,.99) 0s infinite;animation:blinking-cursor .8s cubic-bezier(.68,.01,.01,.99) 0s infinite}.bio .introduction strong{display:inline-block;font-weight:600}.bio .introduction.korean{font-size:32px;font-weight:100;line-height:1.2}.bio .introduction.korean .title .react-rotating-text-cursor{font-size:35px;line-height:35px}@media(min-width:768px){.bio .introduction.korean{font-size:40px}.bio .introduction.korean .title .react-rotating-text-cursor{font-size:45px;line-height:45px}}.bio .introduction.english{font-family:montserrat;font-size:25px;line-height:1.2}@media(min-width:768px){.bio .introduction.english{font-size:45px}}.bio .introduction.english .name{font-size:35px;font-weight:600}.bio .introduction.english .job{font-size:35px}.bio .introduction.english .description{font-size:20px;font-weight:200;margin-top:8px}.bio .introduction.english .social-links{display:flex;margin-top:20px}.bio .thumbnail-wrapper{display:none}@media(min-width:768px){.bio .thumbnail-wrapper{display:block}}.section-header-wrapper{display:flex;justify-content:center;margin-bottom:32px;width:100%}.section-header-wrapper .section-header{border-bottom:4px solid var(--primary-text-color);color:var(--primary-text-color);font-size:30px;font-weight:700;padding-bottom:5px}.timestamp-section{align-items:center;display:flex;flex-direction:column;justify-content:center;margin-bottom:50px;width:100%;word-break:keep-all}.timestamp-section .body{padding:0 10px;width:100%}.timestamp-section .body .timestamp{border-left:2px solid #bdbdbd;display:flex;font-size:18px;font-weight:400;justify-items:center;margin-left:5px;padding:10px 0;width:100%}.timestamp-section .body .timestamp:first-child{padding-top:7px}.timestamp-section .body .timestamp:last-child{padding-bottom:7px}.timestamp-section .body .timestamp:before{align-self:center;background-color:var(--background-color);border:2px solid #828282;border-radius:10px;content:"";height:10px;left:-1px;position:relative;-webkit-transform:translatex(-50%);transform:translatex(-50%);width:10px}.timestamp-section .body .timestamp .date{align-self:center;color:#828282;margin-left:5px;margin-right:5px;min-width:115px;width:115px}@media(min-width:768px){.timestamp-section .body .timestamp .date{min-width:200px;width:200px}}.timestamp-section .body .timestamp .activity{line-height:23px;width:100%}.project-section{align-items:center;justify-content:center}.project-section,.project-section .project{display:flex;flex-direction:column;width:100%}.project-section .project{margin-bottom:30px;padding:15px}.project-section .project .head{font-size:20px;font-weight:700;line-height:30px;margin-bottom:10px}.project-section .project .body{display:flex;flex-direction:column;width:100%}.project-section .project .body .thumbnail{margin-bottom:10px;width:100%}.project-section .project .body .tech-stack{display:flex;margin-bottom:10px}.project-section .project .body .tech-stack .tech{background-color:var(--chip-background-color);border-radius:10px;font-size:15px;font-weight:500;margin-right:5px;padding:5px 7px}.project-section .project .body .description{font-size:16px;font-weight:400;line-height:1.4}@media(min-width:768px){.project-section .project .body{flex-direction:column}.project-section .project .body .content{margin-top:0}}.post-header{border-bottom:1px solid var(--post-card-border-color);display:flex;flex-direction:column;justify-content:center;margin-bottom:40px;margin-top:20px;padding-bottom:10px;width:100%;word-break:keep-all}.post-header .emoji{font-size:78px;margin-bottom:20px}.post-header .categories{margin-bottom:5px}.post-header .categories .category{color:var(--primary-text-color);font-weight:600;margin-right:4px}.post-header .categories .category:hover{text-decoration:underline}.post-header .title{color:var(--primary-text-color);font-size:32px;font-weight:600;line-height:1.3;margin-bottom:6px}.post-header .info{color:var(--secondary-text-color);display:flex;flex-wrap:wrap;font-size:16px;font-weight:500;line-height:1.5;width:100%}.post-header .info .author{margin-right:4px}.post-header .info strong{color:var(--primary-text-color);font-weight:600}.post-navigator{-webkit-column-gap:1.4%;column-gap:1.4%;display:grid;grid-template-columns:49.3% 49.3%;width:100%}.post-navigator .post-card{border:1px solid var(--post-card-border-color);border-radius:6px;color:var(--primary-text-color);cursor:pointer;display:flex;flex-direction:column;padding:15px;transition:-webkit-transform .2s;transition:transform .2s;transition:transform .2s,-webkit-transform .2s;width:100%}.post-navigator .post-card:hover .title{text-decoration:underline}.post-navigator .post-card.prev{margin-right:auto}.post-navigator .post-card.next{margin-left:auto}.post-navigator .post-card .direction{color:gray;font-size:14px;font-weight:500;margin-bottom:5px}.post-navigator .post-card .title{font-size:16px;font-weight:600;line-height:1.4;margin-bottom:7px}.markdown .octicon{fill:currentColor;display:inline-block;vertical-align:text-bottom}.markdown .anchor{float:left;line-height:1;margin-left:-20px;padding-right:4px}.markdown .anchor:focus{outline:none}.markdown h1 .octicon-link,.markdown h2 .octicon-link,.markdown h3 .octicon-link,.markdown h4 .octicon-link,.markdown h5 .octicon-link,.markdown h6 .octicon-link{color:#1b1f23;vertical-align:middle;visibility:hidden}.markdown h1:hover .anchor,.markdown h2:hover .anchor,.markdown h3:hover .anchor,.markdown h4:hover .anchor,.markdown h5:hover .anchor,.markdown h6:hover .anchor{text-decoration:none}.markdown h1:hover .anchor .octicon-link,.markdown h2:hover .anchor .octicon-link,.markdown h3:hover .anchor .octicon-link,.markdown h4:hover .anchor .octicon-link,.markdown h5:hover .anchor .octicon-link,.markdown h6:hover .anchor .octicon-link{visibility:visible}.markdown h1:hover .anchor .octicon-link:before,.markdown h2:hover .anchor .octicon-link:before,.markdown h3:hover .anchor .octicon-link:before,.markdown h4:hover .anchor .octicon-link:before,.markdown h5:hover .anchor .octicon-link:before,.markdown h6:hover .anchor .octicon-link:before{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' aria-hidden='true' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z'/%3E%3C/svg%3E");content:" ";display:inline-block;height:16px;width:16px}.markdown{-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;word-wrap:break-word;color:var(--content-text-color);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;font-size:16px;font-weight:500;line-height:1.5}.markdown details{display:block}.markdown summary{display:list-item}.markdown a{background-color:initial}.markdown a:active,.markdown a:hover{outline-width:0}.markdown strong{font-weight:inherit;font-weight:bolder}.markdown h1{margin:.67em 0}.markdown img{border-style:none}.markdown code,.markdown kbd,.markdown pre{font-family:monospace,monospace;font-size:1em}.markdown hr{box-sizing:initial;overflow:visible}.markdown input{font:inherit;margin:0;overflow:visible}.markdown [type=checkbox]{box-sizing:border-box;padding:0}.markdown *{box-sizing:border-box}.markdown input{font-family:inherit;font-size:inherit;line-height:inherit}.markdown a{border-bottom:.05em solid;border-color:var(--link-text-color);color:var(--link-text-color);text-decoration:none}.markdown a.anchor{border-bottom:none}.markdown strong{font-weight:700}.markdown hr{background:transparent;border-bottom:1px solid var(--markdown-blockquote-border-color);height:0;margin:15px 0;overflow:hidden}.markdown hr:after,.markdown hr:before{content:"";display:table}.markdown hr:after{clear:both}.markdown table{border-collapse:collapse;border-spacing:0}.markdown td,.markdown th{padding:0}.markdown details summary{cursor:pointer}.markdown h1,.markdown h2,.markdown h3,.markdown h4,.markdown h5,.markdown h6{margin-bottom:0;margin-top:0}.markdown h1{font-size:32px}.markdown h1,.markdown h2{font-weight:600}.markdown h2{font-size:24px}.markdown h3{font-size:20px}.markdown h3,.markdown h4{font-weight:600}.markdown h4{font-size:16px}.markdown h5{font-size:14px}.markdown h5,.markdown h6{font-weight:600}.markdown h6{font-size:12px}.markdown p{margin-bottom:10px;margin-top:0}.markdown blockquote{margin:0}.markdown ol,.markdown ul{margin-bottom:0;margin-top:0;padding-left:0}.markdown ol ol,.markdown ul ol{list-style-type:lower-roman}.markdown ol ol ol,.markdown ol ul ol,.markdown ul ol ol,.markdown ul ul ol{list-style-type:lower-alpha}.markdown dd{margin-left:0}.markdown code,.markdown pre{font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;font-size:12px}.markdown code.language-text{border-radius:3px;font-size:85%;padding:.2em .4em}.markdown :not(pre)>code.language-text{background:hsla(44,6%,50%,.15);color:#eb5757;overflow-wrap:break-word}.markdown pre{margin-bottom:0;margin-top:0}.markdown input::-webkit-inner-spin-button,.markdown input::-webkit-outer-spin-button{-webkit-appearance:none;appearance:none;margin:0}.markdown :checked+.radio-label{border-color:#0366d6;position:relative;z-index:1}.markdown .border{border:1px solid var(--markdown-border-color)!important}.markdown .border-0{border:0!important}.markdown .border-bottom{border-bottom:1px solid var(--markdown-border-color)!important}.markdown .rounded-1{border-radius:3px!important}.markdown .bg-white{background-color:transparent!important}.markdown .bg-gray-light{background-color:#fafbfc!important}.markdown .text-gray-light{color:#6a737d!important}.markdown .pl-3,.markdown .px-3{padding-left:16px!important}.markdown .px-3{padding-right:16px!important}.markdown .f6{font-size:12px!important}.markdown .lh-condensed{line-height:1.25!important}.markdown .text-bold{font-weight:600!important}.markdown .pl-c{color:#6a737d}.markdown .pl-c1,.markdown .pl-s .pl-v{color:#005cc5}.markdown .pl-e,.markdown .pl-en{color:#6f42c1}.markdown .pl-s .pl-s1,.markdown .pl-smi{color:#24292e}.markdown .pl-ent{color:#22863a}.markdown .pl-k{color:#d73a49}.markdown .pl-pds,.markdown .pl-s,.markdown .pl-s .pl-pse .pl-s1,.markdown .pl-sr,.markdown .pl-sr .pl-cce,.markdown .pl-sr .pl-sra,.markdown .pl-sr .pl-sre{color:#032f62}.markdown .pl-smw,.markdown .pl-v{color:#e36209}.markdown .pl-bu{color:#b31d28}.markdown .pl-ii{background-color:#b31d28;color:#fafbfc}.markdown .pl-c2{background-color:#d73a49;color:#fafbfc}.markdown .pl-c2:before{content:"^M"}.markdown .pl-sr .pl-cce{color:#22863a;font-weight:700}.markdown .pl-ml{color:#735c0f}.markdown .pl-mh,.markdown .pl-mh .pl-en,.markdown .pl-ms{color:#005cc5;font-weight:700}.markdown .pl-mi{color:#24292e;font-style:italic}.markdown .pl-mb{color:#24292e;font-weight:700}.markdown .pl-md{background-color:#ffeef0;color:#b31d28}.markdown .pl-mi1{background-color:#f0fff4;color:#22863a}.markdown .pl-mc{background-color:#ffebda;color:#e36209}.markdown .pl-mi2{background-color:#005cc5;color:#f6f8fa}.markdown .pl-mdr{color:#6f42c1;font-weight:700}.markdown .pl-ba{color:#586069}.markdown .pl-sg{color:#959da5}.markdown .pl-corl{color:#032f62;text-decoration:underline}.markdown .mb-0{margin-bottom:0!important}.markdown .my-2{margin-bottom:8px!important;margin-top:8px!important}.markdown .pl-0{padding-left:0!important}.markdown .py-0{padding-bottom:0!important;padding-top:0!important}.markdown .pl-1{padding-left:4px!important}.markdown .pl-2{padding-left:8px!important}.markdown .py-2{padding-bottom:8px!important;padding-top:8px!important}.markdown .pl-3{padding-left:16px!important}.markdown .pl-4{padding-left:24px!important}.markdown .pl-5{padding-left:32px!important}.markdown .pl-6{padding-left:40px!important}.markdown .pl-7{padding-left:48px!important}.markdown .pl-8{padding-left:64px!important}.markdown .pl-9{padding-left:80px!important}.markdown .pl-10{padding-left:96px!important}.markdown .pl-11{padding-left:112px!important}.markdown .pl-12{padding-left:128px!important}.markdown hr{border-bottom-color:#eee}.markdown kbd{background-color:#fafbfc;border:1px solid #d1d5da;border-radius:3px;box-shadow:inset 0 -1px 0 #d1d5da;color:#444d56;display:inline-block;font:11px SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;line-height:10px;padding:3px 5px;vertical-align:middle}.markdown:after,.markdown:before{content:"";display:table}.markdown:after{clear:both}.markdown>:first-child{margin-top:0!important}.markdown>:last-child{margin-bottom:0!important}.markdown a:not([href]){color:inherit;text-decoration:none}.markdown blockquote,.markdown details,.markdown dl,.markdown ol,.markdown p,.markdown pre,.markdown table,.markdown ul{margin-bottom:16px;margin-top:0}.markdown hr{background-color:var(--markdown-border-color);border:0;height:.25em;margin:24px 0;padding:0}.markdown blockquote{border-left:.25em solid var(--markdown-blockquote-border-color);color:#6a737d;padding:0 1em}.markdown blockquote>:first-child{margin-top:0}.markdown blockquote>:last-child{margin-bottom:0}.markdown h1,.markdown h2,.markdown h3,.markdown h4,.markdown h5,.markdown h6{font-weight:600;line-height:1.25;margin-bottom:16px;margin-top:24px}.markdown h1{font-size:2em}.markdown h2{font-size:1.5em}.markdown h3{font-size:1.25em}.markdown h4{font-size:1em}.markdown h5{font-size:.875em}.markdown h6{color:#6a737d;font-size:.85em}.markdown ol,.markdown ul{padding-left:2em}.markdown ol ol,.markdown ol ul,.markdown ul ol,.markdown ul ul{margin-bottom:0;margin-top:0}.markdown ol{list-style-type:decimal}.markdown ul{list-style-type:disc}.markdown li{word-wrap:break-all;display:list-item;text-align:-webkit-match-parent}.markdown li>p{margin-top:16px}.markdown li+li{margin-top:.25em}.markdown dl{padding:0}.markdown dl dt{font-size:1em;font-style:italic;font-weight:600;margin-top:16px;padding:0}.markdown dl dd{margin-bottom:16px;padding:0 16px}.markdown table{display:block;overflow:auto;width:100%}.markdown table th{font-weight:600}.markdown table td,.markdown table th{border:1px solid var(--markdown-table-border-color);padding:6px 13px}.markdown table tr{border-top:1px solid var(--markdown-table-border-color)}.markdown table tr:nth-child(2n){background-color:var(--markdown-table-even-cell-background-color)}.markdown img{background-color:transparent;box-sizing:initial;display:block;margin:0 auto;max-width:100%}.markdown img[align=right]{padding-left:20px}.markdown img[align=left]{padding-right:20px}.markdown code{background-color:rgba(27,31,35,.05);border-radius:3px;font-size:85%;margin:0;padding:.2em .4em}.markdown pre{word-wrap:normal}.markdown pre>code{background:transparent;border:0;font-size:100%;margin:0;padding:0;white-space:pre;word-break:normal}.markdown .highlight{margin-bottom:16px}.markdown .highlight pre{margin-bottom:0;word-break:normal}.markdown .highlight pre,.markdown pre{background-color:#f6f8fa;border-radius:3px;font-size:85%;line-height:1.45;overflow:auto;padding:16px}.markdown pre code{word-wrap:normal;background-color:initial;border:0;display:inline;line-height:inherit;margin:0;max-width:auto;overflow:visible;padding:0}.markdown .commit-tease-sha{color:#444d56;display:inline-block;font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;font-size:90%}.markdown .full-commit .btn-outline:not(:disabled):hover{border-color:#005cc5;color:#005cc5}.markdown .blob-wrapper{overflow-x:auto;overflow-y:hidden}.markdown .blob-wrapper-embedded{max-height:240px;overflow-y:auto}.markdown .blob-num{color:rgba(27,31,35,.3);cursor:pointer;font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;font-size:12px;line-height:20px;min-width:50px;padding-left:10px;padding-right:10px;text-align:right;-webkit-user-select:none;-ms-user-select:none;user-select:none;vertical-align:top;white-space:nowrap;width:1%}.markdown .blob-num:hover{color:rgba(27,31,35,.6)}.markdown .blob-num:before{content:attr(data-line-number)}.markdown .blob-code{line-height:20px;padding-left:10px;padding-right:10px;position:relative;vertical-align:top}.markdown .blob-code-inner{word-wrap:normal;color:#24292e;font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;font-size:12px;overflow:visible;white-space:pre}.markdown .pl-token.active,.markdown .pl-token:hover{background:#ffea7f;cursor:pointer}.markdown .tab-size[data-tab-size="1"]{-o-tab-size:1;tab-size:1}.markdown .tab-size[data-tab-size="2"]{-o-tab-size:2;tab-size:2}.markdown .tab-size[data-tab-size="3"]{-o-tab-size:3;tab-size:3}.markdown .tab-size[data-tab-size="4"]{-o-tab-size:4;tab-size:4}.markdown .tab-size[data-tab-size="5"]{-o-tab-size:5;tab-size:5}.markdown .tab-size[data-tab-size="6"]{-o-tab-size:6;tab-size:6}.markdown .tab-size[data-tab-size="7"]{-o-tab-size:7;tab-size:7}.markdown .tab-size[data-tab-size="8"]{-o-tab-size:8;tab-size:8}.markdown .tab-size[data-tab-size="9"]{-o-tab-size:9;tab-size:9}.markdown .tab-size[data-tab-size="10"]{-o-tab-size:10;tab-size:10}.markdown .tab-size[data-tab-size="11"]{-o-tab-size:11;tab-size:11}.markdown .tab-size[data-tab-size="12"]{-o-tab-size:12;tab-size:12}.markdown .task-list-item{list-style-type:none}.markdown .task-list-item+.task-list-item{margin-top:3px}.markdown .task-list-item input{margin:0 .2em .25em -1.6em;vertical-align:middle}.markdown .table-of-contents{align-items:flex-start;display:flex;flex-direction:column;justify-content:center;position:fixed;right:0;top:75px;width:340px}@media(max-width:1300px){.markdown .table-of-contents{display:none}}.markdown .table-of-contents ul{cursor:pointer;list-style-type:none}.markdown .table-of-contents ul li a{border-bottom:none;color:var(--secondary-text-color);font-size:14px;height:30px;padding:6px 2px;width:100%}.markdown .table-of-contents ul p{margin:0}.markdown .gatsby-resp-image-wrapper{display:flex!important;justify-content:center!important;max-height:560px!important;width:100%!important}.markdown .gatsby-resp-image-wrapper img{height:auto!important;max-height:560px!important;max-width:100%!important;position:relative!important;width:auto!important}.markdown .gatsby-resp-image-wrapper+em{color:#6a737d;display:block;font-size:15px;font-style:italic;text-align:center}code[class*=language-],pre[class*=language-]{word-wrap:normal;background:none;color:#ccc;font-family:Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace;font-size:1em;-webkit-hyphens:none;-ms-hyphens:none;hyphens:none;line-height:1.5;-o-tab-size:4;tab-size:4;text-align:left;white-space:pre;word-break:normal;word-spacing:normal}pre[class*=language-]{margin:.5em 0;overflow:auto;padding:1em}:not(pre)>code[class*=language-],pre[class*=language-]{background:#2d2d2d}:not(pre)>code[class*=language-]{border-radius:.3em;padding:.1em;white-space:normal}.token.block-comment,.token.cdata,.token.comment,.token.doctype,.token.prolog{color:#999}.token.punctuation{color:#ccc}.token.attr-name,.token.deleted,.token.namespace,.token.tag{color:#e2777a}.token.function-name{color:#6196cc}.token.boolean,.token.function,.token.number{color:#f08d49}.token.class-name,.token.constant,.token.property,.token.symbol{color:#f8c555}.token.atrule,.token.builtin,.token.important,.token.keyword,.token.selector{color:#cc99cd}.token.attr-value,.token.char,.token.regex,.token.string,.token.variable{color:#7ec699}.token.entity,.token.operator,.token.url{color:#67cdcc}.token.bold,.token.important{font-weight:700}.token.italic{font-style:italic}.token.entity{cursor:help}.token.inserted{color:green}.post-content{margin-bottom:20px;width:100%}.category-page-header-wrapper,.post-content{display:flex;flex-direction:column;justify-content:center}.category-page-header-wrapper{align-items:center;margin-bottom:30px;margin-top:30px}.category-page-header-wrapper .category-page-title{border-bottom:3px solid var(--primary-text-color);font-size:40px;font-weight:700;margin-bottom:15px;padding-bottom:7px;text-align:center;width:-webkit-fit-content;width:-moz-fit-content;width:fit-content}.category-page-header-wrapper .category-page-subtitle{font-size:20px;font-weight:500;padding-bottom:10px;text-align:center}.post-card-wrapper{display:flex;justify-content:center;min-height:150px;width:100%}.post-card-wrapper .post-card{border:1px solid var(--post-card-border-color);border-radius:6px;color:var(--primary-text-color);cursor:pointer;display:flex;flex-direction:column;height:100%;margin-bottom:15px;max-width:720px;padding:15px;transition:-webkit-transform .2s;transition:transform .2s;transition:transform .2s,-webkit-transform .2s;width:100%}.post-card-wrapper .post-card:hover .title{text-decoration:underline}@media(min-width:768px){.post-card-wrapper .post-card{margin-bottom:0}}.post-card-wrapper .post-card .title{font-size:18px;font-weight:600;line-height:1.4;margin-bottom:7px}.post-card-wrapper .post-card .description{-webkit-line-clamp:3;-webkit-box-orient:vertical;color:var(--primary-text-color);display:-webkit-box;font-size:13px;line-height:20px;margin-bottom:10px;overflow:hidden;text-overflow:ellipsis}.post-card-wrapper .post-card .info{color:var(--about-link-icon-color);display:flex;font-size:14px;justify-content:space-between;margin-top:auto}.post-card-wrapper .post-card .info .categories{display:flex}.post-card-wrapper .post-card .info .categories .category{margin-left:4px}.post-card-wrapper .post-card .info .categories .category:hover{text-decoration:underline}.post-card-column-wrapper{display:flex;justify-content:center;width:100%}.post-card-column-wrapper .post-card-column{align-items:center;display:flex;flex-direction:column;width:100%}.post-card-column-wrapper .post-card-column .post-card-wrapper{margin-bottom:10px}.post-card-column-wrapper .post-card-column .more-post-card-button{background-color:var(--button-background-color);color:var(--tab-hover-text-color);font-size:15px;font-weight:500;height:40px}.post-tabs-wrapper{align-self:flex-start;display:flex;flex-direction:column;justify-content:center;top:0;width:100%}.post-tabs-wrapper .post-tabs{display:flex;height:40px;justify-content:center;margin-bottom:12px;max-width:760px;width:100%}.post-tabs-wrapper .post-tabs .mui-tabs .MuiTab-root{color:var(--tab-text-color);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;font-size:17px;font-weight:500;height:40px;min-height:auto;min-width:auto;padding:10px 12px;transition:all .2s ease}.post-tabs-wrapper .post-tabs .mui-tabs .Mui-selected,.post-tabs-wrapper .post-tabs .mui-tabs .MuiTab-root :hover{color:var(--tab-hover-text-color);transition:all .2s ease}.post-tabs-wrapper .post-tabs .mui-tabs .Mui-selected{background-color:var(--tab-selected-background-color);border-radius:8px;font-weight:600}.post-tabs-wrapper .post-tabs .mui-tabs .MuiTabScrollButton-root{height:40px;width:20px}.post-tabs-wrapper .post-tabs .mui-tabs .MuiTabs-scrollable{height:40px}.post-tabs-wrapper .post-tabs .mui-tabs .MuiTabs-indicator{display:none}</style><style data-emotion="css-global o6gwfi">html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;box-sizing:border-box;-webkit-text-size-adjust:100%;}*,*::before,*::after{box-sizing:inherit;}strong,b{font-weight:700;}body{margin:0;color:rgba(0, 0, 0, 0.87);font-family:"Roboto","Helvetica","Arial",sans-serif;font-weight:400;font-size:1rem;line-height:1.5;letter-spacing:0.00938em;background-color:#fff;}@media print{body{background-color:#fff;}}body::backdrop{background-color:#fff;}</style><style data-emotion="css-global 1prfaxn">@-webkit-keyframes mui-auto-fill{from{display:block;}}@keyframes mui-auto-fill{from{display:block;}}@-webkit-keyframes mui-auto-fill-cancel{from{display:block;}}@keyframes mui-auto-fill-cancel{from{display:block;}}</style><style data-emotion="css 1l6di18 feqhe6 11tfndm mnn31 vubbuv 1yxmbwk 6flbmm">.css-1l6di18.Mui-focused .MuiAutocomplete-clearIndicator{visibility:visible;}@media (pointer: fine){.css-1l6di18:hover .MuiAutocomplete-clearIndicator{visibility:visible;}}.css-1l6di18 .MuiAutocomplete-tag{margin:3px;max-width:calc(100% - 6px);}.css-1l6di18 .MuiAutocomplete-inputRoot{-webkit-box-flex-wrap:wrap;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;}.MuiAutocomplete-hasPopupIcon.css-1l6di18 .MuiAutocomplete-inputRoot,.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiAutocomplete-inputRoot{padding-right:30px;}.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiAutocomplete-inputRoot{padding-right:56px;}.css-1l6di18 .MuiAutocomplete-inputRoot .MuiAutocomplete-input{width:0;min-width:30px;}.css-1l6di18 .MuiInput-root{padding-bottom:1px;}.css-1l6di18 .MuiInput-root .MuiInput-input{padding:4px 4px 4px 0px;}.css-1l6di18 .MuiInput-root.MuiInputBase-sizeSmall .MuiInput-input{padding:2px 4px 3px 0;}.css-1l6di18 .MuiOutlinedInput-root{padding:9px;}.MuiAutocomplete-hasPopupIcon.css-1l6di18 .MuiOutlinedInput-root,.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiOutlinedInput-root{padding-right:39px;}.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiOutlinedInput-root{padding-right:65px;}.css-1l6di18 .MuiOutlinedInput-root .MuiAutocomplete-input{padding:7.5px 4px 7.5px 6px;}.css-1l6di18 .MuiOutlinedInput-root .MuiAutocomplete-endAdornment{right:9px;}.css-1l6di18 .MuiOutlinedInput-root.MuiInputBase-sizeSmall{padding:6px;}.css-1l6di18 .MuiOutlinedInput-root.MuiInputBase-sizeSmall .MuiAutocomplete-input{padding:2.5px 4px 2.5px 6px;}.css-1l6di18 .MuiFilledInput-root{padding-top:19px;padding-left:8px;}.MuiAutocomplete-hasPopupIcon.css-1l6di18 .MuiFilledInput-root,.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiFilledInput-root{padding-right:39px;}.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiFilledInput-root{padding-right:65px;}.css-1l6di18 .MuiFilledInput-root .MuiFilledInput-input{padding:7px 4px;}.css-1l6di18 .MuiFilledInput-root .MuiAutocomplete-endAdornment{right:9px;}.css-1l6di18 .MuiFilledInput-root.MuiInputBase-sizeSmall{padding-bottom:1px;}.css-1l6di18 .MuiFilledInput-root.MuiInputBase-sizeSmall .MuiFilledInput-input{padding:2.5px 4px;}.css-1l6di18 .MuiInputBase-hiddenLabel{padding-top:8px;}.css-1l6di18 .MuiAutocomplete-input{-webkit-box-flex:1;-webkit-flex-grow:1;-ms-flex-positive:1;flex-grow:1;text-overflow:ellipsis;opacity:1;}.css-feqhe6{display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;position:relative;min-width:0;padding:0;margin:0;border:0;vertical-align:top;width:100%;}.css-11tfndm{font-family:"Roboto","Helvetica","Arial",sans-serif;font-weight:400;font-size:1rem;line-height:1.4375em;letter-spacing:0.00938em;color:rgba(0, 0, 0, 0.87);box-sizing:border-box;position:relative;cursor:text;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;width:100%;position:relative;}.css-11tfndm.Mui-disabled{color:rgba(0, 0, 0, 0.38);cursor:default;}label+.css-11tfndm{margin-top:16px;}.css-11tfndm:after{border-bottom:2px solid #1976d2;left:0;bottom:0;content:"";position:absolute;right:0;-webkit-transform:scaleX(0);-moz-transform:scaleX(0);-ms-transform:scaleX(0);transform:scaleX(0);-webkit-transition:-webkit-transform 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;transition:transform 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;pointer-events:none;}.css-11tfndm.Mui-focused:after{-webkit-transform:scaleX(1);-moz-transform:scaleX(1);-ms-transform:scaleX(1);transform:scaleX(1);}.css-11tfndm.Mui-error:after{border-bottom-color:#d32f2f;-webkit-transform:scaleX(1);-moz-transform:scaleX(1);-ms-transform:scaleX(1);transform:scaleX(1);}.css-11tfndm:before{border-bottom:1px solid rgba(0, 0, 0, 0.42);left:0;bottom:0;content:"\00a0";position:absolute;right:0;-webkit-transition:border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;pointer-events:none;}.css-11tfndm:hover:not(.Mui-disabled):before{border-bottom:2px solid rgba(0, 0, 0, 0.87);}@media (hover: none){.css-11tfndm:hover:not(.Mui-disabled):before{border-bottom:1px solid rgba(0, 0, 0, 0.42);}}.css-11tfndm.Mui-disabled:before{border-bottom-style:dotted;}.css-mnn31{font:inherit;letter-spacing:inherit;color:currentColor;padding:4px 0 5px;border:0;box-sizing:content-box;background:none;height:1.4375em;margin:0;-webkit-tap-highlight-color:transparent;display:block;min-width:0;width:100%;-webkit-animation-name:mui-auto-fill-cancel;animation-name:mui-auto-fill-cancel;-webkit-animation-duration:10ms;animation-duration:10ms;}.css-mnn31::-webkit-input-placeholder{color:currentColor;opacity:0.42;-webkit-transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;}.css-mnn31::-moz-placeholder{color:currentColor;opacity:0.42;-webkit-transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;}.css-mnn31:-ms-input-placeholder{color:currentColor;opacity:0.42;-webkit-transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;}.css-mnn31::-ms-input-placeholder{color:currentColor;opacity:0.42;-webkit-transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;}.css-mnn31:focus{outline:0;}.css-mnn31:invalid{box-shadow:none;}.css-mnn31::-webkit-search-decoration{-webkit-appearance:none;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31::-webkit-input-placeholder{opacity:0!important;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31::-moz-placeholder{opacity:0!important;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31:-ms-input-placeholder{opacity:0!important;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31::-ms-input-placeholder{opacity:0!important;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31:focus::-webkit-input-placeholder{opacity:0.42;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31:focus::-moz-placeholder{opacity:0.42;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31:focus:-ms-input-placeholder{opacity:0.42;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31:focus::-ms-input-placeholder{opacity:0.42;}.css-mnn31.Mui-disabled{opacity:1;-webkit-text-fill-color:rgba(0, 0, 0, 0.38);}.css-mnn31:-webkit-autofill{-webkit-animation-duration:5000s;animation-duration:5000s;-webkit-animation-name:mui-auto-fill;animation-name:mui-auto-fill;}.css-vubbuv{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:1em;height:1em;display:inline-block;fill:currentColor;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;-webkit-transition:fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;font-size:1.5rem;}.css-1yxmbwk{display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;position:relative;box-sizing:border-box;-webkit-tap-highlight-color:transparent;background-color:transparent;outline:0;border:0;margin:0;border-radius:0;padding:0;cursor:pointer;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;vertical-align:middle;-moz-appearance:none;-webkit-appearance:none;-webkit-text-decoration:none;text-decoration:none;color:inherit;text-align:center;-webkit-flex:0 0 auto;-ms-flex:0 0 auto;flex:0 0 auto;font-size:1.5rem;padding:8px;border-radius:50%;overflow:visible;color:rgba(0, 0, 0, 0.54);-webkit-transition:background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;}.css-1yxmbwk::-moz-focus-inner{border-style:none;}.css-1yxmbwk.Mui-disabled{pointer-events:none;cursor:default;}@media print{.css-1yxmbwk{-webkit-print-color-adjust:exact;color-adjust:exact;}}.css-1yxmbwk:hover{background-color:rgba(0, 0, 0, 0.04);}@media (hover: none){.css-1yxmbwk:hover{background-color:transparent;}}.css-1yxmbwk.Mui-disabled{background-color:transparent;color:rgba(0, 0, 0, 0.26);}.css-6flbmm{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:1em;height:1em;display:inline-block;fill:currentColor;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;-webkit-transition:fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;font-size:2.1875rem;}</style><link rel="preconnect" href="https://www.google-analytics.com"/><link rel="dns-prefetch" href="https://www.google-analytics.com"/><script>
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="ie=edge"/><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/><meta data-react-helmet="true" property="og:type" content="website"/><meta data-react-helmet="true" property="og:image" content="/og-image.png"/><meta data-react-helmet="true" property="og:author" content="장우석"/><meta data-react-helmet="true" property="og:description" content="가시다님 스터디 : https://www.notion.so/gasidaseo/23-7635cc4f02c04954a3260b317588113e 1.스토리지  아래 명령어를 통해 인스토어 스토어 볼륨이 있는 c5모든 타입의 스토리지 크기를 조회하실 수 있습니다.
+ 저희가 배포한 c5d.large는 50Gib 만큼의 크기를 제공하고 있습니다. 먼저 각 워커노드의 스토리지를 확인해 보도록 하겠습니다.
+
+
+
+ nvm list를 통해서 보면 2개의 스토리지를 확인하실 수 있습니다.  하지만 AWS Management Console를 통해서 보면 EC2에 할당된 디스크중에 50Gib짜리 디스크는 찾아보실 수 없습니다.  인스턴스 스토어에 대한 정보는 스토리지 정보에 출력이 되지 않는다는 점을 확인하실 수 있습니다. 아래의 명령어를 통해 파일시스템 생성 및 /data를 마운트 시킬 수 있습니다.
+
+
+
+
+
+
+
+ 2.Ingress 지난주에 진행했던 실습과 비슷한 실습입니다.…"/><meta data-react-helmet="true" name="description" content="가시다님 스터디 : https://www.notion.so/gasidaseo/23-7635cc4f02c04954a3260b317588113e 1.스토리지  아래 명령어를 통해 인스토어 스토어 볼륨이 있는 c5모든 타입의 스토리지 크기를 조회하실 수 있습니다.
+ 저희가 배포한 c5d.large는 50Gib 만큼의 크기를 제공하고 있습니다. 먼저 각 워커노드의 스토리지를 확인해 보도록 하겠습니다.
+
+
+
+ nvm list를 통해서 보면 2개의 스토리지를 확인하실 수 있습니다.  하지만 AWS Management Console를 통해서 보면 EC2에 할당된 디스크중에 50Gib짜리 디스크는 찾아보실 수 없습니다.  인스턴스 스토어에 대한 정보는 스토리지 정보에 출력이 되지 않는다는 점을 확인하실 수 있습니다. 아래의 명령어를 통해 파일시스템 생성 및 /data를 마운트 시킬 수 있습니다.
+
+
+
+
+
+
+
+ 2.Ingress 지난주에 진행했던 실습과 비슷한 실습입니다.…"/><meta data-react-helmet="true" property="og:site_title" content="Gasida Kubernetes Study 3주차"/><meta data-react-helmet="true" property="og:title" content="Gasida Kubernetes Study 3주차"/><meta data-react-helmet="true" name="viewport" content="initial-scale=1, width=device-width"/><meta name="generator" content="Gatsby 4.9.3"/><style data-href="/styles.853e65090dc89bfbb4ac.css" data-identity="gatsby-global-css">@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:100;src:local("Montserrat Thin "),local("Montserrat-Thin"),url(/static/montserrat-latin-100-8d7d79679b70dbe27172b6460e7a7910.woff2) format("woff2"),url(/static/montserrat-latin-100-ec38980a9e0119a379e2a9b3dbb1901a.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:100;src:local("Montserrat Thin italic"),local("Montserrat-Thinitalic"),url(/static/montserrat-latin-100italic-e279051046ba1286706adc886cf1c96b.woff2) format("woff2"),url(/static/montserrat-latin-100italic-3b325a3173c8207435cd1b76e19bf501.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:200;src:local("Montserrat Extra Light "),local("Montserrat-Extra Light"),url(/static/montserrat-latin-200-9d266fbbfa6cab7009bd56003b1eeb67.woff2) format("woff2"),url(/static/montserrat-latin-200-2d8ba08717110d27122e54c34b8a5798.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:200;src:local("Montserrat Extra Light italic"),local("Montserrat-Extra Lightitalic"),url(/static/montserrat-latin-200italic-6e5b3756583bb2263eb062eae992735e.woff2) format("woff2"),url(/static/montserrat-latin-200italic-a0d6f343e4b536c582926255367a57da.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:300;src:local("Montserrat Light "),local("Montserrat-Light"),url(/static/montserrat-latin-300-00b3e893aab5a8fd632d6342eb72551a.woff2) format("woff2"),url(/static/montserrat-latin-300-ea303695ceab35f17e7d062f30e0173b.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:300;src:local("Montserrat Light italic"),local("Montserrat-Lightitalic"),url(/static/montserrat-latin-300italic-56f34ea368f6aedf89583d444bbcb227.woff2) format("woff2"),url(/static/montserrat-latin-300italic-54b0bf2c8c4c12ffafd803be2466a790.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:400;src:local("Montserrat Regular "),local("Montserrat-Regular"),url(/static/montserrat-latin-400-b71748ae4f80ec8c014def4c5fa8688b.woff2) format("woff2"),url(/static/montserrat-latin-400-0659a9f4e90db5cf51b50d005bff1e41.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:400;src:local("Montserrat Regular italic"),local("Montserrat-Regularitalic"),url(/static/montserrat-latin-400italic-6eed6b4cbb809c6efc7aa7ddad6dbe3e.woff2) format("woff2"),url(/static/montserrat-latin-400italic-7583622cfde30ae49086d18447ab28e7.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:500;src:local("Montserrat Medium "),local("Montserrat-Medium"),url(/static/montserrat-latin-500-091b209546e16313fd4f4fc36090c757.woff2) format("woff2"),url(/static/montserrat-latin-500-edd311588712a96bbf435fad264fff62.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:500;src:local("Montserrat Medium italic"),local("Montserrat-Mediumitalic"),url(/static/montserrat-latin-500italic-c90ced68b46050061d1a41842d6dfb43.woff2) format("woff2"),url(/static/montserrat-latin-500italic-5146cbfe02b1deea5dffea27a5f2f998.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:600;src:local("Montserrat SemiBold "),local("Montserrat-SemiBold"),url(/static/montserrat-latin-600-0480d2f8a71f38db8633b84d8722e0c2.woff2) format("woff2"),url(/static/montserrat-latin-600-b77863a375260a05dd13f86a1cee598f.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:600;src:local("Montserrat SemiBold italic"),local("Montserrat-SemiBolditalic"),url(/static/montserrat-latin-600italic-cf46ffb11f3a60d7df0567f8851a1d00.woff2) format("woff2"),url(/static/montserrat-latin-600italic-c4fcfeeb057724724097167e57bd7801.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:700;src:local("Montserrat Bold "),local("Montserrat-Bold"),url(/static/montserrat-latin-700-7dbcc8a5ea2289d83f657c25b4be6193.woff2) format("woff2"),url(/static/montserrat-latin-700-99271a835e1cae8c76ef8bba99a8cc4e.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:700;src:local("Montserrat Bold italic"),local("Montserrat-Bolditalic"),url(/static/montserrat-latin-700italic-c41ad6bdb4bd504a843d546d0a47958d.woff2) format("woff2"),url(/static/montserrat-latin-700italic-6779372f04095051c62ed36bc1dcc142.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:800;src:local("Montserrat ExtraBold "),local("Montserrat-ExtraBold"),url(/static/montserrat-latin-800-db9a3e0ba7eaea32e5f55328ace6cf23.woff2) format("woff2"),url(/static/montserrat-latin-800-4e3c615967a2360f5db87d2f0fd2456f.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:800;src:local("Montserrat ExtraBold italic"),local("Montserrat-ExtraBolditalic"),url(/static/montserrat-latin-800italic-bf45bfa14805969eda318973947bc42b.woff2) format("woff2"),url(/static/montserrat-latin-800italic-fe82abb0bcede51bf724254878e0c374.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:900;src:local("Montserrat Black "),local("Montserrat-Black"),url(/static/montserrat-latin-900-e66c7edc609e24bacbb705175669d814.woff2) format("woff2"),url(/static/montserrat-latin-900-8211f418baeb8ec880b80ba3c682f957.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:900;src:local("Montserrat Black italic"),local("Montserrat-Blackitalic"),url(/static/montserrat-latin-900italic-4454c775e48152c1a72510ceed3603e2.woff2) format("woff2"),url(/static/montserrat-latin-900italic-efcaa0f6a82ee0640b83a0916e6e8d68.woff) format("woff")}.search-input-wrapper{align-items:center;display:none;margin-top:3px;width:180px}@media(min-width:768px){.search-input-wrapper{display:flex}}.search-icon{color:var(--primary-text-color);margin-right:2px}.search-input{height:100%;width:100%}.search-input .MuiAutocomplete-inputRoot{padding-right:0!important}.search-input .MuiInputBase-input{color:var(--primary-text-color)!important;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;font-size:16px;font-weight:500;padding-bottom:2px!important}.search-input .MuiInput-underline:before{border-bottom-width:1px}.search-input .MuiInput-underline:after,.search-input .MuiInput-underline:before{border-bottom-color:var(--primary-text-color)}.page-header-wrapper{display:flex;height:60px;justify-content:center;width:100%}.page-header-wrapper .page-header{align-items:center;display:flex;justify-content:space-between;max-width:720px;width:100%}.page-header-wrapper .page-header .link{color:var(--primary-text-color);font-size:17px;font-weight:700}@media(min-width:768px){.page-header-wrapper .page-header .link{font-size:20px;font-weight:700}}.page-header-wrapper .page-header .trailing-section{align-items:center;display:flex}.page-header-wrapper .page-header .trailing-section .link{margin-right:10px}@media(min-width:768px){.page-header-wrapper .page-header .trailing-section .link{margin-right:20px}}.page-footer-wrapper{align-items:center;display:flex;height:62px;justify-content:center;margin-top:auto;width:100%}.page-footer-wrapper .page-footer{max-width:720px;text-align:center;width:100%}.page-footer-wrapper .page-footer .link{color:var(--primary-text-color);font-size:20px;font-weight:700;margin-right:20px}.page-footer-wrapper .page-footer a{color:#3a95ff}.dark-mode-button-wrapper{align-items:center;bottom:20px;display:flex;justify-content:center;position:fixed;right:20px}.dark-mode-button{-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);background-color:#363f47!important;border-radius:50px;box-shadow:0 5px 25px rgba(0,0,0,.12);cursor:pointer;height:50px;width:50px;z-index:3}.dark-mode-icon{color:#fff}a,abbr,acronym,address,applet,article,aside,audio,b,big,blockquote,body,canvas,caption,center,cite,code,dd,del,details,dfn,div,dl,dt,em,embed,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,html,i,iframe,img,ins,kbd,label,legend,li,mark,menu,nav,object,ol,output,p,pre,q,ruby,s,samp,section,small,span,strike,strong,sub,summary,sup,table,tbody,td,tfoot,th,thead,time,tr,tt,u,ul,var,video{border:0;font-size:100%;font:inherit;margin:0;padding:0;vertical-align:baseline}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:after,blockquote:before,q:after,q:before{content:"";content:none}table{border-collapse:collapse;border-spacing:0}a{outline:none;text-decoration:none}html{--background-color:#fff;--primary-text-color:#000;--secondary-text-color:#9e9e9e;--content-text-color:#37352f;--button-background-color:#f3f3f4;--button-text-color:#363f47;--tab-text-color:#6e6d7a;--tab-hover-text-color:#0d0c22;--tab-selected-background-color:rgba(13,12,34,.05);--bio-link-icon-color:rgba(0,0,0,.54);--about-link-icon-color:#a8a8a8;--chip-background-color:#f3f3f4;--link-text-color:rgba(55,53,47,.7);--post-card-border-color:rgba(0,0,0,.12);--markdown-table-even-cell-background-color:#f6f8fa;--markdown-table-border-color:#dfe2e5;--markdown-blockquote-border-color:#dfe2e5;--markdown-border-color:#e1e4e8}html[data-theme=dark]{--background-color:#232326;--primary-text-color:#e6e6e6;--secondary-text-color:#768390;--content-text-color:#e6e6e6;--button-background-color:#444c56;--button-text-color:#363f47;--tab-text-color:#768390;--tab-hover-text-color:#acbac7;--tab-selected-background-color:#373e47;--chip-background-color:#323a42;--bio-link-icon-color:#e6e6e6;--about-link-icon-color:#a8a8a8;--link-text-color:#90b0ec;--post-card-border-color:#363f47;--markdown-table-even-cell-background-color:#2d333b;--markdown-table-border-color:#444c56;--markdown-blockquote-border-color:#4f5864;--markdown-border-color:#e1e4e8}*{-webkit-appearance:none;appearance:none;box-sizing:border-box}html{font-size:14px;height:100%;overflow-y:scroll;width:100%}body{background-color:var(--background-color)!important}a{color:var(--link-text-color)}.page-wrapper{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;color:var(--primary-text-color);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;justify-content:center;min-height:100vh;padding-left:15px;padding-right:15px;word-break:keep-all}.page-wrapper,.page-wrapper .page-content{align-items:center;display:flex;flex-direction:column;width:100%}.page-wrapper .page-content{max-width:720px}.icon{color:var(--about-link-icon-color);font-size:20px}.social-links .icon{color:var(--bio-link-icon-color);font-size:30px}@-webkit-keyframes blinking-cursor{0%{opacity:0}50%{opacity:1}to{opacity:0}}@keyframes blinking-cursor{0%{opacity:0}50%{opacity:1}to{opacity:0}}.bio{color:var(--primary-text-color);display:flex;flex-direction:column;justify-content:space-between;margin-bottom:120px;margin-top:120px;width:100%}@media(min-width:768px){.bio{align-items:center;flex-direction:row}}.bio .introduction{display:flex;flex-direction:column;word-break:keep-all}.bio .introduction .react-rotating-text-cursor{-webkit-animation:blinking-cursor .8s cubic-bezier(.68,.01,.01,.99) 0s infinite;animation:blinking-cursor .8s cubic-bezier(.68,.01,.01,.99) 0s infinite}.bio .introduction strong{display:inline-block;font-weight:600}.bio .introduction.korean{font-size:32px;font-weight:100;line-height:1.2}.bio .introduction.korean .title .react-rotating-text-cursor{font-size:35px;line-height:35px}@media(min-width:768px){.bio .introduction.korean{font-size:40px}.bio .introduction.korean .title .react-rotating-text-cursor{font-size:45px;line-height:45px}}.bio .introduction.english{font-family:montserrat;font-size:25px;line-height:1.2}@media(min-width:768px){.bio .introduction.english{font-size:45px}}.bio .introduction.english .name{font-size:35px;font-weight:600}.bio .introduction.english .job{font-size:35px}.bio .introduction.english .description{font-size:20px;font-weight:200;margin-top:8px}.bio .introduction.english .social-links{display:flex;margin-top:20px}.bio .thumbnail-wrapper{display:none}@media(min-width:768px){.bio .thumbnail-wrapper{display:block}}.section-header-wrapper{display:flex;justify-content:center;margin-bottom:32px;width:100%}.section-header-wrapper .section-header{border-bottom:4px solid var(--primary-text-color);color:var(--primary-text-color);font-size:30px;font-weight:700;padding-bottom:5px}.timestamp-section{align-items:center;display:flex;flex-direction:column;justify-content:center;margin-bottom:50px;width:100%;word-break:keep-all}.timestamp-section .body{padding:0 10px;width:100%}.timestamp-section .body .timestamp{border-left:2px solid #bdbdbd;display:flex;font-size:18px;font-weight:400;justify-items:center;margin-left:5px;padding:10px 0;width:100%}.timestamp-section .body .timestamp:first-child{padding-top:7px}.timestamp-section .body .timestamp:last-child{padding-bottom:7px}.timestamp-section .body .timestamp:before{align-self:center;background-color:var(--background-color);border:2px solid #828282;border-radius:10px;content:"";height:10px;left:-1px;position:relative;-webkit-transform:translatex(-50%);transform:translatex(-50%);width:10px}.timestamp-section .body .timestamp .date{align-self:center;color:#828282;margin-left:5px;margin-right:5px;min-width:115px;width:115px}@media(min-width:768px){.timestamp-section .body .timestamp .date{min-width:200px;width:200px}}.timestamp-section .body .timestamp .activity{line-height:23px;width:100%}.project-section{align-items:center;justify-content:center}.project-section,.project-section .project{display:flex;flex-direction:column;width:100%}.project-section .project{margin-bottom:30px;padding:15px}.project-section .project .head{font-size:20px;font-weight:700;line-height:30px;margin-bottom:10px}.project-section .project .body{display:flex;flex-direction:column;width:100%}.project-section .project .body .thumbnail{margin-bottom:10px;width:100%}.project-section .project .body .tech-stack{display:flex;margin-bottom:10px}.project-section .project .body .tech-stack .tech{background-color:var(--chip-background-color);border-radius:10px;font-size:15px;font-weight:500;margin-right:5px;padding:5px 7px}.project-section .project .body .description{font-size:16px;font-weight:400;line-height:1.4}@media(min-width:768px){.project-section .project .body{flex-direction:column}.project-section .project .body .content{margin-top:0}}.post-header{border-bottom:1px solid var(--post-card-border-color);display:flex;flex-direction:column;justify-content:center;margin-bottom:40px;margin-top:20px;padding-bottom:10px;width:100%;word-break:keep-all}.post-header .emoji{font-size:78px;margin-bottom:20px}.post-header .categories{margin-bottom:5px}.post-header .categories .category{color:var(--primary-text-color);font-weight:600;margin-right:4px}.post-header .categories .category:hover{text-decoration:underline}.post-header .title{color:var(--primary-text-color);font-size:32px;font-weight:600;line-height:1.3;margin-bottom:6px}.post-header .info{color:var(--secondary-text-color);display:flex;flex-wrap:wrap;font-size:16px;font-weight:500;line-height:1.5;width:100%}.post-header .info .author{margin-right:4px}.post-header .info strong{color:var(--primary-text-color);font-weight:600}.post-navigator{-webkit-column-gap:1.4%;column-gap:1.4%;display:grid;grid-template-columns:49.3% 49.3%;width:100%}.post-navigator .post-card{border:1px solid var(--post-card-border-color);border-radius:6px;color:var(--primary-text-color);cursor:pointer;display:flex;flex-direction:column;padding:15px;transition:-webkit-transform .2s;transition:transform .2s;transition:transform .2s,-webkit-transform .2s;width:100%}.post-navigator .post-card:hover .title{text-decoration:underline}.post-navigator .post-card.prev{margin-right:auto}.post-navigator .post-card.next{margin-left:auto}.post-navigator .post-card .direction{color:gray;font-size:14px;font-weight:500;margin-bottom:5px}.post-navigator .post-card .title{font-size:16px;font-weight:600;line-height:1.4;margin-bottom:7px}.markdown .octicon{fill:currentColor;display:inline-block;vertical-align:text-bottom}.markdown .anchor{float:left;line-height:1;margin-left:-20px;padding-right:4px}.markdown .anchor:focus{outline:none}.markdown h1 .octicon-link,.markdown h2 .octicon-link,.markdown h3 .octicon-link,.markdown h4 .octicon-link,.markdown h5 .octicon-link,.markdown h6 .octicon-link{color:#1b1f23;vertical-align:middle;visibility:hidden}.markdown h1:hover .anchor,.markdown h2:hover .anchor,.markdown h3:hover .anchor,.markdown h4:hover .anchor,.markdown h5:hover .anchor,.markdown h6:hover .anchor{text-decoration:none}.markdown h1:hover .anchor .octicon-link,.markdown h2:hover .anchor .octicon-link,.markdown h3:hover .anchor .octicon-link,.markdown h4:hover .anchor .octicon-link,.markdown h5:hover .anchor .octicon-link,.markdown h6:hover .anchor .octicon-link{visibility:visible}.markdown h1:hover .anchor .octicon-link:before,.markdown h2:hover .anchor .octicon-link:before,.markdown h3:hover .anchor .octicon-link:before,.markdown h4:hover .anchor .octicon-link:before,.markdown h5:hover .anchor .octicon-link:before,.markdown h6:hover .anchor .octicon-link:before{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' aria-hidden='true' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z'/%3E%3C/svg%3E");content:" ";display:inline-block;height:16px;width:16px}.markdown{-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;word-wrap:break-word;color:var(--content-text-color);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;font-size:16px;font-weight:500;line-height:1.5}.markdown details{display:block}.markdown summary{display:list-item}.markdown a{background-color:initial}.markdown a:active,.markdown a:hover{outline-width:0}.markdown strong{font-weight:inherit;font-weight:bolder}.markdown h1{margin:.67em 0}.markdown img{border-style:none}.markdown code,.markdown kbd,.markdown pre{font-family:monospace,monospace;font-size:1em}.markdown hr{box-sizing:initial;overflow:visible}.markdown input{font:inherit;margin:0;overflow:visible}.markdown [type=checkbox]{box-sizing:border-box;padding:0}.markdown *{box-sizing:border-box}.markdown input{font-family:inherit;font-size:inherit;line-height:inherit}.markdown a{border-bottom:.05em solid;border-color:var(--link-text-color);color:var(--link-text-color);text-decoration:none}.markdown a.anchor{border-bottom:none}.markdown strong{font-weight:700}.markdown hr{background:transparent;border-bottom:1px solid var(--markdown-blockquote-border-color);height:0;margin:15px 0;overflow:hidden}.markdown hr:after,.markdown hr:before{content:"";display:table}.markdown hr:after{clear:both}.markdown table{border-collapse:collapse;border-spacing:0}.markdown td,.markdown th{padding:0}.markdown details summary{cursor:pointer}.markdown h1,.markdown h2,.markdown h3,.markdown h4,.markdown h5,.markdown h6{margin-bottom:0;margin-top:0}.markdown h1{font-size:32px}.markdown h1,.markdown h2{font-weight:600}.markdown h2{font-size:24px}.markdown h3{font-size:20px}.markdown h3,.markdown h4{font-weight:600}.markdown h4{font-size:16px}.markdown h5{font-size:14px}.markdown h5,.markdown h6{font-weight:600}.markdown h6{font-size:12px}.markdown p{margin-bottom:10px;margin-top:0}.markdown blockquote{margin:0}.markdown ol,.markdown ul{margin-bottom:0;margin-top:0;padding-left:0}.markdown ol ol,.markdown ul ol{list-style-type:lower-roman}.markdown ol ol ol,.markdown ol ul ol,.markdown ul ol ol,.markdown ul ul ol{list-style-type:lower-alpha}.markdown dd{margin-left:0}.markdown code,.markdown pre{font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;font-size:12px}.markdown code.language-text{border-radius:3px;font-size:85%;padding:.2em .4em}.markdown :not(pre)>code.language-text{background:hsla(44,6%,50%,.15);color:#eb5757;overflow-wrap:break-word}.markdown pre{margin-bottom:0;margin-top:0}.markdown input::-webkit-inner-spin-button,.markdown input::-webkit-outer-spin-button{-webkit-appearance:none;appearance:none;margin:0}.markdown :checked+.radio-label{border-color:#0366d6;position:relative;z-index:1}.markdown .border{border:1px solid var(--markdown-border-color)!important}.markdown .border-0{border:0!important}.markdown .border-bottom{border-bottom:1px solid var(--markdown-border-color)!important}.markdown .rounded-1{border-radius:3px!important}.markdown .bg-white{background-color:transparent!important}.markdown .bg-gray-light{background-color:#fafbfc!important}.markdown .text-gray-light{color:#6a737d!important}.markdown .pl-3,.markdown .px-3{padding-left:16px!important}.markdown .px-3{padding-right:16px!important}.markdown .f6{font-size:12px!important}.markdown .lh-condensed{line-height:1.25!important}.markdown .text-bold{font-weight:600!important}.markdown .pl-c{color:#6a737d}.markdown .pl-c1,.markdown .pl-s .pl-v{color:#005cc5}.markdown .pl-e,.markdown .pl-en{color:#6f42c1}.markdown .pl-s .pl-s1,.markdown .pl-smi{color:#24292e}.markdown .pl-ent{color:#22863a}.markdown .pl-k{color:#d73a49}.markdown .pl-pds,.markdown .pl-s,.markdown .pl-s .pl-pse .pl-s1,.markdown .pl-sr,.markdown .pl-sr .pl-cce,.markdown .pl-sr .pl-sra,.markdown .pl-sr .pl-sre{color:#032f62}.markdown .pl-smw,.markdown .pl-v{color:#e36209}.markdown .pl-bu{color:#b31d28}.markdown .pl-ii{background-color:#b31d28;color:#fafbfc}.markdown .pl-c2{background-color:#d73a49;color:#fafbfc}.markdown .pl-c2:before{content:"^M"}.markdown .pl-sr .pl-cce{color:#22863a;font-weight:700}.markdown .pl-ml{color:#735c0f}.markdown .pl-mh,.markdown .pl-mh .pl-en,.markdown .pl-ms{color:#005cc5;font-weight:700}.markdown .pl-mi{color:#24292e;font-style:italic}.markdown .pl-mb{color:#24292e;font-weight:700}.markdown .pl-md{background-color:#ffeef0;color:#b31d28}.markdown .pl-mi1{background-color:#f0fff4;color:#22863a}.markdown .pl-mc{background-color:#ffebda;color:#e36209}.markdown .pl-mi2{background-color:#005cc5;color:#f6f8fa}.markdown .pl-mdr{color:#6f42c1;font-weight:700}.markdown .pl-ba{color:#586069}.markdown .pl-sg{color:#959da5}.markdown .pl-corl{color:#032f62;text-decoration:underline}.markdown .mb-0{margin-bottom:0!important}.markdown .my-2{margin-bottom:8px!important;margin-top:8px!important}.markdown .pl-0{padding-left:0!important}.markdown .py-0{padding-bottom:0!important;padding-top:0!important}.markdown .pl-1{padding-left:4px!important}.markdown .pl-2{padding-left:8px!important}.markdown .py-2{padding-bottom:8px!important;padding-top:8px!important}.markdown .pl-3{padding-left:16px!important}.markdown .pl-4{padding-left:24px!important}.markdown .pl-5{padding-left:32px!important}.markdown .pl-6{padding-left:40px!important}.markdown .pl-7{padding-left:48px!important}.markdown .pl-8{padding-left:64px!important}.markdown .pl-9{padding-left:80px!important}.markdown .pl-10{padding-left:96px!important}.markdown .pl-11{padding-left:112px!important}.markdown .pl-12{padding-left:128px!important}.markdown hr{border-bottom-color:#eee}.markdown kbd{background-color:#fafbfc;border:1px solid #d1d5da;border-radius:3px;box-shadow:inset 0 -1px 0 #d1d5da;color:#444d56;display:inline-block;font:11px SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;line-height:10px;padding:3px 5px;vertical-align:middle}.markdown:after,.markdown:before{content:"";display:table}.markdown:after{clear:both}.markdown>:first-child{margin-top:0!important}.markdown>:last-child{margin-bottom:0!important}.markdown a:not([href]){color:inherit;text-decoration:none}.markdown blockquote,.markdown details,.markdown dl,.markdown ol,.markdown p,.markdown pre,.markdown table,.markdown ul{margin-bottom:16px;margin-top:0}.markdown hr{background-color:var(--markdown-border-color);border:0;height:.25em;margin:24px 0;padding:0}.markdown blockquote{border-left:.25em solid var(--markdown-blockquote-border-color);color:#6a737d;padding:0 1em}.markdown blockquote>:first-child{margin-top:0}.markdown blockquote>:last-child{margin-bottom:0}.markdown h1,.markdown h2,.markdown h3,.markdown h4,.markdown h5,.markdown h6{font-weight:600;line-height:1.25;margin-bottom:16px;margin-top:24px}.markdown h1{font-size:2em}.markdown h2{font-size:1.5em}.markdown h3{font-size:1.25em}.markdown h4{font-size:1em}.markdown h5{font-size:.875em}.markdown h6{color:#6a737d;font-size:.85em}.markdown ol,.markdown ul{padding-left:2em}.markdown ol ol,.markdown ol ul,.markdown ul ol,.markdown ul ul{margin-bottom:0;margin-top:0}.markdown ol{list-style-type:decimal}.markdown ul{list-style-type:disc}.markdown li{word-wrap:break-all;display:list-item;text-align:-webkit-match-parent}.markdown li>p{margin-top:16px}.markdown li+li{margin-top:.25em}.markdown dl{padding:0}.markdown dl dt{font-size:1em;font-style:italic;font-weight:600;margin-top:16px;padding:0}.markdown dl dd{margin-bottom:16px;padding:0 16px}.markdown table{display:block;overflow:auto;width:100%}.markdown table th{font-weight:600}.markdown table td,.markdown table th{border:1px solid var(--markdown-table-border-color);padding:6px 13px}.markdown table tr{border-top:1px solid var(--markdown-table-border-color)}.markdown table tr:nth-child(2n){background-color:var(--markdown-table-even-cell-background-color)}.markdown img{background-color:transparent;box-sizing:initial;display:block;margin:0 auto;max-width:100%}.markdown img[align=right]{padding-left:20px}.markdown img[align=left]{padding-right:20px}.markdown code{background-color:rgba(27,31,35,.05);border-radius:3px;font-size:85%;margin:0;padding:.2em .4em}.markdown pre{word-wrap:normal}.markdown pre>code{background:transparent;border:0;font-size:100%;margin:0;padding:0;white-space:pre;word-break:normal}.markdown .highlight{margin-bottom:16px}.markdown .highlight pre{margin-bottom:0;word-break:normal}.markdown .highlight pre,.markdown pre{background-color:#f6f8fa;border-radius:3px;font-size:85%;line-height:1.45;overflow:auto;padding:16px}.markdown pre code{word-wrap:normal;background-color:initial;border:0;display:inline;line-height:inherit;margin:0;max-width:auto;overflow:visible;padding:0}.markdown .commit-tease-sha{color:#444d56;display:inline-block;font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;font-size:90%}.markdown .full-commit .btn-outline:not(:disabled):hover{border-color:#005cc5;color:#005cc5}.markdown .blob-wrapper{overflow-x:auto;overflow-y:hidden}.markdown .blob-wrapper-embedded{max-height:240px;overflow-y:auto}.markdown .blob-num{color:rgba(27,31,35,.3);cursor:pointer;font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;font-size:12px;line-height:20px;min-width:50px;padding-left:10px;padding-right:10px;text-align:right;-webkit-user-select:none;-ms-user-select:none;user-select:none;vertical-align:top;white-space:nowrap;width:1%}.markdown .blob-num:hover{color:rgba(27,31,35,.6)}.markdown .blob-num:before{content:attr(data-line-number)}.markdown .blob-code{line-height:20px;padding-left:10px;padding-right:10px;position:relative;vertical-align:top}.markdown .blob-code-inner{word-wrap:normal;color:#24292e;font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;font-size:12px;overflow:visible;white-space:pre}.markdown .pl-token.active,.markdown .pl-token:hover{background:#ffea7f;cursor:pointer}.markdown .tab-size[data-tab-size="1"]{-o-tab-size:1;tab-size:1}.markdown .tab-size[data-tab-size="2"]{-o-tab-size:2;tab-size:2}.markdown .tab-size[data-tab-size="3"]{-o-tab-size:3;tab-size:3}.markdown .tab-size[data-tab-size="4"]{-o-tab-size:4;tab-size:4}.markdown .tab-size[data-tab-size="5"]{-o-tab-size:5;tab-size:5}.markdown .tab-size[data-tab-size="6"]{-o-tab-size:6;tab-size:6}.markdown .tab-size[data-tab-size="7"]{-o-tab-size:7;tab-size:7}.markdown .tab-size[data-tab-size="8"]{-o-tab-size:8;tab-size:8}.markdown .tab-size[data-tab-size="9"]{-o-tab-size:9;tab-size:9}.markdown .tab-size[data-tab-size="10"]{-o-tab-size:10;tab-size:10}.markdown .tab-size[data-tab-size="11"]{-o-tab-size:11;tab-size:11}.markdown .tab-size[data-tab-size="12"]{-o-tab-size:12;tab-size:12}.markdown .task-list-item{list-style-type:none}.markdown .task-list-item+.task-list-item{margin-top:3px}.markdown .task-list-item input{margin:0 .2em .25em -1.6em;vertical-align:middle}.markdown .table-of-contents{align-items:flex-start;display:flex;flex-direction:column;justify-content:center;position:fixed;right:0;top:75px;width:340px}@media(max-width:1300px){.markdown .table-of-contents{display:none}}.markdown .table-of-contents ul{cursor:pointer;list-style-type:none}.markdown .table-of-contents ul li a{border-bottom:none;color:var(--secondary-text-color);font-size:14px;height:30px;padding:6px 2px;width:100%}.markdown .table-of-contents ul p{margin:0}.markdown .gatsby-resp-image-wrapper{display:flex!important;justify-content:center!important;max-height:560px!important;width:100%!important}.markdown .gatsby-resp-image-wrapper img{height:auto!important;max-height:560px!important;max-width:100%!important;position:relative!important;width:auto!important}.markdown .gatsby-resp-image-wrapper+em{color:#6a737d;display:block;font-size:15px;font-style:italic;text-align:center}code[class*=language-],pre[class*=language-]{word-wrap:normal;background:none;color:#ccc;font-family:Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace;font-size:1em;-webkit-hyphens:none;-ms-hyphens:none;hyphens:none;line-height:1.5;-o-tab-size:4;tab-size:4;text-align:left;white-space:pre;word-break:normal;word-spacing:normal}pre[class*=language-]{margin:.5em 0;overflow:auto;padding:1em}:not(pre)>code[class*=language-],pre[class*=language-]{background:#2d2d2d}:not(pre)>code[class*=language-]{border-radius:.3em;padding:.1em;white-space:normal}.token.block-comment,.token.cdata,.token.comment,.token.doctype,.token.prolog{color:#999}.token.punctuation{color:#ccc}.token.attr-name,.token.deleted,.token.namespace,.token.tag{color:#e2777a}.token.function-name{color:#6196cc}.token.boolean,.token.function,.token.number{color:#f08d49}.token.class-name,.token.constant,.token.property,.token.symbol{color:#f8c555}.token.atrule,.token.builtin,.token.important,.token.keyword,.token.selector{color:#cc99cd}.token.attr-value,.token.char,.token.regex,.token.string,.token.variable{color:#7ec699}.token.entity,.token.operator,.token.url{color:#67cdcc}.token.bold,.token.important{font-weight:700}.token.italic{font-style:italic}.token.entity{cursor:help}.token.inserted{color:green}.post-content{margin-bottom:20px;width:100%}.category-page-header-wrapper,.post-content{display:flex;flex-direction:column;justify-content:center}.category-page-header-wrapper{align-items:center;margin-bottom:30px;margin-top:30px}.category-page-header-wrapper .category-page-title{border-bottom:3px solid var(--primary-text-color);font-size:40px;font-weight:700;margin-bottom:15px;padding-bottom:7px;text-align:center;width:-webkit-fit-content;width:-moz-fit-content;width:fit-content}.category-page-header-wrapper .category-page-subtitle{font-size:20px;font-weight:500;padding-bottom:10px;text-align:center}.post-card-wrapper{display:flex;justify-content:center;min-height:150px;width:100%}.post-card-wrapper .post-card{border:1px solid var(--post-card-border-color);border-radius:6px;color:var(--primary-text-color);cursor:pointer;display:flex;flex-direction:column;height:100%;margin-bottom:15px;max-width:720px;padding:15px;transition:-webkit-transform .2s;transition:transform .2s;transition:transform .2s,-webkit-transform .2s;width:100%}.post-card-wrapper .post-card:hover .title{text-decoration:underline}@media(min-width:768px){.post-card-wrapper .post-card{margin-bottom:0}}.post-card-wrapper .post-card .title{font-size:18px;font-weight:600;line-height:1.4;margin-bottom:7px}.post-card-wrapper .post-card .description{-webkit-line-clamp:3;-webkit-box-orient:vertical;color:var(--primary-text-color);display:-webkit-box;font-size:13px;line-height:20px;margin-bottom:10px;overflow:hidden;text-overflow:ellipsis}.post-card-wrapper .post-card .info{color:var(--about-link-icon-color);display:flex;font-size:14px;justify-content:space-between;margin-top:auto}.post-card-wrapper .post-card .info .categories{display:flex}.post-card-wrapper .post-card .info .categories .category{margin-left:4px}.post-card-wrapper .post-card .info .categories .category:hover{text-decoration:underline}.post-card-column-wrapper{display:flex;justify-content:center;width:100%}.post-card-column-wrapper .post-card-column{align-items:center;display:flex;flex-direction:column;width:100%}.post-card-column-wrapper .post-card-column .post-card-wrapper{margin-bottom:10px}.post-card-column-wrapper .post-card-column .more-post-card-button{background-color:var(--button-background-color);color:var(--tab-hover-text-color);font-size:15px;font-weight:500;height:40px}.post-tabs-wrapper{align-self:flex-start;display:flex;flex-direction:column;justify-content:center;top:0;width:100%}.post-tabs-wrapper .post-tabs{display:flex;height:40px;justify-content:center;margin-bottom:12px;max-width:760px;width:100%}.post-tabs-wrapper .post-tabs .mui-tabs .MuiTab-root{color:var(--tab-text-color);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;font-size:17px;font-weight:500;height:40px;min-height:auto;min-width:auto;padding:10px 12px;transition:all .2s ease}.post-tabs-wrapper .post-tabs .mui-tabs .Mui-selected,.post-tabs-wrapper .post-tabs .mui-tabs .MuiTab-root :hover{color:var(--tab-hover-text-color);transition:all .2s ease}.post-tabs-wrapper .post-tabs .mui-tabs .Mui-selected{background-color:var(--tab-selected-background-color);border-radius:8px;font-weight:600}.post-tabs-wrapper .post-tabs .mui-tabs .MuiTabScrollButton-root{height:40px;width:20px}.post-tabs-wrapper .post-tabs .mui-tabs .MuiTabs-scrollable{height:40px}.post-tabs-wrapper .post-tabs .mui-tabs .MuiTabs-indicator{display:none}</style><style data-emotion="css-global o6gwfi">html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;box-sizing:border-box;-webkit-text-size-adjust:100%;}*,*::before,*::after{box-sizing:inherit;}strong,b{font-weight:700;}body{margin:0;color:rgba(0, 0, 0, 0.87);font-family:"Roboto","Helvetica","Arial",sans-serif;font-weight:400;font-size:1rem;line-height:1.5;letter-spacing:0.00938em;background-color:#fff;}@media print{body{background-color:#fff;}}body::backdrop{background-color:#fff;}</style><style data-emotion="css-global 1prfaxn">@-webkit-keyframes mui-auto-fill{from{display:block;}}@keyframes mui-auto-fill{from{display:block;}}@-webkit-keyframes mui-auto-fill-cancel{from{display:block;}}@keyframes mui-auto-fill-cancel{from{display:block;}}</style><style data-emotion="css 1l6di18 feqhe6 11tfndm mnn31 vubbuv 1yxmbwk 6flbmm">.css-1l6di18.Mui-focused .MuiAutocomplete-clearIndicator{visibility:visible;}@media (pointer: fine){.css-1l6di18:hover .MuiAutocomplete-clearIndicator{visibility:visible;}}.css-1l6di18 .MuiAutocomplete-tag{margin:3px;max-width:calc(100% - 6px);}.css-1l6di18 .MuiAutocomplete-inputRoot{-webkit-box-flex-wrap:wrap;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;}.MuiAutocomplete-hasPopupIcon.css-1l6di18 .MuiAutocomplete-inputRoot,.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiAutocomplete-inputRoot{padding-right:30px;}.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiAutocomplete-inputRoot{padding-right:56px;}.css-1l6di18 .MuiAutocomplete-inputRoot .MuiAutocomplete-input{width:0;min-width:30px;}.css-1l6di18 .MuiInput-root{padding-bottom:1px;}.css-1l6di18 .MuiInput-root .MuiInput-input{padding:4px 4px 4px 0px;}.css-1l6di18 .MuiInput-root.MuiInputBase-sizeSmall .MuiInput-input{padding:2px 4px 3px 0;}.css-1l6di18 .MuiOutlinedInput-root{padding:9px;}.MuiAutocomplete-hasPopupIcon.css-1l6di18 .MuiOutlinedInput-root,.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiOutlinedInput-root{padding-right:39px;}.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiOutlinedInput-root{padding-right:65px;}.css-1l6di18 .MuiOutlinedInput-root .MuiAutocomplete-input{padding:7.5px 4px 7.5px 6px;}.css-1l6di18 .MuiOutlinedInput-root .MuiAutocomplete-endAdornment{right:9px;}.css-1l6di18 .MuiOutlinedInput-root.MuiInputBase-sizeSmall{padding:6px;}.css-1l6di18 .MuiOutlinedInput-root.MuiInputBase-sizeSmall .MuiAutocomplete-input{padding:2.5px 4px 2.5px 6px;}.css-1l6di18 .MuiFilledInput-root{padding-top:19px;padding-left:8px;}.MuiAutocomplete-hasPopupIcon.css-1l6di18 .MuiFilledInput-root,.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiFilledInput-root{padding-right:39px;}.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiFilledInput-root{padding-right:65px;}.css-1l6di18 .MuiFilledInput-root .MuiFilledInput-input{padding:7px 4px;}.css-1l6di18 .MuiFilledInput-root .MuiAutocomplete-endAdornment{right:9px;}.css-1l6di18 .MuiFilledInput-root.MuiInputBase-sizeSmall{padding-bottom:1px;}.css-1l6di18 .MuiFilledInput-root.MuiInputBase-sizeSmall .MuiFilledInput-input{padding:2.5px 4px;}.css-1l6di18 .MuiInputBase-hiddenLabel{padding-top:8px;}.css-1l6di18 .MuiAutocomplete-input{-webkit-box-flex:1;-webkit-flex-grow:1;-ms-flex-positive:1;flex-grow:1;text-overflow:ellipsis;opacity:1;}.css-feqhe6{display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;position:relative;min-width:0;padding:0;margin:0;border:0;vertical-align:top;width:100%;}.css-11tfndm{font-family:"Roboto","Helvetica","Arial",sans-serif;font-weight:400;font-size:1rem;line-height:1.4375em;letter-spacing:0.00938em;color:rgba(0, 0, 0, 0.87);box-sizing:border-box;position:relative;cursor:text;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;width:100%;position:relative;}.css-11tfndm.Mui-disabled{color:rgba(0, 0, 0, 0.38);cursor:default;}label+.css-11tfndm{margin-top:16px;}.css-11tfndm:after{border-bottom:2px solid #1976d2;left:0;bottom:0;content:"";position:absolute;right:0;-webkit-transform:scaleX(0);-moz-transform:scaleX(0);-ms-transform:scaleX(0);transform:scaleX(0);-webkit-transition:-webkit-transform 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;transition:transform 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;pointer-events:none;}.css-11tfndm.Mui-focused:after{-webkit-transform:scaleX(1);-moz-transform:scaleX(1);-ms-transform:scaleX(1);transform:scaleX(1);}.css-11tfndm.Mui-error:after{border-bottom-color:#d32f2f;-webkit-transform:scaleX(1);-moz-transform:scaleX(1);-ms-transform:scaleX(1);transform:scaleX(1);}.css-11tfndm:before{border-bottom:1px solid rgba(0, 0, 0, 0.42);left:0;bottom:0;content:"\00a0";position:absolute;right:0;-webkit-transition:border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;pointer-events:none;}.css-11tfndm:hover:not(.Mui-disabled):before{border-bottom:2px solid rgba(0, 0, 0, 0.87);}@media (hover: none){.css-11tfndm:hover:not(.Mui-disabled):before{border-bottom:1px solid rgba(0, 0, 0, 0.42);}}.css-11tfndm.Mui-disabled:before{border-bottom-style:dotted;}.css-mnn31{font:inherit;letter-spacing:inherit;color:currentColor;padding:4px 0 5px;border:0;box-sizing:content-box;background:none;height:1.4375em;margin:0;-webkit-tap-highlight-color:transparent;display:block;min-width:0;width:100%;-webkit-animation-name:mui-auto-fill-cancel;animation-name:mui-auto-fill-cancel;-webkit-animation-duration:10ms;animation-duration:10ms;}.css-mnn31::-webkit-input-placeholder{color:currentColor;opacity:0.42;-webkit-transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;}.css-mnn31::-moz-placeholder{color:currentColor;opacity:0.42;-webkit-transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;}.css-mnn31:-ms-input-placeholder{color:currentColor;opacity:0.42;-webkit-transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;}.css-mnn31::-ms-input-placeholder{color:currentColor;opacity:0.42;-webkit-transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;}.css-mnn31:focus{outline:0;}.css-mnn31:invalid{box-shadow:none;}.css-mnn31::-webkit-search-decoration{-webkit-appearance:none;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31::-webkit-input-placeholder{opacity:0!important;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31::-moz-placeholder{opacity:0!important;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31:-ms-input-placeholder{opacity:0!important;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31::-ms-input-placeholder{opacity:0!important;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31:focus::-webkit-input-placeholder{opacity:0.42;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31:focus::-moz-placeholder{opacity:0.42;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31:focus:-ms-input-placeholder{opacity:0.42;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31:focus::-ms-input-placeholder{opacity:0.42;}.css-mnn31.Mui-disabled{opacity:1;-webkit-text-fill-color:rgba(0, 0, 0, 0.38);}.css-mnn31:-webkit-autofill{-webkit-animation-duration:5000s;animation-duration:5000s;-webkit-animation-name:mui-auto-fill;animation-name:mui-auto-fill;}.css-vubbuv{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:1em;height:1em;display:inline-block;fill:currentColor;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;-webkit-transition:fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;font-size:1.5rem;}.css-1yxmbwk{display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;position:relative;box-sizing:border-box;-webkit-tap-highlight-color:transparent;background-color:transparent;outline:0;border:0;margin:0;border-radius:0;padding:0;cursor:pointer;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;vertical-align:middle;-moz-appearance:none;-webkit-appearance:none;-webkit-text-decoration:none;text-decoration:none;color:inherit;text-align:center;-webkit-flex:0 0 auto;-ms-flex:0 0 auto;flex:0 0 auto;font-size:1.5rem;padding:8px;border-radius:50%;overflow:visible;color:rgba(0, 0, 0, 0.54);-webkit-transition:background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;}.css-1yxmbwk::-moz-focus-inner{border-style:none;}.css-1yxmbwk.Mui-disabled{pointer-events:none;cursor:default;}@media print{.css-1yxmbwk{-webkit-print-color-adjust:exact;color-adjust:exact;}}.css-1yxmbwk:hover{background-color:rgba(0, 0, 0, 0.04);}@media (hover: none){.css-1yxmbwk:hover{background-color:transparent;}}.css-1yxmbwk.Mui-disabled{background-color:transparent;color:rgba(0, 0, 0, 0.26);}.css-6flbmm{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:1em;height:1em;display:inline-block;fill:currentColor;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;-webkit-transition:fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;font-size:2.1875rem;}</style><link rel="preconnect" href="https://www.google-analytics.com"/><link rel="dns-prefetch" href="https://www.google-analytics.com"/><script>
   
   function gaOptout(){document.cookie=disableStr+'=true; expires=Thu, 31 Dec 2099 23:59:59 UTC;path=/',window[disableStr]=!0}var gaProperty='0',disableStr='ga-disable-'+gaProperty;document.cookie.indexOf(disableStr+'=true')>-1&&(window[disableStr]=!0);
   if(true) {
@@ -73,141 +91,854 @@
       }
     })
   </script><title data-react-helmet="true">Gasida Kubernetes Study 3주차</title><link rel="preload" as="font" type="font/woff2" crossorigin="anonymous" href="/static/webfonts/s/roboto/v30/KFOlCnqEu92Fr1MmSU5fBBc4.woff2"/><link rel="preload" as="font" type="font/woff2" crossorigin="anonymous" href="/static/webfonts/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxK.woff2"/><link rel="preload" as="font" type="font/woff2" crossorigin="anonymous" href="/static/webfonts/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc4.woff2"/><style>@font-face{font-display:swap;font-family:Roboto;font-style:normal;font-weight:300;src:url(/static/webfonts/s/roboto/v30/KFOlCnqEu92Fr1MmSU5fBBc4.woff2) format("woff2")}@font-face{font-display:swap;font-family:Roboto;font-style:normal;font-weight:400;src:url(/static/webfonts/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxK.woff2) format("woff2")}@font-face{font-display:swap;font-family:Roboto;font-style:normal;font-weight:500;src:url(/static/webfonts/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc4.woff2) format("woff2")}@font-face{font-display:swap;font-family:Roboto;font-style:normal;font-weight:300;src:url(/static/webfonts/s/roboto/v30/KFOlCnqEu92Fr1MmSU5fBBc-.woff) format("woff")}@font-face{font-display:swap;font-family:Roboto;font-style:normal;font-weight:400;src:url(/static/webfonts/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxM.woff) format("woff")}@font-face{font-display:swap;font-family:Roboto;font-style:normal;font-weight:500;src:url(/static/webfonts/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc-.woff) format("woff")}</style><link rel="sitemap" type="application/xml" href="/sitemap.xml"/><style>.gatsby-image-wrapper{position:relative;overflow:hidden}.gatsby-image-wrapper picture.object-fit-polyfill{position:static!important}.gatsby-image-wrapper img{bottom:0;height:100%;left:0;margin:0;max-width:none;padding:0;position:absolute;right:0;top:0;width:100%;object-fit:cover}.gatsby-image-wrapper [data-main-image]{opacity:0;transform:translateZ(0);transition:opacity .25s linear;will-change:opacity}.gatsby-image-wrapper-constrained{display:inline-block;vertical-align:top}</style><noscript><style>.gatsby-image-wrapper noscript [data-main-image]{opacity:1!important}.gatsby-image-wrapper [data-placeholder-image]{opacity:0!important}</style></noscript><script type="module">const e="undefined"!=typeof HTMLImageElement&&"loading"in HTMLImageElement.prototype;e&&document.body.addEventListener("load",(function(e){if(void 0===e.target.dataset.mainImage)return;if(void 0===e.target.dataset.gatsbyImageSsr)return;const t=e.target;let a=null,n=t;for(;null===a&&n;)void 0!==n.parentNode.dataset.gatsbyImageWrapper&&(a=n.parentNode),n=n.parentNode;const o=a.querySelector("[data-placeholder-image]"),r=new Image;r.src=t.currentSrc,r.decode().catch((()=>{})).then((()=>{t.style.opacity=1,o&&(o.style.opacity=0,o.style.transition="opacity 500ms linear")}))}),!0);</script><link as="script" rel="preload" href="/webpack-runtime-121beace0d37eb670f34.js"/><link as="script" rel="preload" href="/framework-043f1197be387cb18d15.js"/><link as="script" rel="preload" href="/app-0f9980b68d4a425d9725.js"/><link as="script" rel="preload" href="/f9d3028dbef90a6e9b8db85387d63dd9f4edf538-07f7733d8d97d93498cb.js"/><link as="script" rel="preload" href="/component---src-templates-blog-template-js-e3a4bb3c9603d1ed8af7.js"/><link as="fetch" rel="preload" href="/page-data/Kubernetes/Gasida_Study_homework_3/page-data.json" crossorigin="anonymous"/><link as="fetch" rel="preload" href="/page-data/sq/d/1073350324.json" crossorigin="anonymous"/><link as="fetch" rel="preload" href="/page-data/sq/d/1956554647.json" crossorigin="anonymous"/><link as="fetch" rel="preload" href="/page-data/sq/d/2938748437.json" crossorigin="anonymous"/><link as="fetch" rel="preload" href="/page-data/app-data.json" crossorigin="anonymous"/></head><body><div id="___gatsby"><div style="outline:none" tabindex="-1" id="gatsby-focus-wrapper"><div class="page-wrapper"><header class="page-header-wrapper"><div class="page-header"><div class="front-section"><a class="link" href="/">korwoo93.github.io</a></div><div class="trailing-section"><a class="link" href="/about">about</a><a class="link" href="/posts">posts</a><div class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-1l6di18" role="combobox" aria-expanded="false"><div class="search-input-wrapper"><div class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root search-input css-feqhe6"><div class="MuiInput-root MuiInput-underline MuiInputBase-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-11tfndm"><input type="text" aria-invalid="false" autoComplete="off" value="" class="MuiInput-input MuiInputBase-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-mnn31" aria-autocomplete="list" autoCapitalize="none" spellcheck="false"/><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium search-icon css-vubbuv" focusable="false" viewBox="0 0 24 24" aria-hidden="true" data-testid="SearchOutlinedIcon"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg></div></div></div></div></div></div></header><main class="page-content"><header class="post-header"><div class="emoji">🔮</div><div class="info"><div class="categories"><a class="category" href="/posts/Kubernetes">Kubernetes</a></div></div><h1 class="title">Gasida Kubernetes Study 3주차</h1><div class="info"><div class="author">posted by <strong>KORWOO</strong>,</div> <!-- -->August 29, 2022</div></header><div class="post-content"><div class="markdown"><p>가시다님 스터디 : <a href="https://www.notion.so/gasidaseo/23-7635cc4f02c04954a3260b317588113e">https://www.notion.so/gasidaseo/23-7635cc4f02c04954a3260b317588113e</a></p>
-<p>원래대로 라면 2주차인 K8S 네트워크 부분을 업로드해야되나 애기 엔지니어인 저에게 있어
-이해가 힘든 부분이 많아서 제가 좀 더 완벽히 이해하고 확실히 정리해서 업로드 하고자 합니다..ㅜㅜ
-그래서 3주차 스터디인 Ingress &#x26; Storage 부분을 먼저 업로드 하겠습니다.</p>
-<h2 id="1-kops-원클릭-배포" style="position:relative;"><a href="#1-kops-%EC%9B%90%ED%81%B4%EB%A6%AD-%EB%B0%B0%ED%8F%AC" aria-label="1 kops 원클릭 배포 permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>1. KOPS 원클릭 배포</h2>
-<p>지난번 1주차에서 스터디장님인 가시다님이 제공해주신 CloudFormation을 통해 EC2등을 배포하고
-거기서 aws configure 등의 작업을 진행해 주었습니다.
-하지만 가시다님의 노력으로 인하여 저희는 몇줄의 명령어 만으로 쉽게 배포할 수 있게 되었습니다.</p>
-<p>kops 원클릭 배포</p>
-<p>원클릭 배포를 위해서는 먼저 SSH 키페어, IAM 계정 키, S3 버킷이 필요합니다.</p>
-<p>위에서 말씀드린 것들은 1주차에서 생성하였으므로 이번 포스팅에서는 생략하겠습니다.</p>
-<p>먼저 cloudformation에서 사용할 yaml 파일이 필요합니다.
-<code class="language-text">curl -O https://s3.ap-northeast-2.amazonaws.com/cloudformation.cloudneta.net/K8S/kops-oneclick.yaml</code></p>
-<p>해당 파일을 다운받았다면 아래 명렁어를 통하여 배포해줍니다.</p>
-<p><code class="language-text"> aws cloudformation deploy --template-file kops-oneclick.yaml --stack-name mykops --parameter-overrides KeyName=본인의 키페어 이름 SgIngressSshCidr=$(curl -s ipinfo.io/ip)/32  MyIamUserAccessKeyID=액세스키 MyIamUserSecretAccessKey='시크릿키' ClusterBaseName='korwoo.net' S3StateStore='hellokorwoo' MasterNodeInstanceType=c5d.large WorkerNodeInstanceType=c5d.large --region ap-northeast-2</code></p>
+<h2 id="1스토리지" style="position:relative;"><a href="#1%EC%8A%A4%ED%86%A0%EB%A6%AC%EC%A7%80" aria-label="1스토리지 permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>1.스토리지</h2>
 <p><span
       class="gatsby-resp-image-wrapper"
       style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
     >
       <span
     class="gatsby-resp-image-background-image"
-    style="padding-bottom: 55.00000000000001%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAALCAIAAADwazoUAAAACXBIWXMAABJ0AAASdAHeZh94AAABCUlEQVQoz8WNUWvEIBCE/f//rrSFUjh6iSZqo4m6uqvmTEou0JfSUuhDl49dZmBm2cPj0/PL66XjPRfXnndc8GEUw8jFwMUoBilGOYzHPhgOLm/dtRddzxkiAgDlTESUcykVj5vbtpVSUkp1XZGo1EKZSimttYS43lbExGqty7JYOxtjAeK+7y4SNxDp5tBqp0IAa+d1vc3RaC8Bg9YTIhpjGBFaa53z3gfvQ87kInVTcLHMcVKLdM4f4bpamOQyhBSMsUQ0LwtTWkul3qfpRB9SS31HKamV0vrklM7fH3nvvGcQY0wJYvwlAeAT5u4dZ8V3nLGvPkspAUBrbf9xtm37arL9D/N/4Q+7/3hGC2mbEwAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+    style="padding-bottom: 43.333333333333336%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAAsTAAALEwEAmpwYAAABm0lEQVQoz4WR627aQBCFef+naBqRVGqlPEElGhSghIAB3/D6GjCsL0CwMbTcvsqOml9FHeloZ460n87u1LIsI8+3rNdrVqsVxXZLkiRUfpaz3+0pioI8y6qzKLYcDgeOxyOnU6kT5/OZ4/FQ9bXg1cF1LcJ5gIxmRHHIMk2IE8lCTpEyxPMEszAgXcYkSYyUkrf1ms1mQ57n7Pc70vQ9RE0XLYTfw7A7WG4Xw26TruYEoYbldXFeX3CnfYT/XHn/q9rI+IHpdBiojQqmiyfChYdw+5U/NpuokycmbgfhDarnXS6Xq6opWgNdtBnqj2hWC3XSZBH52N6gguhWC0O0q972lQpYVnn5SsImptNF0R4xxE/KL5BRgDtVMZwultevZLrPeNPxB+gq0Bt/IhJ1YnFLNLlhZtYJ5YzA+Y60PiNFnci6JRI3+G6b03vA60Cl/xVt9MCg94Wx8o3x6IF5NMWaNFCVe4a9O0Yvd2jKPZZo85dzFbh8S7E9m6E6wvEdyvnX7x15kTGTIaqhoZo6i1iSF5sS9bGAfwH/AGhVnNs01MiRAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
   ></span>
   <img
         class="gatsby-resp-image-image"
-        alt="OneClick_Deploy.png"
-        title="OneClick_Deploy.png"
-        src="/static/0651907af537f218c3d590706cf3a26f/37523/OneClick_Deploy.png"
-        srcset="/static/0651907af537f218c3d590706cf3a26f/e9ff0/OneClick_Deploy.png 180w,
-/static/0651907af537f218c3d590706cf3a26f/f21e7/OneClick_Deploy.png 360w,
-/static/0651907af537f218c3d590706cf3a26f/37523/OneClick_Deploy.png 720w,
-/static/0651907af537f218c3d590706cf3a26f/302a4/OneClick_Deploy.png 1080w,
-/static/0651907af537f218c3d590706cf3a26f/8affb/OneClick_Deploy.png 1254w"
+        alt="Instance_Storage.png"
+        title="Instance_Storage.png"
+        src="/static/12c3e014bfbb4f5c8196afe93ea3abea/37523/Instance_Storage.png"
+        srcset="/static/12c3e014bfbb4f5c8196afe93ea3abea/e9ff0/Instance_Storage.png 180w,
+/static/12c3e014bfbb4f5c8196afe93ea3abea/f21e7/Instance_Storage.png 360w,
+/static/12c3e014bfbb4f5c8196afe93ea3abea/37523/Instance_Storage.png 720w,
+/static/12c3e014bfbb4f5c8196afe93ea3abea/6bfd0/Instance_Storage.png 1011w"
         sizes="(max-width: 720px) 100vw, 720px"
         style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
         loading="lazy"
         decoding="async"
       />
     </span></p>
-<p>5~10분 정도의 시간이 지나면 위에 화면과 같이 컨트롤플레인 및 워커노드가 모두 생성이 되어있는것을 확인하실 수 있습니다.</p>
-<p>다시한번 가시다님의 노고에 감사드립니다ㅜㅜ</p>
-<h2 id="2-실습환경-구성을-위한-사전-준비-사항" style="position:relative;"><a href="#2-%EC%8B%A4%EC%8A%B5%ED%99%98%EA%B2%BD-%EA%B5%AC%EC%84%B1%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%82%AC%EC%A0%84-%EC%A4%80%EB%B9%84-%EC%82%AC%ED%95%AD" aria-label="2 실습환경 구성을 위한 사전 준비 사항 permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>2. 실습환경 구성을 위한 사전 준비 사항</h2>
-<ol>
-<li>AWS Free Tier 계정</li>
-<li>IAM User</li>
-<li>AWS Route53 퍼블릭 호스팅 영역</li>
-</ol>
-<p><img src="AWS_IAM.png" alt="AWS_IAM.png"></p>
-<p>먼저 위의 화면과 같이 AdministratorAccess 정책이 부여된 별도의 계정을 생성해주도록 합니다.</p>
-<p><img src="AWS_IAM2.png" alt="AWS_IAM2.png"></p>
-<p>계정을 생성하면 위의 화면과 같이 Access Key ID, Secret Access Key가 제공되는데 해당 값을 이용하여 AWS CLI 로그인을 진행하게 됩니다.
-해당 값들이 유출되게 된다면 해킹으로 인하여 폭탄과금이 부여될 수 있으므로 보안에 유의하여 관리해주시길 바랍니다.</p>
-<h2 id="3-초기-구성--kops-설치" style="position:relative;"><a href="#3-%EC%B4%88%EA%B8%B0-%EA%B5%AC%EC%84%B1--kops-%EC%84%A4%EC%B9%98" aria-label="3 초기 구성  kops 설치 permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>3. 초기 구성  kops 설치</h2>
-<p><img src="Configu.png" alt="Configu.png"></p>
-<p>Cloudformation에 이미 작성되어 있는 yaml 파일을 이용하여 기본 인프라 환경이 배포됩니다.</p>
-<p><img src="CloudFormation.png" alt="CloudFormation.png"></p>
-<p><img src="CloudFormation2.png" alt="CloudFormation2.png"></p>
-<p>Cloudformation 을 이용한 배포 시 위의 화면 맨 밑에 해당하는 부분에 자신의 IP 주소를 입력하여 (0.0.0.0/0 형태) 보안성을 강화합니다.</p>
-<p><img src="CloudFormation3.png" alt="CloudFormation3.png"></p>
-<p>Cloudformation이 완료된다면 위의 화면과 같이 <code class="language-text">CREATE_COMPLETE</code> 라는 문구를 보실 수 있습니다.</p>
-<p>그 후 EC2에 접속하시면 생성된 EC2를 확인하실 수 있을겁니다.</p>
-<p><img src="aws_configure.png" alt="aws_configure.png"></p>
-<p>EC2에 접속 후  IAM 자격 증명을 위해
-aws configure를 입력하면
-AWS Access Key ID,
-AWS Secret Access Key
-Default region name
-등을 입력하실 수 있습니다.
-여기서 위에서 생성하였던 IAM 계정의 정보를 입력해주면 자격을 가져오실 수 있습니다.</p>
-<p>그 후</p>
-<p><code class="language-text">aws s3 mb s3://자신의고유s3이름</code></p>
-<p>명령어를 통하여 k8s 설정 파일이 저장될 s3 버킷을 생성해주도록 합니다.</p>
-<p><img src="s3_mb.png" alt="s3_mb.png"></p>
-<p>아래의 기본설정 변수를 지정해 줍니다.</p>
-<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">export AWS_PAGER=""
-export REGION=ap-northeast-2
-export KOPS_CLUSTER_NAME=korwoo.com #자신의 퍼블릭 호스팅 메인 주소
-export KOPS_STATE_STORE=s3://korwoo #자신이 생성한 버킷 이름 
-echo 'export AWS_PAGER=""' >>~/.bashrc
-echo 'export REGION=ap-northeast-2' >>~/.bashrc
-echo 'export KOPS_CLUSTER_NAME=korwoo.com' >>~/.bashrc
-echo 'export KOPS_STATE_STORE=s3://korwoo' >>~/.bashrc</code></pre></div>
-<p>다음 아래의 명령어를 입력하여 k8s cluster를 배포하도록 합니다.</p>
-<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">kops create cluster --zones="$REGION"a,"$REGION"c --networking amazonvpc --cloud aws \
---master-size t3.medium --node-size t3.medium --node-count=2 --network-cidr 172.30.0.0/16 \
---ssh-public-key ~/.ssh/id_rsa.pub --name=$KOPS_CLUSTER_NAME --kubernetes-version "1.24.9" -y</code></pre></div>
-<p><img src="Success.png" alt="Success.png"></p>
-<p>k8s cluster 가 성공적으로 배포되었다면 위의 화면과 같은 메세지를 보실 수 있습니다.</p>
-<p><img src="Success2.png" alt="Success2.png"></p>
-<p>과제 1</p>
-<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">kops get cluster
-kops get ig
-kops get instances</code></pre></div>
-<p>해당 명령어를 입력하여 정상적으로 설치가 되었는지 확인해주도록 합시다.</p>
-<p>다음은 K8S의 플러그인들을 관리해주는 패키지 매니저 krew를 설치해주도록 하겠습니다.</p>
-<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">curl -fsSLO https://github.com/kubernetes-sigs/krew/releases/download/v0.4.3/krew-linux_amd64.tar.gz
-tar zxvf krew-linux_amd64.tar.gz
-./krew-linux_amd64 install krew
-tree -L 3 /root/.krew/bin
-
-export PATH="${PATH}:/root/.krew/bin"
-echo 'export PATH="${PATH}:/root/.krew/bin"' >>~/.bashrc
-</code></pre></div>
-<p><img src="krew.png" alt="krew.png"></p>
-<p>krew 또한 정상적으로 설치되었습니다.</p>
-<h2 id="4-이정훈님의-집필-과정-및-aws-eks-구성-현황-발표" style="position:relative;"><a href="#4-%EC%9D%B4%EC%A0%95%ED%9B%88%EB%8B%98%EC%9D%98-%EC%A7%91%ED%95%84-%EA%B3%BC%EC%A0%95-%EB%B0%8F-aws-eks-%EA%B5%AC%EC%84%B1-%ED%98%84%ED%99%A9-%EB%B0%9C%ED%91%9C" aria-label="4 이정훈님의 집필 과정 및 aws eks 구성 현황 발표 permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>4. 이정훈님의 집필 과정 및 AWS EKS 구성 현황 발표</h2>
-<p><img src="book.jpg" alt="book.jpg"></p>
-<p>해당 세션은 24단계 실습으로 정복하는 쿠버네티스 의 저자이신 이정훈님께서 실무에서 배우고 느낀점을 집필하시면 느끼셨던점을 공유해주셨던 시간이었습니다.
-저는 항상 이런분들을 보면서 자기자신을 반성하게 되는 계기가 되는거 같습니다.
-2023년에는 좀더 열심히 달려가야겠습니다!</p>
-<h2 id="5-mario-게임-배포-테스트-with-clb" style="position:relative;"><a href="#5-mario-%EA%B2%8C%EC%9E%84-%EB%B0%B0%ED%8F%AC-%ED%85%8C%EC%8A%A4%ED%8A%B8-with-clb" aria-label="5 mario 게임 배포 테스트 with clb permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>5. Mario 게임 배포 테스트 with CLB</h2>
-<p>해당 명령어를 사용하여 마리오 디플로이먼트를 배포해보겠습니다.</p>
-<div class="gatsby-highlight" data-language="text"><pre class="language-text"><code class="language-text">curl -O https://raw.githubusercontent.com/gasida/PKOS/main/1/mario.yaml
-kubectl apply -f mario.yaml
-cat mario.yaml | yh</code></pre></div>
-<p><img src="korwoo_mario.png" alt="korwoo_mario"></p>
-<p>kubectl get deploy,svc,ep mario 를 입력하면
-CLB 주소가 나오며 접속하실 수 있습니다.</p>
-<h2 id="6-helm-을-이용한-워드프레스-배포" style="position:relative;"><a href="#6-helm-%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%9C-%EC%9B%8C%EB%93%9C%ED%94%84%EB%A0%88%EC%8A%A4-%EB%B0%B0%ED%8F%AC" aria-label="6 helm 을 이용한 워드프레스 배포 permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>6. Helm 을 이용한 워드프레스 배포</h2>
-<p>내용 작성 중</p>
-<p><img src="korwoo_wordpress.png" alt="korwoo_wordpress"></p>
-<h2 id="7-과제-3" style="position:relative;"><a href="#7-%EA%B3%BC%EC%A0%9C-3" aria-label="7 과제 3 permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>7. 과제 3</h2>
-<p>내용 작성 중
-<img src="korwoo_homework3-1.png" alt="korwoo_homework3-1">
-<img src="korwoo_homework3-2.png" alt="korwoo_homework3-2">
-<img src="korwoo_homework3-3.png" alt="korwoo_homework3-3">
-<img src="korwoo_homework3-4.png" alt="korwoo_homework3-4"></p>
+<p>아래 명령어를 통해 인스토어 스토어 볼륨이 있는 c5모든 타입의 스토리지 크기를 조회하실 수 있습니다.
+<code class="language-text"> aws ec2 describe-instance-types \ --filters "Name=instance-type,Values=c5*" "Name=instance-storage-supported,Values=true" \ --query "InstanceTypes[].[InstanceType, InstanceStorageInfo.TotalSizeInGB]" \ --output table</code></p>
+<p>저희가 배포한 c5d.large는 50Gib 만큼의 크기를 제공하고 있습니다.</p>
+<p>먼저 각 워커노드의 스토리지를 확인해 보도록 하겠습니다.
+<code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo apt install -y nvme-cli</code>
+<code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo apt install -y nvme-cli</code>
+<code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo nvme list</code>
+<code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo nvme list</code></p>
+<p>nvm list를 통해서 보면 2개의 스토리지를 확인하실 수 있습니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 14.444444444444443%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAADCAYAAACTWi8uAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAh0lEQVQI1z2PUQ6EIAxEvYKKgEBcWsDI/Q84m2nW/Zi8SQOvsEgucCHhUyukVpRSUH/MOeO6Luvee+spJYQQsO87tm2z+XEc1snlFoU/C7Q1zOdB792iqhARtNZM5JwzWYzRFpAUkwxlPLPcfSCeCaKKOafJxhh/IcmXrutqFynlDzhjf/NKv1IRT1SyLB+BAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="nvm_list.png"
+        title="nvm_list.png"
+        src="/static/ffc128c6dcb73798f062ef69639e1681/37523/nvm_list.png"
+        srcset="/static/ffc128c6dcb73798f062ef69639e1681/e9ff0/nvm_list.png 180w,
+/static/ffc128c6dcb73798f062ef69639e1681/f21e7/nvm_list.png 360w,
+/static/ffc128c6dcb73798f062ef69639e1681/37523/nvm_list.png 720w,
+/static/ffc128c6dcb73798f062ef69639e1681/302a4/nvm_list.png 1080w,
+/static/ffc128c6dcb73798f062ef69639e1681/07a9c/nvm_list.png 1440w,
+/static/ffc128c6dcb73798f062ef69639e1681/6fa81/nvm_list.png 1856w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>하지만 AWS Management Console를 통해서 보면 EC2에 할당된 디스크중에 50Gib짜리 디스크는 찾아보실 수 없습니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 42.22222222222223%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAICAYAAAD5nd/tAAAACXBIWXMAAAsTAAALEwEAmpwYAAABJUlEQVQoz2VRB27DMAz0/1+Z1k4RJ9EeHpJyxdGRG6AECImbdxyU1rDOwRgL7z2Ui1AuIMaAlDNCjMg5Y993lFJEa60otZz2pw5KabDpsix4vV6iFDbojbqvvzFGbNt++j7rBq0NnPNitNbOILeoraG97R6jbNuGWhs+pdcNIUT4cMBb1xUpvd+cZcNt3xFTQqlVUCzrKs05kH7msIZ+gXx/anzfnrgpC20sxnGCMQbzPEMpBW00LtcLQgi4Px4Ypwm3eYbWGsZapJSEMiIl3wL5axwxXX+k6JiY/imR9I3IIXPJLzfNeYHzXuyBcNm5B7k+4fJPH5sRNq9KO8Z0XppckgYO4GLMG+hkAnmh0qZ2njiQVBjrZNhxkCpHKTK0/B2yNfwCEBJuCkHD/hUAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="EC2_Storage.png"
+        title="EC2_Storage.png"
+        src="/static/efe6ce1c54a77ba30a28e6a28ea97833/37523/EC2_Storage.png"
+        srcset="/static/efe6ce1c54a77ba30a28e6a28ea97833/e9ff0/EC2_Storage.png 180w,
+/static/efe6ce1c54a77ba30a28e6a28ea97833/f21e7/EC2_Storage.png 360w,
+/static/efe6ce1c54a77ba30a28e6a28ea97833/37523/EC2_Storage.png 720w,
+/static/efe6ce1c54a77ba30a28e6a28ea97833/302a4/EC2_Storage.png 1080w,
+/static/efe6ce1c54a77ba30a28e6a28ea97833/07a9c/EC2_Storage.png 1440w,
+/static/efe6ce1c54a77ba30a28e6a28ea97833/93582/EC2_Storage.png 1524w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>인스턴스 스토어에 대한 정보는 스토리지 정보에 출력이 되지 않는다는 점을 확인하실 수 있습니다.</p>
+<p>아래의 명령어를 통해 파일시스템 생성 및 /data를 마운트 시킬 수 있습니다.
+<code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo mkfs -t xfs /dev/nvme1n1</code>
+<code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo mkfs -t xfs /dev/nvme1n1</code>
+<code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo mkdir /data</code>
+<code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo mkdir /data</code>
+<code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo mount /dev/nvme1n1 /data</code>
+<code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo mount /dev/nvme1n1 /data</code>
+<code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP df -hT -t ext4 -t xfs</code>
+<code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP df -hT -t ext4 -t xfs</code></p>
+<h2 id="2ingress" style="position:relative;"><a href="#2ingress" aria-label="2ingress permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>2.Ingress</h2>
+<p>지난주에 진행했던 실습과 비슷한 실습입니다.
+각 EC2에 LB생성 권한을 부여해 LB를 생성하고 여기에 배포를 하여 외부에 오픈해주는 작업을 진행해 보겠습니다.</p>
+<p>각 컨트롤플레인, 워커노드에 LB 생성 권한을 부여하겠습니다.
+<code class="language-text">aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy --role-name nodes.$KOPS_CLUSTER_NAME</code>
+<code class="language-text">aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy --role-name nodes.$KOPS_CLUSTER_NAME</code></p>
+<p>아래 명령어를 통해 IAM 권한또한 부여하겠습니다.</p>
+<p><code class="language-text">aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AllowExternalDNSUpdates --role-name masters.$KOPS_CLUSTER_NAME</code>
+<code class="language-text">aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AllowExternalDNSUpdates --role-name nodes.$KOPS_CLUSTER_NAME</code></p>
+<p>다음 kops cluster edit을 통해</p>
+<p>spec.cerManager.enable:ture
+spec.LoadBalancerController.enable:true
+spec.externalDns.provider:external-dns
+를 추가해준 후 업데이트를 진행해주도록 하겠습니다.</p>
+<p><code class="language-text">kops update cluster --yes &amp;&amp; echo &amp;&amp; sleep 3 &amp;&amp; kops rolling-update cluster</code></p>
+<p>실습을 진행하기 전 항상 IAM에 해당 권한이 정상적으로 부여가 되었는지 확인 후 진행하기를 권장드립니다.
+권한이 부여되어있지 않다면 LB가 생성되지 않습니다..ㅜㅜ
+<span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 45.55555555555556%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAAsTAAALEwEAmpwYAAABU0lEQVQoz6VRy26DMBDkn0ND2yTkkFcv6V9SEbABAwEDNlPNRkRtr10x2vUynn04eNufEW4OCF+3WK03CKPffv2+R7Q74WV3xjq+CKL4gtXmiHBzRLT/QHz6RHy6Ynu4ImjbFipXWMzjfxZM0wQ/z/DeYxhHDPYOa3v0fY/eWtzvd4mttXDewzknIH+eZzjnJfYSOwRVVYkQ5pkfTFWirCrYYcQ4PsCi9IsYz13XwRiDYRgkbppGhAPTdhLQWJEkpTXKspS4bhohL50SFGAjSinx5N5uN5ki6O2AybnH/rwXQpIkQlBKQ2slFwmtNbIsQ57nKIpCzmmaPv+zmIxMZRHk2N6jbnukRQdtLDo7SecCQEZnx8/cH8grL4JMtG2DLFdIswKVqVHXj5EJcrkGdrfkiLquRUN2yDZZdTG2/pUkMlpljAhwCl4iKLDs8SeY4yt/A7+fnxqKjB04AAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="IAM_Check.png"
+        title="IAM_Check.png"
+        src="/static/57a292d75a61f385cbb26bb82cc8d10a/37523/IAM_Check.png"
+        srcset="/static/57a292d75a61f385cbb26bb82cc8d10a/e9ff0/IAM_Check.png 180w,
+/static/57a292d75a61f385cbb26bb82cc8d10a/f21e7/IAM_Check.png 360w,
+/static/57a292d75a61f385cbb26bb82cc8d10a/37523/IAM_Check.png 720w,
+/static/57a292d75a61f385cbb26bb82cc8d10a/302a4/IAM_Check.png 1080w,
+/static/57a292d75a61f385cbb26bb82cc8d10a/07a9c/IAM_Check.png 1440w,
+/static/57a292d75a61f385cbb26bb82cc8d10a/5c684/IAM_Check.png 1829w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>IAM 권한을 확인하였다면 POD를 배포해보도록 하겠습니다.
+아래 명령어를 통해 POD를 배포해보도록 하겠습니다.</p>
+<p><code class="language-text">kubectl apply -f ~/pkos/3/ingress1.yaml</code></p>
+<p>배포 후 AWS Management Console 에서 LB가 생성된것을 확인하실 수 있습니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 33.888888888888886%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAHCAYAAAAIy204AAAACXBIWXMAAAsTAAALEwEAmpwYAAABG0lEQVQoz51QXUsDMRDMfy+09qS9imJbBH2w+Bv8FfrugyBC2/vI3WWTXBLvYGSXPqj4ogvDLhN2ZifqcnOHze0Oy4srTGbnmEwzwSxbYjpfIFuskK3WmK82mH/t+Vr6WX6NfLtDfvOA5fYeCj/KWouUPvCn2j8BL4/A/hmq7Tp47xFihNYNyqqC1hrGEDpjQNaKiSECkRXeeY++72Gtk9nVe9jjK9rjG1QfAsZxxDAMIky+hyaPPiZ0XQciQggBzp2WnRNhFuQD2DSkAT4OIB+gmqZFjFFi1lrjUNZ4P5QyF2WJY1FI58urukZVVcJxL4pS3phnc2MMFLtzsSMvWb7AkkQUnOJ+w2/cCYpPTimBo7MTC8p/WfsvfALowQL93W36HAAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="Load_Balancer.png"
+        title="Load_Balancer.png"
+        src="/static/2b298198fcc1666b92844b5cd0bfd277/37523/Load_Balancer.png"
+        srcset="/static/2b298198fcc1666b92844b5cd0bfd277/e9ff0/Load_Balancer.png 180w,
+/static/2b298198fcc1666b92844b5cd0bfd277/f21e7/Load_Balancer.png 360w,
+/static/2b298198fcc1666b92844b5cd0bfd277/37523/Load_Balancer.png 720w,
+/static/2b298198fcc1666b92844b5cd0bfd277/302a4/Load_Balancer.png 1080w,
+/static/2b298198fcc1666b92844b5cd0bfd277/07a9c/Load_Balancer.png 1440w,
+/static/2b298198fcc1666b92844b5cd0bfd277/e216b/Load_Balancer.png 1904w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>아래 명렁어를 통해 Ingress를 확인하실 수 있습니다.</p>
+<p><code class="language-text">kubectl describe ingress -n game-2048 ingress-2048</code></p>
+<p>아래 명렁어를 통해 외부에서 접속 가능한 게임의 URL 주소가 생성이 됩니다. 해당 URL에 접속해보도록 하겠습니다.</p>
+<p><code class="language-text">kubectl get ingress -n game-2048 ingress-2048 -o jsonpath={.status.loadBalancer.ingress[0].hostname} | awk '{ print "Game URL = http://"$1 }'</code></p>
+<p>정상적으로 접속 됩니다!</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 51.11111111111111%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAKCAYAAAC0VX7mAAAACXBIWXMAAAsTAAALEwEAmpwYAAABWUlEQVQoz52RWU/CQBSF+f8/xcim4sLWSEQom0KEqNgUqbQsbacbtJ0Wj5lhURN9gIeTk5t77zdnchM0cOCvLHiusZfr6NwD3+ZaLk2slgRh4IBSD8F2h/WYLz2TO7FUJELfBA1MRAFBFJK9Bysd08kQ2scrXFvDZ+zCnMmQ+g1Y+hgxtbDbpQHhHocWEqwIfcKbO0WhBYdo6HdFPHXrmE9lRNTGfDJETyxB1yTE1NnOk1+e2NC/tXmVwPcWsAwFtqHAnI+gT2UoUg8P1Wss1CHiyNnP/tSfQDa8UN/QKGchljLcm8IZ2rcXaFdymCkvxwFr+SRawjm693nUCynUCkncXZ1gIvexjl2EvnE4cNAQMH7u8IRiMc2h6miwBR6YsF5Mo1nOolO55DBWV69PoY6OTMgA7KsbpdEoZ9ASMtDeB1hHRyRkqZjYUWqFFLrVHKTHG+iT/4/yBXxd58iWhIyFAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="game_url.png"
+        title="game_url.png"
+        src="/static/0f802fbb586b9d1ca39900d20b63169d/37523/game_url.png"
+        srcset="/static/0f802fbb586b9d1ca39900d20b63169d/e9ff0/game_url.png 180w,
+/static/0f802fbb586b9d1ca39900d20b63169d/f21e7/game_url.png 360w,
+/static/0f802fbb586b9d1ca39900d20b63169d/37523/game_url.png 720w,
+/static/0f802fbb586b9d1ca39900d20b63169d/302a4/game_url.png 1080w,
+/static/0f802fbb586b9d1ca39900d20b63169d/07a9c/game_url.png 1440w,
+/static/0f802fbb586b9d1ca39900d20b63169d/3e992/game_url.png 1902w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p><code class="language-text"> kubectl get pod -n game-2048 -owide</code> 명령어를 통해 POD의 IP를 조회해보겠습니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 6.666666666666667%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAABCAYAAADeko4lAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAQklEQVQI1z2JOwrAMAzFegQvNgE7/uCG3P+EryRDB4GQnt0Ny8a7FqoK7o6IQGZCVTHGgJldZ+b/nz7nhIhcjhMRPitHGn9lEV2pAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="LB_BP.png"
+        title="LB_BP.png"
+        src="/static/f1c1241feb033a61199490793283e1cd/37523/LB_BP.png"
+        srcset="/static/f1c1241feb033a61199490793283e1cd/e9ff0/LB_BP.png 180w,
+/static/f1c1241feb033a61199490793283e1cd/f21e7/LB_BP.png 360w,
+/static/f1c1241feb033a61199490793283e1cd/37523/LB_BP.png 720w,
+/static/f1c1241feb033a61199490793283e1cd/302a4/LB_BP.png 1080w,
+/static/f1c1241feb033a61199490793283e1cd/07a9c/LB_BP.png 1440w,
+/static/f1c1241feb033a61199490793283e1cd/92bb4/LB_BP.png 1824w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>위의 POD의 IP가 LB의 백엔드풀에 정상적으로 등록된것을 확인하실 수 있습니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 44.99999999999999%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAAsTAAALEwEAmpwYAAABaUlEQVQoz4WRb0/CMBDG981NTNQYhBkBA0Ii8aP5wjBGx9r137XdHnMFpq+0yZNrr5fnftcW5WqHl9U7ps9L3D1McHN7j8dJicenMsdpOcdsvsZ0vsFssUG52J7jcjtq8bbD6+YD8/UOBX6tlCL+X8Oft4VSCs57OOdQHQ7QxoAoIKWEGCOOooGjgJB6eAqwzo13IUZ01qM1Ho5izhfGmOwcQoBoBKy1GIYzBQWCpQTjA07KwKchE7IZr77vMfT9OF02ZAPuxIZHIeCI4JnYe0gtQSHAOwunVTbiPFNy/c8+5shTFl3XwVibu1V1jc+vCvuqQi0E6qMYY9O2aJWCvKiVctSJdbnPhESUx+T33O/3ONQ1uk5nCibMkWjU9ay1yVQs0TSQUqHotM50LN4zLRPw2ObS7DoOG3FeKjmaa60zCF2equBCfhs25A/iJHdjYi7ivHMeQjToUw+KhFpW5w8ZhvOPpzSevwF8m6X2Zc710gAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="LB_BP2.png"
+        title="LB_BP2.png"
+        src="/static/e1e98acfa0bccaea67c7da82fda3088b/37523/LB_BP2.png"
+        srcset="/static/e1e98acfa0bccaea67c7da82fda3088b/e9ff0/LB_BP2.png 180w,
+/static/e1e98acfa0bccaea67c7da82fda3088b/f21e7/LB_BP2.png 360w,
+/static/e1e98acfa0bccaea67c7da82fda3088b/37523/LB_BP2.png 720w,
+/static/e1e98acfa0bccaea67c7da82fda3088b/302a4/LB_BP2.png 1080w,
+/static/e1e98acfa0bccaea67c7da82fda3088b/07a9c/LB_BP2.png 1440w,
+/static/e1e98acfa0bccaea67c7da82fda3088b/a95f7/LB_BP2.png 1853w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>만약 해당 POD의 갯수를 늘려준다면 백엔드풀에 등록된 IP또한 계속해서 늘어나게 됩니다.</p>
+<p>이후 아래 명령어를 통해 실습 리소스를 제거해주도록 합니다.</p>
+<p><code class="language-text">kubectl delete ingress ingress-2048 -n game-2048</code>
+<code class="language-text">kubectl delete svc service-2048 -n game-2048 &amp;&amp; kubectl delete deploy deployment-2048 -n game-2048 &amp;&amp; kubectl delete ns game-2048</code></p>
+<p>다음 실습으로 넘어가겠습니다.</p>
+<p>아래의 명렁어를 입력하여 본인이 지정한 도메인에 pod를 배포해보도록 하겠습니다.</p>
+<p><code class="language-text">WEBDOMAIN=albweb.korwoo.net</code>
+<code class="language-text">WEBDOMAIN=$WEBDOMAIN envsubst &lt; ~/pkos/3/ingress2.yaml | kubectl apply -f -</code></p>
+<p>AWS Management Console에서 본인이 지정한 도메인이 등록되어있는것을 확인하실 수 있습니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 47.77777777777777%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAKCAYAAAC0VX7mAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB40lEQVQoz11Ry2pUQRDtH3AzimiEoGYhKCQLv0AQIQmI+QeR6MosRAMuREXMmIXGvb8jOMJIPkAkc999X9P31bfv40jVnWSMDYeurq46dapKvDs4wtsPh9h//Qa3Hz3Dtc1drG4/xej+E1y49xijB7u4tP0cF7f2GKP/sbmHyw9f4OrOS6zsvILAP2fr2zHufJ7i7tdfWD+aMja+THHr8CfWPk2wNv6B6wdL3BhPcHM8werH4X3l/XeIWBVA3yPLMsxcH0GiMPMkYpUjUTlknMKPUngL0P8f28dvy4Ufz0H5p6A/kec5qyvLEmqeAn0HU+ul7K4dgH7h6OG7DmYnJzBan/k4tDEQKlsSRkmCSmvIMERZVmiahv1FWULXNZqmhTENPD+A47rwA8m25/mI4pjjRFlVZ4QxEVYVByil0LYttNYcWNc1v6mIlJKLhmE02DIcCIsSoiiKc4R0W5aFJE1hjOF3nheskAjJZ9sOFyUiQiAl4jgBiRN1bZiQlBEJ3ZRg2zYvqqo08qI4p5DatR0XDoFs22FSyhUqy1Abg67rQAsiZ7Bog0gGlRXHnBKGYYi5UuyncVCXNBrqQlASHQrOshxUgKpalo00nfNclMqGxWjNBV3X44WEUcSgeSZJykv5CxcOw8BDqakUAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="route53.png"
+        title="route53.png"
+        src="/static/e3bc2a19b8f0126efc47ae811db7a369/37523/route53.png"
+        srcset="/static/e3bc2a19b8f0126efc47ae811db7a369/e9ff0/route53.png 180w,
+/static/e3bc2a19b8f0126efc47ae811db7a369/f21e7/route53.png 360w,
+/static/e3bc2a19b8f0126efc47ae811db7a369/37523/route53.png 720w,
+/static/e3bc2a19b8f0126efc47ae811db7a369/302a4/route53.png 1080w,
+/static/e3bc2a19b8f0126efc47ae811db7a369/07a9c/route53.png 1440w,
+/static/e3bc2a19b8f0126efc47ae811db7a369/b5cfe/route53.png 1767w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>저는 제 모바일기기를 통하여 해당 도메인에 접속을하였고 접속이 성공적으로 되었습니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 214.44444444444443%; position: relative; bottom: 0; left: 0; background-image: url('data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAArABQDASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAAECAwQF/8QAFQEBAQAAAAAAAAAAAAAAAAAAAQD/2gAMAwEAAhADEAAAAe5BUjqERnr0xGwkQ1MZDK//xAAdEAACAgIDAQAAAAAAAAAAAAABAgARITISICIx/9oACAEBAAEFAsWWojIZqJ9FcK+0TVls8IPlSuv/xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAEDAQE/AV//xAAUEQEAAAAAAAAAAAAAAAAAAAAg/9oACAECAQE/AV//xAAdEAABAgcAAAAAAAAAAAAAAAAAATEQICEwQWGR/9oACAEBAAY/AtlY57Ig49j/xAAcEAADAAIDAQAAAAAAAAAAAAAAAREhMRAgcYH/2gAIAQEAAT8hoFSp/B1RLZUWSVZXwLBVv038pNYQoeokg2I6/wD/2gAMAwEAAgADAAAAENMVfzjv/8QAFhEBAQEAAAAAAAAAAAAAAAAAERAg/9oACAEDAQE/ECOP/8QAFhEBAQEAAAAAAAAAAAAAAAAAEQAQ/9oACAECAQE/EGYwi//EAB4QAQACAgMAAwAAAAAAAAAAAAEAETFBIVGxEGGh/9oACAEBAAE/EKGCCOoFs6vCDGBowKXhXIxsKwrAO4Y4Cy3bnufR15N6zPd7ESY1wkG78JXWuNkrGi7aq4Gupv5//9k='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="ExternalDomain.jpg"
+        title="ExternalDomain.jpg"
+        src="/static/e72f25624c600bddedda98955389a7b0/80e3c/ExternalDomain.jpg"
+        srcset="/static/e72f25624c600bddedda98955389a7b0/4ec73/ExternalDomain.jpg 180w,
+/static/e72f25624c600bddedda98955389a7b0/158ba/ExternalDomain.jpg 360w,
+/static/e72f25624c600bddedda98955389a7b0/80e3c/ExternalDomain.jpg 720w,
+/static/e72f25624c600bddedda98955389a7b0/47311/ExternalDomain.jpg 1080w,
+/static/e72f25624c600bddedda98955389a7b0/644c5/ExternalDomain.jpg 1440w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>과제1. Ingress를 이용하여 /mario에는 mario 게임 접속, /tetris에는 tetris게임 접속되게 설정 및 SSL 적용 하기</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 51.11111111111111%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAKCAYAAAC0VX7mAAAACXBIWXMAAAsTAAALEwEAmpwYAAABtklEQVQoz43S30tTcRjH8f0l/R/dFHXlTTfhVV2Uwy4WMyGZURaOwTZQm3MarezH5o+OVBdjbsw8FdvaimxyoIW1FHbaTnY8Z5trIUF6vu9QqEs9D3zguXle8IHH8X2rTVVr8lnVqVR1aloHVbeomztomybfNAO1bvBjq4lptmg0W5iNbTZ142Dfj9Fo0f7Zod35heNOZpfJzC7hu1+JzJUJP00SnQkzOpJlfHGHsRTM5/ewO45nWZVUxs9tr5+I340veJHQ5AA3PCFi9weZiK2yuNIG/iAECCEOjePjuyke3ztJIDKENHaW0M1TLKQfEY0PE3AdIz48xVpNBfHbHrjy0sv71wGUF7d4FXeSSiQoFvKUkn2k593kstOsKRLCsg4q7R8dWlnJB0lKfYz3d5HxdVGM9ZNLR1iKO1madfE24aGiTGNZwh5YXPYyN3ga6fIJUs4zSBe6mY158AV7SAddyBPXqJQfIvZsgtnEVWb83fh6jiP3nuOB28XCkysMXT9PdOASz0d7KeVG/mNHgtpGno31AsqqTK36hoZRQlcL1L8sU/4gs/5JRq+V7IN2/+so6B/4F+q8v44PnujwAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="mario.png"
+        title="mario.png"
+        src="/static/a7b62fab03f4e1b313f00379d030ec05/37523/mario.png"
+        srcset="/static/a7b62fab03f4e1b313f00379d030ec05/e9ff0/mario.png 180w,
+/static/a7b62fab03f4e1b313f00379d030ec05/f21e7/mario.png 360w,
+/static/a7b62fab03f4e1b313f00379d030ec05/37523/mario.png 720w,
+/static/a7b62fab03f4e1b313f00379d030ec05/302a4/mario.png 1080w,
+/static/a7b62fab03f4e1b313f00379d030ec05/07a9c/mario.png 1440w,
+/static/a7b62fab03f4e1b313f00379d030ec05/0d292/mario.png 1620w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span>
+<span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 49.44444444444444%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAKCAYAAAC0VX7mAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA+ElEQVQoz62Ry07DMBBF8wdJBIFV3ciOU4KgcVO3S/qAZtkVOz4ISCGP0kXFz140TiIWjRBSszjS2B4fja+t4/EbZfmFbJfjPfvE7qNAWR0MRblHXlQntOctebFHVR3wmr3Bsu1LOM4VXPcXWjtOvc/YPQaDOwPVnsdg2xdNj9dQ1657DUuIG3TB+QhBcAutN9D6yTCbpYgiDc5DCBF13rN8X6KL4VDA90dQaok4XmA8foBSK0gZgzHe9AQn9/4lnExWSJK1EYahOk9I06XpM7bbF0ynj/1MSPnN5xskSU9Cyq/N8Ownk1CphYGylLIHIeVI1L/8t/AHxvk2W8lsbXEAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="tetris.png"
+        title="tetris.png"
+        src="/static/7f2b4e8575fa3ea7c2457640404585bf/37523/tetris.png"
+        srcset="/static/7f2b4e8575fa3ea7c2457640404585bf/e9ff0/tetris.png 180w,
+/static/7f2b4e8575fa3ea7c2457640404585bf/f21e7/tetris.png 360w,
+/static/7f2b4e8575fa3ea7c2457640404585bf/37523/tetris.png 720w,
+/static/7f2b4e8575fa3ea7c2457640404585bf/302a4/tetris.png 1080w,
+/static/7f2b4e8575fa3ea7c2457640404585bf/07a9c/tetris.png 1440w,
+/static/7f2b4e8575fa3ea7c2457640404585bf/a88f6/tetris.png 1900w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span>
+<span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 48.33333333333333%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAKCAYAAAC0VX7mAAAACXBIWXMAAAsTAAALEwEAmpwYAAAByUlEQVQoz22S227TQBCG/ejQqKXYQJtcUMhFn4Bn4IYLJISUlsSqIE7UOAd8iI/r+LRr/9WMY4sLVhrN7nr+b/8dr3b78R7X7ycYvTFwcaVjdEXZwOtLndeX+g1Gb8e4vrmDPp5CH3+GMZni3WTKmfS3d/cwxp/wSjegLa0VdvsDFqaJ2eMvzBcmzKcnzB4e8XM2x+L7V8y/fMDixzeY1ga/lytY62csrTX+WGus1s8c3dyGptCNqqpQlCWUUqil5L2mbdEqiaYUnNu2RVmWOOU5VHNWti2UkqhlzUstFRlP4iRBKgSDSUTiuq4ZXtUSUipIKeG6LrbbHaqqRj+olg9RCpoQgjeTJGVgnucM78FFUfC8aRoWeJ6H3W6PIAgRRhGiKAYx8qLgGi3Piw6YdsA4jnE4/GUQwU+n03A6OXQcF67nwfeP8Dwfnu+zmQFIgs5hgjRNkWUZjseAXfUuqbgHkrNjECCKIoRhyEG6AUgiGiLLOMjhxrYhRHZ2WbDLHkju6bu93XLebGx2OgBJSA2nH0BXo344joM4Tv7rkNwHYcg3ohoyQK0ZgP0TITEBqY/7/QFhGA1P6d8eUs/oZ1Br6HAKvskZ+AJWseZgCZtS2gAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="route53_2.png"
+        title="route53_2.png"
+        src="/static/e62ccdf1c02d6963854a3683f2b1a0a7/37523/route53_2.png"
+        srcset="/static/e62ccdf1c02d6963854a3683f2b1a0a7/e9ff0/route53_2.png 180w,
+/static/e62ccdf1c02d6963854a3683f2b1a0a7/f21e7/route53_2.png 360w,
+/static/e62ccdf1c02d6963854a3683f2b1a0a7/37523/route53_2.png 720w,
+/static/e62ccdf1c02d6963854a3683f2b1a0a7/302a4/route53_2.png 1080w,
+/static/e62ccdf1c02d6963854a3683f2b1a0a7/07a9c/route53_2.png 1440w,
+/static/e62ccdf1c02d6963854a3683f2b1a0a7/85bc8/route53_2.png 1875w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>현재 화면에서 보시면 mario는 SSL이 적용되어 있으나, tetris는 SSL 이 적용되어 있지 않습니다..
+현재 원인 분석 중 입니다..ㅜㅜ</p>
+<h2 id="3-k8s-스토리지" style="position:relative;"><a href="#3-k8s-%EC%8A%A4%ED%86%A0%EB%A6%AC%EC%A7%80" aria-label="3 k8s 스토리지 permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>3. K8S 스토리지</h2>
+<p>K8S 스토리지에서 가장 중요한 부분을 뽑자면 파드 내부의 데이터는 파드가 정지되면 모두 제거가 된다는 점 입니다.
+따라서 보존이 필요한 중요한 데이터가 있다면 PV같은 Stateful 애플리케이션으로 데이터를 보존해야된다는 점을 기억해주시면 되겠습니다.</p>
+<p>간단한 실습으로 데이터의 보존 여부를 체크해보겠습니다.
+아래의 명령어를 통해 10초마다 1번씩 데이터를 기록하는 POD를 배포해보겠습니다.
+<code class="language-text">kubectl apply -f ~/pkos/3/date-busybox-pod.yaml</code></p>
+<p>해당 POD를 배포하면 주기적으로 데이터를 기록하게 되는데
+<code class="language-text">kubectl delete pod busybox</code>
+<code class="language-text">kubectl apply -f ~/pkos/3/date-busybox-pod.yaml</code></p>
+<p>위의 명령어를 통해서 POD를 제거하였다가 다시 생성하였을 시 이전에 기록한 데이터가 남아있는지 확인합니다.</p>
+<p>당연하게도 이전의 데이터는 모두 제거가 되게 됩니다.</p>
+<p>과제2. HostPath 실습 및 문제점 확인과 성능 측정</p>
+<p>먼저 HostPath를 사용하는 PV/PVC 스토리지 클래스를 배포하도록 하겠습니다!
+local path 정의 파일 다운로드
+<code class="language-text">curl -s -O https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.23/deploy/local-path-storage.yaml</code></p>
+<p>vim local-path-storage.yaml 을 통해 각자 Control Plane의 이름 입력해줍니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 75.55555555555556%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAYAAADkmO9VAAAACXBIWXMAAAsTAAALEwEAmpwYAAACIklEQVQ4y42TW2+cMBCF96W7gA2GBYy52CywsMleo0p9SJX2//+rU81kSWlSKXkYjUD253PmskqaEVt7gCos4iSDKQoYY1CWJYqiQNM0iOMYQghIKT+NlcorpN0ZcbOHkhG89TesNxus12ts7tn3fT5M0M/AKylDpP0F+vgT5XhD6QboPGd1WmtWm2XZ1xXKSIFtt0fk2sCYgu1WVcWZgsBfB0qJxE7Ij89Iqj18z4Pn+/Ao32O2LMU93kGWj63oI1Qx1zGtB7imhnMOXbdD27YcXd9jm6YIggBiUctlTee8EiKA0jWSeg+VlVC6gtrmCGWIMAz5YJIkSOIYkRCIpOQIZ4UEXVqeyelwQ3H5jfzxGXHZQ5mWHxHaYWw7nGsL6wXoRYgmkNgFErmQr7CFyldgGCHOCobmuyO6rsc0jRjHkZtDc6iUYqVknfN2iyiKPlhfvZIDCN9D3Iwo7IC23+Ph4RHTNHENrbVvnbdNg9IYtM4hTdN/GnJXGCBUCdLhCfr8C/r0gtgeYMYbTGVRVSUDqVGU5yA4/avr+u3Rv5ZlyJa3uxMy4+DqEs7W6HYtXNvyRbpENsn6HFSKuXHvLAu2nB1+IO1v2E0n7M/f0XZ7XM5n3G5PuF6vXFNSQvtNCkndcs9Z4dI/zaK9vkA3PXTtoE0NZy26rmMQXaYhp7M0kzyXH+fw/oPA/gZNZXA6HjEOA/I8452mILsE+N+6LTflD/a8b1rS6LsRAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="InputMaster.png"
+        title="InputMaster.png"
+        src="/static/504a5641015a79a04bd7c740e86a6f74/37523/InputMaster.png"
+        srcset="/static/504a5641015a79a04bd7c740e86a6f74/e9ff0/InputMaster.png 180w,
+/static/504a5641015a79a04bd7c740e86a6f74/f21e7/InputMaster.png 360w,
+/static/504a5641015a79a04bd7c740e86a6f74/37523/InputMaster.png 720w,
+/static/504a5641015a79a04bd7c740e86a6f74/83e77/InputMaster.png 889w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>아래 명령어를 입력해서 배포해보도록 하겠습니다.</p>
+<p><code class="language-text">kubectl apply -f local-path-storage.yaml</code></p>
+<p>다음으로 PV/PVC를 사용하는 POD를 생성해보도록 하겠습니다.</p>
+<p><code class="language-text">kubectl apply -f ~/pkos/3/localpath1.yaml</code></p>
+<p><code class="language-text">kubectl get pvc</code>
+<code class="language-text">kubectl describe pvc</code>
+를 입력해서 PVC를 확인해보도록 하겠습니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 40%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAICAYAAAD5nd/tAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA+0lEQVQoz3VS2Y6EMAzjkVvihnLDDmhhEMv/f5xHjlTESN0HK2lxYyfB+lU1iqJBUg94vX6wLAv6vsc8z3feti3SNEWWZei6TnLC8zz4vv8F61xWKNWibHoc7zf2fUddU6RAVVUSeY6iSIqweBzHSJLEXPC6LlHlw23bJPIDyRqu696wbfvOn7y74HEcyPNcVMdxRBiGRmUTjA7/zhPruko7wzBIpACdEiaB51nnOopDDp8zappGBq/JQRD864QtGx3SnXbEYo7jiCsKcF4kcQHPORLkshvyedbR4tamaZK22TIXRAGlFMqyFCFyuGneEfqOXBbm38DvfPcBTLHELpDEwKAAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="check_pvc.png"
+        title="check_pvc.png"
+        src="/static/a49d1bf689e82d60b29c254383740ce6/37523/check_pvc.png"
+        srcset="/static/a49d1bf689e82d60b29c254383740ce6/e9ff0/check_pvc.png 180w,
+/static/a49d1bf689e82d60b29c254383740ce6/f21e7/check_pvc.png 360w,
+/static/a49d1bf689e82d60b29c254383740ce6/37523/check_pvc.png 720w,
+/static/a49d1bf689e82d60b29c254383740ce6/302a4/check_pvc.png 1080w,
+/static/a49d1bf689e82d60b29c254383740ce6/85e74/check_pvc.png 1436w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>위에서 진행하였던 실습과 똑같이 10초마다 1번씩 데이터를 입력하는 POD를 배포해보도록 하겠습니다.</p>
+<p><code class="language-text">kubectl apply -f ~/pkos/3/localpath2.yaml</code></p>
+<p>각 워커노드에 Tool을 설치해주도록 하겠습니다.</p>
+<p><code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo apt install -y tree jq sysstat</code>
+<code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo apt install -y tree jq sysstat</code></p>
+<p>배포된 POD에는 out.txt라는 파일이 있을것입니다. 아래 명령어로 확인 가능합니다.</p>
+<p><code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP tree /data</code>
+<span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 13.333333333333334%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAADCAYAAACTWi8uAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAhElEQVQI1zWO2QrFIBBD+1hQ8GpdKha3ov//h7lkoA+HBONM5qjO4/e8sLnhvm/03jHGEJ9SQikF13XBWiu+1ioZ/ZwTay3xOWfJjtob3tGFEIIMU733wue5nMrcOScFXxFVa43zPHHEEFBbw95biDHKMOElhO2fJ/xDeBkL+WaMgVIKf1bsTIF3fpSYAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="out.png"
+        title="out.png"
+        src="/static/14add20f445371a797254a23bc4559d5/37523/out.png"
+        srcset="/static/14add20f445371a797254a23bc4559d5/e9ff0/out.png 180w,
+/static/14add20f445371a797254a23bc4559d5/f21e7/out.png 360w,
+/static/14add20f445371a797254a23bc4559d5/37523/out.png 720w,
+/static/14add20f445371a797254a23bc4559d5/d5bfb/out.png 1072w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>이 파일은 10초에 1번씩 입력되는 데이터를 저장하는 경로 입니다.
+이제 POD를 제거하면 과연 데이터가 살아있을지 확인해보도록 하겠습니다.</p>
+<p><code class="language-text">kubectl delete pod app</code>
+<code class="language-text">kubectl get pod,pv,pvc</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 32.77777777777778%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAHCAYAAAAIy204AAAACXBIWXMAAAsTAAALEwEAmpwYAAABDUlEQVQoz01R227FIAzjtfc7baHQlpaeTnvY/3+dJ2dC2oOV4MQOAXUZB//+IFwRx3FgXVdM0wRrLZZlkbMxBsMwoCgKlGUpqKpKIrmUEyo4j36x0HqGWVc453DfN87zFIQQhBvHUYz7vpeYBm/bJoPJk1N3jNi9x3Hs8N5j33e87ytmFPKmMUYxbJpGwDzPc7RtK2a8Ifl5nqFIeO9kEomu61DXtTRrreXMGjkKU6QBcyLdnF5qMwafr2/E+OC6AuLziDHNGNN70pSrM6YzV+TbcjiN2atO62DPB3peRMBmFmjGZoqSOeuMXJm1LMtkdX4MwVxNWuMKf49PYRKnH04chzDSjCtTnH72P34BTRSwcBOYngkAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="data_alive.png"
+        title="data_alive.png"
+        src="/static/7d94d1d8fabcf8a23e026c917ecb6ceb/37523/data_alive.png"
+        srcset="/static/7d94d1d8fabcf8a23e026c917ecb6ceb/e9ff0/data_alive.png 180w,
+/static/7d94d1d8fabcf8a23e026c917ecb6ceb/f21e7/data_alive.png 360w,
+/static/7d94d1d8fabcf8a23e026c917ecb6ceb/37523/data_alive.png 720w,
+/static/7d94d1d8fabcf8a23e026c917ecb6ceb/302a4/data_alive.png 1080w,
+/static/7d94d1d8fabcf8a23e026c917ecb6ceb/07a9c/data_alive.png 1440w,
+/static/7d94d1d8fabcf8a23e026c917ecb6ceb/7b775/data_alive.png 1445w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>POD가 죽었음에도 PV가 살아있으니 데이터또한 같이 살아 있습니다!</p>
+<p>다음으로 kubestr &#x26; sar을 활용하여 모니터링 및 성능측정 확인을 진행해보도록 하겠습니다.</p>
+<p>아래 명령어로 kubestr를 다운로드 받아주도록 하겠습니다.</p>
+<p><code class="language-text">wget https://github.com/kastenhq/kubestr/releases/download/v0.4.36/kubestr_0.4.36_Linux_amd64.tar.gz</code>
+<code class="language-text">tar xvfz kubestr_0.4.36_Linux_amd64.tar.gz &amp;&amp; mv kubestr /usr/local/bin/ &amp;&amp; chmod +x /usr/local/bin/kubestr</code></p>
+<p>아래 명령어로 모니터링을 걸어주도록 하겠습니다.</p>
+<p><code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP iostat -xmdz 1 -p nvme1n1</code>
+<code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP iostat -xmdz 1 -p nvme1n1</code></p>
+<p>모니터링에서 표시되는 정보 관련 내용입니다.
+rrqm/s : 초당 드라이버 요청 대기열에 들어가 병합된 읽기 요청 횟수
+wrqm/s : 초당 드라이버 요청 대기열에 들어가 병합된 쓰기 요청 횟수
+r/s : 초당 디스크 장치에 요청한 읽기 요청 횟수
+w/s : 초당 디스크 장치에 요청한 쓰기 요청 횟수
+rMB/s : 초당 디스크 장치에서 읽은 메가바이트 수
+wMB/s : 초당 디스크 장치에 쓴 메가바이트 수
+await : 가장 중요한 지표, 평균 응답 시간. 드라이버 요청 대기열에서 기다린 시간과 장치의 I/O 응답시간을 모두 포함 (단위: ms)</p>
+<p>아래 명령어를 입력하여 측정을 시작하겠습니다.(5~10분정도 소요됩니다.)
+<code class="language-text">curl -s -O https://raw.githubusercontent.com/wikibook/kubepractice/main/ch10/fio-read.fio</code>
+<code class="language-text">kubestr fio -f fio-read.fio -s local-path --size 10G</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 44.99999999999999%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAAsTAAALEwEAmpwYAAABNklEQVQoz3WS2Y6DMAxFeey+r1AKlLKWQv//5+7ouPJo1Goerpw4ycm1k6CKr6qyXFndqagaVVWlx+OhpmkURZEOh4N2u53W67VF5tvtVpvN5neN8fF41HK5VNC/Bj37p9qmVtu2BhyGQXVd63Q66Xw+KwxDO8whcsT9fm8CyB7ieDxWcL/flee5sixTkiS2mQ2LxUKTyUTz+Vyz2exL5D9FPgAC7HK52O3MuY2y3AXuPLKH8qfT6ZcMWBSFcAmEQ14WArparQzgol/0ygF/RS4oy1JA6RPucEqM49jg9AWNRiNrAXLYJ9SAgLquM5e8bt/39ijkEBfebjeD+6H/ZCXzNa5xYiWmaWqiVP8atMK/Cw9F84k+9jnx7TAKlZZvIK+NG8Y4xxUgLvWvQ2ROS+i5j8kD/AGbP+K2Qi7SUgAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="kubestr.png"
+        title="kubestr.png"
+        src="/static/8313841c9a840f411832d8ad604b1663/37523/kubestr.png"
+        srcset="/static/8313841c9a840f411832d8ad604b1663/e9ff0/kubestr.png 180w,
+/static/8313841c9a840f411832d8ad604b1663/f21e7/kubestr.png 360w,
+/static/8313841c9a840f411832d8ad604b1663/37523/kubestr.png 720w,
+/static/8313841c9a840f411832d8ad604b1663/302a4/kubestr.png 1080w,
+/static/8313841c9a840f411832d8ad604b1663/e72de/kubestr.png 1198w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p><code class="language-text">curl -s -O https://raw.githubusercontent.com/wikibook/kubepractice/main/ch10/fio-write.fio</code>
+<code class="language-text">kubestr fio -f fio-write.fio -s local-path --size 10G</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 43.333333333333336%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAAsTAAALEwEAmpwYAAABI0lEQVQoz4WSWW+EMAyEeWKB5RL3VQqkIpRjl///56YaS5FohdSHkeMk/uIxWPpzRK8PfOlvLFpj33dordH3Peq6RlmWSJIEWZZJXhQF0jSVvG1biXmey1kQBLCO1wvrorGtq4BezNcVXdfJxaZpJFKEE2hyA+N+FEXwPA+WUgqTUhjHUQ6GYZAOns8n4jgWhWEoYtGdzB3WWLTGLghj5IVr8XV9LbyKnTH6vg9rmiYB0QrhnAvnUVWViA+ZaB5moQFcJR3O8yxDZxFnQjDX3LNtG47jwHVd6cJEA7uDWu/3G8uy4DgOcH2ep6y3bZO5cui0etfN3z0BqkmhaRsppn3aNtb5gWiTMvO6g/wC5h+ZWKVN2uW/9Hg8xJqxSf3XmQH+ANQi3nIJKTo5AAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="kubestr2.png"
+        title="kubestr2.png"
+        src="/static/7bd07c922e926794b4153996168395ab/37523/kubestr2.png"
+        srcset="/static/7bd07c922e926794b4153996168395ab/e9ff0/kubestr2.png 180w,
+/static/7bd07c922e926794b4153996168395ab/f21e7/kubestr2.png 360w,
+/static/7bd07c922e926794b4153996168395ab/37523/kubestr2.png 720w,
+/static/7bd07c922e926794b4153996168395ab/302a4/kubestr2.png 1080w,
+/static/7bd07c922e926794b4153996168395ab/84f4d/kubestr2.png 1208w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>과제3. AWS EBS를 PVC로 사용 후 온라인 볼륨 증가 해보기</p>
+<p>아래 명령어를 입력하여 aws-ebs-csi를 확인해봅니다. 미리 설치되어 있다고합니다.(친절한 가시다님ㅜㅜ)
+<code class="language-text">kubectl get pod -n kube-system -l app.kubernetes.io/instance=aws-ebs-csi-driver</code></p>
+<p>스토리지 클래스 확인
+<code class="language-text">kubectl get sc kops-csi-1-21 kops-ssd-1-17</code>
+<code class="language-text">kubectl describe sc kops-csi-1-21 | grep Parameters</code>
+<code class="language-text">kubectl describe sc kops-ssd-1-17 | grep Parameters</code></p>
+<p>아래 명령어를 입력해 워커노드의 EBS 볼륨을 확인해봅시다.
+<code class="language-text">aws ec2 describe-volumes --filters Name=tag:k8s.io/role/node,Values=1 --output table</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 38.33333333333333%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAICAYAAAD5nd/tAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA80lEQVQoz42RUW/DIAyEedyCwYZAgCRLVm1a//8vvAm36apprfbw6SA631nBnLYTQttQa8O+76i1opSC1pqyLItqSkm/9/u6rpjn+cbhyTnDTFMGewfnHIhI9R7vvQb1wT7U7789914jIugw80PGcdT2rs98HTOOEcwe/tpwwV1hhVl0w1784/kbk0tDTAUSJ4QQEGKCxAyJSYvYk/4SPbP8Y8P5jFA+QJy1QfI7pJwh5QtOCjjt4PEN5APsMMBa+xQT6yc4VgyvL5fAtIG8gJwHOYbzQSHqj2b14Z5hYl41qKd31W3Iwdpjm+F27gOHPgr8BnoOviGT/xQuAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="image_volume.png"
+        title="image_volume.png"
+        src="/static/d72baa3d042f2ed0c2e152f49f3efabd/37523/image_volume.png"
+        srcset="/static/d72baa3d042f2ed0c2e152f49f3efabd/e9ff0/image_volume.png 180w,
+/static/d72baa3d042f2ed0c2e152f49f3efabd/f21e7/image_volume.png 360w,
+/static/d72baa3d042f2ed0c2e152f49f3efabd/37523/image_volume.png 720w,
+/static/d72baa3d042f2ed0c2e152f49f3efabd/302a4/image_volume.png 1080w,
+/static/d72baa3d042f2ed0c2e152f49f3efabd/4c5bd/image_volume.png 1435w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>아래 명령어는 Pod에 추가한 EBS 볼륨을 확인하는 명령어 입니다.
+<code class="language-text">aws ec2 describe-volumes --filters Name=tag:ebs.csi.aws.com/cluster,Values=true --output table</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 9.444444444444445%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAACCAYAAABYBvyLAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAUklEQVQI13WKQQqAMAwEe0z6gLQhaKlV+/8XriSgoOBhyGZ20yIK7RN9G2htRa0VIoJSSqCqgWf33pvZ4+6Ne79p7APzPGJERMg5v2Dm4Pv/uQvWFTDSIoecsgAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="ebs_volume.png"
+        title="ebs_volume.png"
+        src="/static/f32add800e89c713257998804e271ede/37523/ebs_volume.png"
+        srcset="/static/f32add800e89c713257998804e271ede/e9ff0/ebs_volume.png 180w,
+/static/f32add800e89c713257998804e271ede/f21e7/ebs_volume.png 360w,
+/static/f32add800e89c713257998804e271ede/37523/ebs_volume.png 720w,
+/static/f32add800e89c713257998804e271ede/302a4/ebs_volume.png 1080w,
+/static/f32add800e89c713257998804e271ede/bed7a/ebs_volume.png 1437w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>아래 명령어로 PVC,POD를 생성해주도록 하겠습니다.</p>
+<p><code class="language-text">kubectl apply -f ~/pkos/3/awsebs-pvc.yaml</code>
+<code class="language-text">kubectl apply -f ~/pkos/3/awsebs-pod.yaml</code></p>
+<p>다음 아래 명령어를 통해 볼륨 정보를 확인하실 수 있습니다.
+<code class="language-text">kubectl exec -it app -- sh -c 'df -hT --type=ext4'</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 9.444444444444445%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAACCAYAAABYBvyLAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAZ0lEQVQI1z2MuwrAIBRDu+tUH1hRa6+iDg7+/8+leKEdQnJCyPH4iDNUXOFGIcIYAzlnFhGh986+OcYIay201iznHJRS8N4jpQRjDI61Fhd73FpDKeU/qrVynnMy7xMpJYQQv3/54xfVpTSWWXbkHQAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="volume_check.png"
+        title="volume_check.png"
+        src="/static/eb8ce2bfd6828f47e0ea3e904d9d1880/37523/volume_check.png"
+        srcset="/static/eb8ce2bfd6828f47e0ea3e904d9d1880/e9ff0/volume_check.png 180w,
+/static/eb8ce2bfd6828f47e0ea3e904d9d1880/f21e7/volume_check.png 360w,
+/static/eb8ce2bfd6828f47e0ea3e904d9d1880/37523/volume_check.png 720w,
+/static/eb8ce2bfd6828f47e0ea3e904d9d1880/302a4/volume_check.png 1080w,
+/static/eb8ce2bfd6828f47e0ea3e904d9d1880/22c86/volume_check.png 1143w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>또한 AWS Management Console -> EC2 -> 볼륨으로 들어가면 4Gi의 볼륨이 생성된것을 확인하실 수 있습니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 39.44444444444444%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAICAYAAAD5nd/tAAAACXBIWXMAAAsTAAALEwEAmpwYAAABYklEQVQoz42Q224TMRCG90V5DVogpa1UpQkIVJpW0EsueBVeokhEgpKFPdhen72bfshOWm4QYqRPY49//2NPtbr5yMXqA0fztxycLjk4WfD0+JzD0yWzs9e8XF4yW1wxW6w4Wl7zfH7Ji8WKZ/N3HJ5dcPzqmpM3N5y//8ST2RUV+/AT2BFGIPH/EYAYA6w/8+XHTyptDCEEmqZBiB7vHM7akr3foZRCa13qehgwWmONKVmpgUH29N9vcaKhcs6RUiIbq2Gg63t6ITDW4oqpRxjPujF02pda1jrniyamRBpH4nTP3aalGsexGOZDY2wxjDGy3W4LOWyc+NY7hI3EELDOFU1uNk1TIWtzrcod8kJKSdO2bDY1dV0jhCgXQvAobamFRZrdPjfOL3R74wfzr+s7qjyXXMgzbNuumGa6rqPdk1+dx5EZ9PBnXfb6ESEVVUq77z2I/oZU6p8IKfnVtiX/BrDCUBVKe72WAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="console_ebs.png"
+        title="console_ebs.png"
+        src="/static/b66c0a583a190ab0e3141f0f5d514500/37523/console_ebs.png"
+        srcset="/static/b66c0a583a190ab0e3141f0f5d514500/e9ff0/console_ebs.png 180w,
+/static/b66c0a583a190ab0e3141f0f5d514500/f21e7/console_ebs.png 360w,
+/static/b66c0a583a190ab0e3141f0f5d514500/37523/console_ebs.png 720w,
+/static/b66c0a583a190ab0e3141f0f5d514500/302a4/console_ebs.png 1080w,
+/static/b66c0a583a190ab0e3141f0f5d514500/07a9c/console_ebs.png 1440w,
+/static/b66c0a583a190ab0e3141f0f5d514500/7970d/console_ebs.png 1908w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>아래의 명령어를 통해 4Gi -> 10Gi 로 용량을 증가시켜 준다.</p>
+<p><code class="language-text">kubectl patch pvc ebs-claim -p '{"spec":{"resources":{"requests":{"storage":"10Gi"}}}}'</code></p>
+<p>용량이 증가된것을 확인하실 수 있습니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 37.222222222222214%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAHCAYAAAAIy204AAAACXBIWXMAAAsTAAALEwEAmpwYAAABNUlEQVQoz41QSU4DQQyc/7+FS0iIBFk0UsgChBy4cEUaiJIwM73Y3T0bKeSGsJ2wVHKXXapWOVnerHG3ecDteoP+eIaz4fQDFyP0rlIMJjMM0yUG0wUG0yUu0hXOJ/PIe+Nr9EYz9CdzDNMVxot7JMfjEaci51F33/y/Vb8BrXpB+3iJxDkH5zyapkGe51BKgayFMQZEBO89vHMolEZpHSxx3MvuJ0RXFAUSZo6k6zrYKGQopUHMCFWFqqrR1DVKrvCUMzTLrAKzi92HgLZtIUlDCEjETIgMLVFEWZZRLJ98nSO02JkADk1MI0bSRXcyFH00dN7H4X6/x3a7RZY9I8syHA6HeALBa6mxKwmaGHImSSPpJIlwMVZaIwlk4L2LhnlRwBDByA0/oY2JkLcl+2v3F5LuHUz3EMxvudH/AAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="console_ebs2.png"
+        title="console_ebs2.png"
+        src="/static/b0ce2ec5fca46e5c6cfa1df46c28a4c9/37523/console_ebs2.png"
+        srcset="/static/b0ce2ec5fca46e5c6cfa1df46c28a4c9/e9ff0/console_ebs2.png 180w,
+/static/b0ce2ec5fca46e5c6cfa1df46c28a4c9/f21e7/console_ebs2.png 360w,
+/static/b0ce2ec5fca46e5c6cfa1df46c28a4c9/37523/console_ebs2.png 720w,
+/static/b0ce2ec5fca46e5c6cfa1df46c28a4c9/302a4/console_ebs2.png 1080w,
+/static/b0ce2ec5fca46e5c6cfa1df46c28a4c9/07a9c/console_ebs2.png 1440w,
+/static/b0ce2ec5fca46e5c6cfa1df46c28a4c9/3e992/console_ebs2.png 1902w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>혹은 아래 명렁어를 통해서도 확인하실 수 있습니다!</p>
+<p><code class="language-text">kubectl exec -it app -- sh -c 'df -hT --type=ext4'</code></p>
+<p>과제4. AWS Volume Snapshot 실습</p>
+<p>kops edit 을 통해 아래 표시된 부분을 추가해준후 업데이트 해주도록 하겠습니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 51.11111111111111%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAKCAIAAAA7N+mxAAAACXBIWXMAABJ0AAASdAHeZh94AAABAklEQVQoz42Oy26DMBBF3V1ijz2YmKdtQkIMNA+pG6qqi/5AWYNaiR/g/z+gipNFVg1Hs7gazRldsgrcKmjXQUNlTWWzli2Th+sEpZ/iHsIDCyyIBDADLgEYABCzbTNbJ/kuTm2UlqnZ8zCjwAGov+Bw55bFwwZI27jXtjY6U5tQCR6jiDiE/uopZFdVp8ulci7JMslAMYiBK+B4a/a//LEtv+rmc1+9m2InkPq6dIF5lSut35qmyvMUMaRLlAc5TtP2eDRFESq1iSJEZGzpC6K17rrudD4brZVSUkrBuRACF0AQ0TlnrRVCEEJePGQh4zjO8zxN06/nxzMMQ9/338/4A3HeNOWZaJfUAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="snapshotcontroller.png"
+        title="snapshotcontroller.png"
+        src="/static/3f0e9f235210c84e7367c41db20dd179/37523/snapshotcontroller.png"
+        srcset="/static/3f0e9f235210c84e7367c41db20dd179/e9ff0/snapshotcontroller.png 180w,
+/static/3f0e9f235210c84e7367c41db20dd179/f21e7/snapshotcontroller.png 360w,
+/static/3f0e9f235210c84e7367c41db20dd179/37523/snapshotcontroller.png 720w,
+/static/3f0e9f235210c84e7367c41db20dd179/302a4/snapshotcontroller.png 1080w,
+/static/3f0e9f235210c84e7367c41db20dd179/fbfd6/snapshotcontroller.png 1357w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>아래 명령어를 통해 업데이트가 되었는지 확인해보겠습니다.</p>
+<p><code class="language-text">kubectl get crd | grep volumesnapshot</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 11.666666666666666%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAACCAYAAABYBvyLAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAeklEQVQI1zXKzQ7CIBhE0W67IqKSWqoggdDyJwQ3Lnz/xxrDl7g8M3dy5ws8O+FxU7hvBlo/Ya1FCAHGDGuy954spSQ753AcB+3/ljGG6XVd8FkkvsuK97oh54xaK2KMaK1R3HvHvu9QSoFzjlIKdeMfe0oJQgjM84wfjJ44jdHM95gAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="volume_snapshot.png"
+        title="volume_snapshot.png"
+        src="/static/69a8f22fbdd1471e5d22b165218144e6/37523/volume_snapshot.png"
+        srcset="/static/69a8f22fbdd1471e5d22b165218144e6/e9ff0/volume_snapshot.png 180w,
+/static/69a8f22fbdd1471e5d22b165218144e6/f21e7/volume_snapshot.png 360w,
+/static/69a8f22fbdd1471e5d22b165218144e6/37523/volume_snapshot.png 720w,
+/static/69a8f22fbdd1471e5d22b165218144e6/7a3d6/volume_snapshot.png 990w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>아래 명령어를 통해 vsclass 생성해주도록 하겠습니다.</p>
+<p><code class="language-text">kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-ebs-csi-driver/master/examples/kubernetes/snapshot/manifests/classes/snapshotclass.yaml</code></p>
+<p>PVC, POD 생성 명령어
+<code class="language-text">kubectl apply -f ~/pkos/3/awsebs-pvc.yaml</code>
+<code class="language-text">kubectl apply -f ~/pkos/3/awsebs-pod.yaml</code></p>
+<p>아래 명령어를 통해 볼륨 스냅샷을 생성해주도록 하겠습니다.
+<code class="language-text">kubectl apply -f ~/pkos/3/ebs-volume-snapshot.yaml</code></p>
+<p>볼륨 스냅샷을 확인하는 명령어 입니다.</p>
+<p><code class="language-text">kubectl get volumesnapshot</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 10%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAACCAYAAABYBvyLAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAcklEQVQI11WMSQoDIQAE5wVKXKNx1wgaB/z/5zog5JBbVxfUtVICF088lMXLWowx4JxDSglzTvTesffGWut8jDFYa6G1hpQSIYS/fX3uG+/W0GpBjBGllCNyzqi1nrgQAsaYE6OUQikFQsjhn+ecw3uPL+p6NSuXuYK1AAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="volume_snapshot_2.png"
+        title="volume_snapshot_2.png"
+        src="/static/a8186a5f27f924820eb18032d47fe0ad/37523/volume_snapshot_2.png"
+        srcset="/static/a8186a5f27f924820eb18032d47fe0ad/e9ff0/volume_snapshot_2.png 180w,
+/static/a8186a5f27f924820eb18032d47fe0ad/f21e7/volume_snapshot_2.png 360w,
+/static/a8186a5f27f924820eb18032d47fe0ad/37523/volume_snapshot_2.png 720w,
+/static/a8186a5f27f924820eb18032d47fe0ad/302a4/volume_snapshot_2.png 1080w,
+/static/a8186a5f27f924820eb18032d47fe0ad/07a9c/volume_snapshot_2.png 1440w,
+/static/a8186a5f27f924820eb18032d47fe0ad/f470a/volume_snapshot_2.png 1443w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>완료가 되었다면 복원을 해보겠습니다.
+임의로 app &#x26; pvc를 제거하여 이슈를 만들어보겠습니다.</p>
+<p><code class="language-text">kubectl delete pod app &amp;&amp; kubectl delete pvc ebs-claim</code></p>
+<p>이후 스냅샷에서 PVC로 복원을 해보겠습니다.</p>
+<p><code class="language-text">kubectl apply -f ~/pkos/3/ebs-snapshot-restored-claim.yaml</code>
+<code class="language-text">kubectl apply -f ~/pkos/3/ebs-snapshot-restored-pod.yaml</code></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 47.77777777777777%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAKCAYAAAC0VX7mAAAACXBIWXMAAAsTAAALEwEAmpwYAAABUElEQVQoz3WS247CMAxE8wrlqrZQ6D29QKs2IP7/37w6XoXtrtiHke0mHs84NXVWSdo7ud/v8nBObreb9H2vNWjbVpGmqSLLsnfusd1uZbfbaTR5mkuYpHK5XN6Xya/Xq0ZQ17Xs93uJ41iOx6NG6tPppHkYhlKWpd415/NZ4jjSwyiK9HAJJvsmr4IIITmgDx5gINpsAlmv13I4HFQlBxAwkXOaqJMk+fWdQTjyynFlpnGSYXpI1/W6v3meZRgGtYkN9mitVQKaICVnOATkq9VKa1XYlo0Uw1PKspKu66QoClUJGTHPc1VUVdX7Gyr9eiAKgkCBS2OLWqrByTiO8nq99IVpbJpGVaIOJbw05N8r2mgzgIjaw9jayjjNahdSLGGBvXGB6Jv8gywJwJLUoMQ5p3uDEHsQehv/4S/Rj0Jrlcj/yCjECko+NXxStST8AkxK/KfEiwM0AAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="snapshot_recovery.png"
+        title="snapshot_recovery.png"
+        src="/static/9ee56640ccec21e9bdc416fd3e5a9a66/37523/snapshot_recovery.png"
+        srcset="/static/9ee56640ccec21e9bdc416fd3e5a9a66/e9ff0/snapshot_recovery.png 180w,
+/static/9ee56640ccec21e9bdc416fd3e5a9a66/f21e7/snapshot_recovery.png 360w,
+/static/9ee56640ccec21e9bdc416fd3e5a9a66/37523/snapshot_recovery.png 720w,
+/static/9ee56640ccec21e9bdc416fd3e5a9a66/302a4/snapshot_recovery.png 1080w,
+/static/9ee56640ccec21e9bdc416fd3e5a9a66/07a9c/snapshot_recovery.png 1440w,
+/static/9ee56640ccec21e9bdc416fd3e5a9a66/bd9eb/snapshot_recovery.png 1442w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>완료되어 이전에 입력되었던 데이터가 그대로 살아있는것을 확인하실 수 있습니다.</p>
 <div class="table-of-contents">
 <ul>
-<li><a href="#1-kops-%EC%9B%90%ED%81%B4%EB%A6%AD-%EB%B0%B0%ED%8F%AC">1. KOPS 원클릭 배포</a></li>
-<li><a href="#2-%EC%8B%A4%EC%8A%B5%ED%99%98%EA%B2%BD-%EA%B5%AC%EC%84%B1%EC%9D%84-%EC%9C%84%ED%95%9C-%EC%82%AC%EC%A0%84-%EC%A4%80%EB%B9%84-%EC%82%AC%ED%95%AD">2. 실습환경 구성을 위한 사전 준비 사항</a></li>
-<li><a href="#3-%EC%B4%88%EA%B8%B0-%EA%B5%AC%EC%84%B1--kops-%EC%84%A4%EC%B9%98">3. 초기 구성  kops 설치</a></li>
-<li><a href="#4-%EC%9D%B4%EC%A0%95%ED%9B%88%EB%8B%98%EC%9D%98-%EC%A7%91%ED%95%84-%EA%B3%BC%EC%A0%95-%EB%B0%8F-aws-eks-%EA%B5%AC%EC%84%B1-%ED%98%84%ED%99%A9-%EB%B0%9C%ED%91%9C">4. 이정훈님의 집필 과정 및 AWS EKS 구성 현황 발표</a></li>
-<li><a href="#5-mario-%EA%B2%8C%EC%9E%84-%EB%B0%B0%ED%8F%AC-%ED%85%8C%EC%8A%A4%ED%8A%B8-with-clb">5. Mario 게임 배포 테스트 with CLB</a></li>
-<li><a href="#6-helm-%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%9C-%EC%9B%8C%EB%93%9C%ED%94%84%EB%A0%88%EC%8A%A4-%EB%B0%B0%ED%8F%AC">6. Helm 을 이용한 워드프레스 배포</a></li>
-<li><a href="#7-%EA%B3%BC%EC%A0%9C-3">7. 과제 3</a></li>
+<li><a href="#1%EC%8A%A4%ED%86%A0%EB%A6%AC%EC%A7%80">1.스토리지</a></li>
+<li><a href="#2ingress">2.Ingress</a></li>
+<li><a href="#3-k8s-%EC%8A%A4%ED%86%A0%EB%A6%AC%EC%A7%80">3. K8S 스토리지</a></li>
 </ul>
 </div>
-<div class="gatsby-highlight" data-language="toc"><pre class="language-toc"><code class="language-toc"></code></pre></div></div></div><div class="post-navigator"><div class="post-navigator-card-wrapper"><a class="post-card prev" href="/DevOps/AKS&amp;DevOps1/"><div class="direction">이전 글</div><div class="title">Azure Kubernetes Service 생성 &amp; Test</div></a></div><div class="post-navigator-card-wrapper"><a class="post-card next" href="/Kubernetes/Gasida_Study_homework_2/"><div class="direction">다음 글</div><div class="title">Gasida Kubernetes Study 2주차</div></a></div></div></main><footer class="page-footer-wrapper"><p class="page-footer">© <!-- -->2023<!-- --> <a href="https://www.github.com">장우석</a> powered by<a href="https://github.com/zoomKoding/zoomkoding-gatsby-blog"> zoomkoding-gatsby-blog</a></p></footer><div class="dark-mode-button-wrapper"><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium dark-mode-button css-1yxmbwk" tabindex="0" type="button"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeLarge dark-mode-icon css-6flbmm" focusable="false" viewBox="0 0 24 24" aria-hidden="true" data-testid="DarkModeIcon"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path></svg></button></div></div></div><div id="gatsby-announcer" style="position:absolute;top:0;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0" aria-live="assertive" aria-atomic="true"></div></div><script id="gatsby-script-loader">/*<![CDATA[*/window.pagePath="/Kubernetes/Gasida_Study_homework_3/";window.___webpackCompilationHash="be3df79066420fcf8434";/*]]>*/</script><script id="gatsby-chunk-mapping">/*<![CDATA[*/window.___chunkMapping={"polyfill":["/polyfill-9b356b5dc44213e24f34.js"],"app":["/app-0f9980b68d4a425d9725.js"],"component---cache-caches-gatsby-plugin-offline-app-shell-js":["/component---cache-caches-gatsby-plugin-offline-app-shell-js-0b8a70f65d0cff4a7a25.js"],"component---src-pages-404-js":["/component---src-pages-404-js-bc51420b294b9123f97d.js"],"component---src-pages-about-js":["/component---src-pages-about-js-39e57401fb032eafb2fb.js"],"component---src-pages-index-js":["/component---src-pages-index-js-0a6bbda26eb501968935.js"],"component---src-templates-blog-template-js":["/component---src-templates-blog-template-js-e3a4bb3c9603d1ed8af7.js"],"component---src-templates-category-template-js":["/component---src-templates-category-template-js-a0af7e239c6cf28d9bb9.js"]};/*]]>*/</script><script src="/polyfill-9b356b5dc44213e24f34.js" nomodule=""></script><script src="/component---src-templates-blog-template-js-e3a4bb3c9603d1ed8af7.js" async=""></script><script src="/f9d3028dbef90a6e9b8db85387d63dd9f4edf538-07f7733d8d97d93498cb.js" async=""></script><script src="/app-0f9980b68d4a425d9725.js" async=""></script><script src="/framework-043f1197be387cb18d15.js" async=""></script><script src="/webpack-runtime-121beace0d37eb670f34.js" async=""></script></body></html>
+<div class="gatsby-highlight" data-language="toc"><pre class="language-toc"><code class="language-toc"></code></pre></div></div></div><div class="post-navigator"><div class="post-navigator-card-wrapper"><a class="post-card prev" href="/JAVA/Spring1/"><div class="direction">이전 글</div><div class="title">JAVA Spring Study 1</div></a></div><div class="post-navigator-card-wrapper"><a class="post-card next" href="/Kubernetes/Gasida_Study_homework_1/"><div class="direction">다음 글</div><div class="title">Gasida Kubernetes Study 1주차</div></a></div></div></main><footer class="page-footer-wrapper"><p class="page-footer">© <!-- -->2023<!-- --> <a href="https://www.github.com">장우석</a> powered by<a href="https://github.com/zoomKoding/zoomkoding-gatsby-blog"> zoomkoding-gatsby-blog</a></p></footer><div class="dark-mode-button-wrapper"><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium dark-mode-button css-1yxmbwk" tabindex="0" type="button"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeLarge dark-mode-icon css-6flbmm" focusable="false" viewBox="0 0 24 24" aria-hidden="true" data-testid="DarkModeIcon"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path></svg></button></div></div></div><div id="gatsby-announcer" style="position:absolute;top:0;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0" aria-live="assertive" aria-atomic="true"></div></div><script id="gatsby-script-loader">/*<![CDATA[*/window.pagePath="/Kubernetes/Gasida_Study_homework_3/";window.___webpackCompilationHash="be3df79066420fcf8434";/*]]>*/</script><script id="gatsby-chunk-mapping">/*<![CDATA[*/window.___chunkMapping={"polyfill":["/polyfill-9b356b5dc44213e24f34.js"],"app":["/app-0f9980b68d4a425d9725.js"],"component---cache-caches-gatsby-plugin-offline-app-shell-js":["/component---cache-caches-gatsby-plugin-offline-app-shell-js-0b8a70f65d0cff4a7a25.js"],"component---src-pages-404-js":["/component---src-pages-404-js-bc51420b294b9123f97d.js"],"component---src-pages-about-js":["/component---src-pages-about-js-39e57401fb032eafb2fb.js"],"component---src-pages-index-js":["/component---src-pages-index-js-0a6bbda26eb501968935.js"],"component---src-templates-blog-template-js":["/component---src-templates-blog-template-js-e3a4bb3c9603d1ed8af7.js"],"component---src-templates-category-template-js":["/component---src-templates-category-template-js-a0af7e239c6cf28d9bb9.js"]};/*]]>*/</script><script src="/polyfill-9b356b5dc44213e24f34.js" nomodule=""></script><script src="/component---src-templates-blog-template-js-e3a4bb3c9603d1ed8af7.js" async=""></script><script src="/f9d3028dbef90a6e9b8db85387d63dd9f4edf538-07f7733d8d97d93498cb.js" async=""></script><script src="/app-0f9980b68d4a425d9725.js" async=""></script><script src="/framework-043f1197be387cb18d15.js" async=""></script><script src="/webpack-runtime-121beace0d37eb670f34.js" async=""></script></body></html>
