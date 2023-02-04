@@ -10,182 +10,326 @@ categories: Kubernetes
 
 가시다님 스터디 : https://www.notion.so/gasidaseo/23-7635cc4f02c04954a3260b317588113e
 
-원래대로 라면 2주차인 K8S 네트워크 부분을 업로드해야되나 애기 엔지니어인 저에게 있어
-이해가 힘든 부분이 많아서 제가 좀 더 완벽히 이해하고 확실히 정리해서 업로드 하고자 합니다..ㅜㅜ
-그래서 3주차 스터디인 Ingress & Storage 부분을 먼저 업로드 하겠습니다.
 
 
-## 1. KOPS 원클릭 배포
-지난번 1주차에서 스터디장님인 가시다님이 제공해주신 CloudFormation을 통해 EC2등을 배포하고
-거기서 aws configure 등의 작업을 진행해 주었습니다.
-하지만 가시다님의 노력으로 인하여 저희는 몇줄의 명령어 만으로 쉽게 배포할 수 있게 되었습니다.
+## 1.스토리지
 
-kops 원클릭 배포
+![Instance_Storage.png](Instance_Storage.png)
 
-원클릭 배포를 위해서는 먼저 SSH 키페어, IAM 계정 키, S3 버킷이 필요합니다.
 
-위에서 말씀드린 것들은 1주차에서 생성하였으므로 이번 포스팅에서는 생략하겠습니다.
+아래 명령어를 통해 인스토어 스토어 볼륨이 있는 c5모든 타입의 스토리지 크기를 조회하실 수 있습니다.
+``` aws ec2 describe-instance-types \ --filters "Name=instance-type,Values=c5*" "Name=instance-storage-supported,Values=true" \ --query "InstanceTypes[].[InstanceType, InstanceStorageInfo.TotalSizeInGB]" \ --output table```
 
-먼저 cloudformation에서 사용할 yaml 파일이 필요합니다.
-``` curl -O https://s3.ap-northeast-2.amazonaws.com/cloudformation.cloudneta.net/K8S/kops-oneclick.yaml ```
+저희가 배포한 c5d.large는 50Gib 만큼의 크기를 제공하고 있습니다.
 
-해당 파일을 다운받았다면 아래 명렁어를 통하여 배포해줍니다.
+먼저 각 워커노드의 스토리지를 확인해 보도록 하겠습니다.
+``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo apt install -y nvme-cli ```
+``` ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo apt install -y nvme-cli ```
+``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo nvme list ```
+``` ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo nvme list ```
 
-``` aws cloudformation deploy --template-file kops-oneclick.yaml --stack-name mykops --parameter-overrides KeyName=본인의 키페어 이름 SgIngressSshCidr=$(curl -s ipinfo.io/ip)/32  MyIamUserAccessKeyID=액세스키 MyIamUserSecretAccessKey='시크릿키' ClusterBaseName='korwoo.net' S3StateStore='hellokorwoo' MasterNodeInstanceType=c5d.large WorkerNodeInstanceType=c5d.large --region ap-northeast-2```
+nvm list를 통해서 보면 2개의 스토리지를 확인하실 수 있습니다.
 
-![OneClick_Deploy.png](OneClick_Deploy.png)
+![nvm_list.png](nvm_list.png)
 
-5~10분 정도의 시간이 지나면 위에 화면과 같이 컨트롤플레인 및 워커노드가 모두 생성이 되어있는것을 확인하실 수 있습니다.
+하지만 AWS Management Console를 통해서 보면 EC2에 할당된 디스크중에 50Gib짜리 디스크는 찾아보실 수 없습니다.
 
-다시한번 가시다님의 노고에 감사드립니다ㅜㅜ
+![EC2_Storage.png](EC2_Storage.png)
 
+인스턴스 스토어에 대한 정보는 스토리지 정보에 출력이 되지 않는다는 점을 확인하실 수 있습니다.
 
+아래의 명령어를 통해 파일시스템 생성 및 /data를 마운트 시킬 수 있습니다.
+``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo mkfs -t xfs /dev/nvme1n1 ```
+``` ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo mkfs -t xfs /dev/nvme1n1 ```
+``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo mkdir /data ```
+``` ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo mkdir /data ```
+``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo mount /dev/nvme1n1 /data ```
+``` ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo mount /dev/nvme1n1 /data ```
+``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP df -hT -t ext4 -t xfs ```
+``` ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP df -hT -t ext4 -t xfs ```
 
+## 2.Ingress
 
+지난주에 진행했던 실습과 비슷한 실습입니다.
+각 EC2에 LB생성 권한을 부여해 LB를 생성하고 여기에 배포를 하여 외부에 오픈해주는 작업을 진행해 보겠습니다.
 
-## 2. 실습환경 구성을 위한 사전 준비 사항
+각 컨트롤플레인, 워커노드에 LB 생성 권한을 부여하겠습니다.
+``` aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy --role-name nodes.$KOPS_CLUSTER_NAME ```
+``` aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy --role-name nodes.$KOPS_CLUSTER_NAME ```
 
-1. AWS Free Tier 계정
-2. IAM User
-3. AWS Route53 퍼블릭 호스팅 영역
+아래 명령어를 통해 IAM 권한또한 부여하겠습니다.
 
-![AWS_IAM.png](AWS_IAM.png)
+``` aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AllowExternalDNSUpdates --role-name masters.$KOPS_CLUSTER_NAME ```
+``` aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AllowExternalDNSUpdates --role-name nodes.$KOPS_CLUSTER_NAME ```
 
-먼저 위의 화면과 같이 AdministratorAccess 정책이 부여된 별도의 계정을 생성해주도록 합니다.
+다음 kops cluster edit을 통해
 
-![AWS_IAM2.png](AWS_IAM2.png)
+spec.cerManager.enable:ture
+spec.LoadBalancerController.enable:true
+spec.externalDns.provider:external-dns
+를 추가해준 후 업데이트를 진행해주도록 하겠습니다.
 
-계정을 생성하면 위의 화면과 같이 Access Key ID, Secret Access Key가 제공되는데 해당 값을 이용하여 AWS CLI 로그인을 진행하게 됩니다.
-해당 값들이 유출되게 된다면 해킹으로 인하여 폭탄과금이 부여될 수 있으므로 보안에 유의하여 관리해주시길 바랍니다.
+``` kops update cluster --yes && echo && sleep 3 && kops rolling-update cluster ```
 
-## 3. 초기 구성  kops 설치
+실습을 진행하기 전 항상 IAM에 해당 권한이 정상적으로 부여가 되었는지 확인 후 진행하기를 권장드립니다.
+권한이 부여되어있지 않다면 LB가 생성되지 않습니다..ㅜㅜ
+![IAM_Check.png](IAM_Check.png)
 
+IAM 권한을 확인하였다면 POD를 배포해보도록 하겠습니다.
+아래 명령어를 통해 POD를 배포해보도록 하겠습니다.
 
-![Configu.png](Configu.png)
+``` kubectl apply -f ~/pkos/3/ingress1.yaml ```
 
-Cloudformation에 이미 작성되어 있는 yaml 파일을 이용하여 기본 인프라 환경이 배포됩니다.
+배포 후 AWS Management Console 에서 LB가 생성된것을 확인하실 수 있습니다.
 
-![CloudFormation.png](CloudFormation.png)
+![Load_Balancer.png](Load_Balancer.png)
 
-![CloudFormation2.png](CloudFormation2.png)
+아래 명렁어를 통해 Ingress를 확인하실 수 있습니다.
 
-Cloudformation 을 이용한 배포 시 위의 화면 맨 밑에 해당하는 부분에 자신의 IP 주소를 입력하여 (0.0.0.0/0 형태) 보안성을 강화합니다.
+``` kubectl describe ingress -n game-2048 ingress-2048 ```
 
-![CloudFormation3.png](CloudFormation3.png)
+아래 명렁어를 통해 외부에서 접속 가능한 게임의 URL 주소가 생성이 됩니다. 해당 URL에 접속해보도록 하겠습니다.
 
-Cloudformation이 완료된다면 위의 화면과 같이 `CREATE_COMPLETE` 라는 문구를 보실 수 있습니다.
+``` kubectl get ingress -n game-2048 ingress-2048 -o jsonpath={.status.loadBalancer.ingress[0].hostname} | awk '{ print "Game URL = http://"$1 }' ```
 
-그 후 EC2에 접속하시면 생성된 EC2를 확인하실 수 있을겁니다.
+정상적으로 접속 됩니다!
 
-![aws_configure.png](aws_configure.png)
+![game_url.png](game_url.png)
 
-EC2에 접속 후  IAM 자격 증명을 위해
-aws configure를 입력하면
-AWS Access Key ID,
-AWS Secret Access Key
-Default region name
-등을 입력하실 수 있습니다.
-여기서 위에서 생성하였던 IAM 계정의 정보를 입력해주면 자격을 가져오실 수 있습니다.
 
+```  kubectl get pod -n game-2048 -owide ``` 명령어를 통해 POD의 IP를 조회해보겠습니다.
 
-그 후
+![LB_BP.png](LB_BP.png)
 
-```aws s3 mb s3://자신의고유s3이름```
 
-명령어를 통하여 k8s 설정 파일이 저장될 s3 버킷을 생성해주도록 합니다.
+위의 POD의 IP가 LB의 백엔드풀에 정상적으로 등록된것을 확인하실 수 있습니다.
 
-![s3_mb.png](s3_mb.png)
+![LB_BP2.png](LB_BP2.png)
 
+만약 해당 POD의 갯수를 늘려준다면 백엔드풀에 등록된 IP또한 계속해서 늘어나게 됩니다.
 
-아래의 기본설정 변수를 지정해 줍니다.
-```
-export AWS_PAGER=""
-export REGION=ap-northeast-2
-export KOPS_CLUSTER_NAME=korwoo.com #자신의 퍼블릭 호스팅 메인 주소
-export KOPS_STATE_STORE=s3://korwoo #자신이 생성한 버킷 이름 
-echo 'export AWS_PAGER=""' >>~/.bashrc
-echo 'export REGION=ap-northeast-2' >>~/.bashrc
-echo 'export KOPS_CLUSTER_NAME=korwoo.com' >>~/.bashrc
-echo 'export KOPS_STATE_STORE=s3://korwoo' >>~/.bashrc
-```
+이후 아래 명령어를 통해 실습 리소스를 제거해주도록 합니다.
 
-다음 아래의 명령어를 입력하여 k8s cluster를 배포하도록 합니다.
-```
-kops create cluster --zones="$REGION"a,"$REGION"c --networking amazonvpc --cloud aws \
---master-size t3.medium --node-size t3.medium --node-count=2 --network-cidr 172.30.0.0/16 \
---ssh-public-key ~/.ssh/id_rsa.pub --name=$KOPS_CLUSTER_NAME --kubernetes-version "1.24.9" -y
-```
+``` kubectl delete ingress ingress-2048 -n game-2048 ```
+``` kubectl delete svc service-2048 -n game-2048 && kubectl delete deploy deployment-2048 -n game-2048 && kubectl delete ns game-2048 ```
 
-![Success.png](Success.png)
+다음 실습으로 넘어가겠습니다.
 
-k8s cluster 가 성공적으로 배포되었다면 위의 화면과 같은 메세지를 보실 수 있습니다.
+아래의 명렁어를 입력하여 본인이 지정한 도메인에 pod를 배포해보도록 하겠습니다.
 
-![Success2.png](Success2.png)
+``` WEBDOMAIN=albweb.korwoo.net ```
+``` WEBDOMAIN=$WEBDOMAIN envsubst < ~/pkos/3/ingress2.yaml | kubectl apply -f - ```
 
-과제 1
-```
-kops get cluster
-kops get ig
-kops get instances
-```
+AWS Management Console에서 본인이 지정한 도메인이 등록되어있는것을 확인하실 수 있습니다.
 
-해당 명령어를 입력하여 정상적으로 설치가 되었는지 확인해주도록 합시다.
 
+![route53.png](route53.png)
 
-다음은 K8S의 플러그인들을 관리해주는 패키지 매니저 krew를 설치해주도록 하겠습니다.
+저는 제 모바일기기를 통하여 해당 도메인에 접속을하였고 접속이 성공적으로 되었습니다.
 
-```
-curl -fsSLO https://github.com/kubernetes-sigs/krew/releases/download/v0.4.3/krew-linux_amd64.tar.gz
-tar zxvf krew-linux_amd64.tar.gz
-./krew-linux_amd64 install krew
-tree -L 3 /root/.krew/bin
+![ExternalDomain.jpg](ExternalDomain.jpg)
 
-export PATH="${PATH}:/root/.krew/bin"
-echo 'export PATH="${PATH}:/root/.krew/bin"' >>~/.bashrc
+과제1. Ingress를 이용하여 /mario에는 mario 게임 접속, /tetris에는 tetris게임 접속되게 설정 및 SSL 적용 하기
 
-```
 
-![krew.png](krew.png)
+![mario.png](mario.png)
+![tetris.png](tetris.png)
+![route53_2.png](route53_2.png)
 
-krew 또한 정상적으로 설치되었습니다.
+현재 화면에서 보시면 mario는 SSL이 적용되어 있으나, tetris는 SSL 이 적용되어 있지 않습니다..
+현재 원인 분석 중 입니다..ㅜㅜ
 
 
-## 4. 이정훈님의 집필 과정 및 AWS EKS 구성 현황 발표
+## 3. K8S 스토리지
 
-![book.jpg](book.jpg)
+K8S 스토리지에서 가장 중요한 부분을 뽑자면 파드 내부의 데이터는 파드가 정지되면 모두 제거가 된다는 점 입니다.
+따라서 보존이 필요한 중요한 데이터가 있다면 PV같은 Stateful 애플리케이션으로 데이터를 보존해야된다는 점을 기억해주시면 되겠습니다.
 
-해당 세션은 24단계 실습으로 정복하는 쿠버네티스 의 저자이신 이정훈님께서 실무에서 배우고 느낀점을 집필하시면 느끼셨던점을 공유해주셨던 시간이었습니다.
-저는 항상 이런분들을 보면서 자기자신을 반성하게 되는 계기가 되는거 같습니다.
-2023년에는 좀더 열심히 달려가야겠습니다!
+간단한 실습으로 데이터의 보존 여부를 체크해보겠습니다.
+아래의 명령어를 통해 10초마다 1번씩 데이터를 기록하는 POD를 배포해보겠습니다.
+``` kubectl apply -f ~/pkos/3/date-busybox-pod.yaml ```
 
-## 5. Mario 게임 배포 테스트 with CLB
+해당 POD를 배포하면 주기적으로 데이터를 기록하게 되는데
+``` kubectl delete pod busybox ```
+``` kubectl apply -f ~/pkos/3/date-busybox-pod.yaml ```
 
-해당 명령어를 사용하여 마리오 디플로이먼트를 배포해보겠습니다.
+위의 명령어를 통해서 POD를 제거하였다가 다시 생성하였을 시 이전에 기록한 데이터가 남아있는지 확인합니다.
 
-```
-curl -O https://raw.githubusercontent.com/gasida/PKOS/main/1/mario.yaml
-kubectl apply -f mario.yaml
-cat mario.yaml | yh
-```
+당연하게도 이전의 데이터는 모두 제거가 되게 됩니다.
 
-![korwoo_mario](korwoo_mario.png)
+과제2. HostPath 실습 및 문제점 확인과 성능 측정
 
-kubectl get deploy,svc,ep mario 를 입력하면
-CLB 주소가 나오며 접속하실 수 있습니다.
+먼저 HostPath를 사용하는 PV/PVC 스토리지 클래스를 배포하도록 하겠습니다!
+local path 정의 파일 다운로드
+``` curl -s -O https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.23/deploy/local-path-storage.yaml ```
 
-## 6. Helm 을 이용한 워드프레스 배포
+vim local-path-storage.yaml 을 통해 각자 Control Plane의 이름 입력해줍니다.
 
-내용 작성 중
 
-![korwoo_wordpress](korwoo_wordpress.png)
+![InputMaster.png](InputMaster.png)
 
-## 7. 과제 3
 
-내용 작성 중
-![korwoo_homework3-1](korwoo_homework3-1.png)
-![korwoo_homework3-2](korwoo_homework3-2.png)
-![korwoo_homework3-3](korwoo_homework3-3.png)
-![korwoo_homework3-4](korwoo_homework3-4.png)
+아래 명령어를 입력해서 배포해보도록 하겠습니다.
+
+``` kubectl apply -f local-path-storage.yaml ```
+
+다음으로 PV/PVC를 사용하는 POD를 생성해보도록 하겠습니다.
+
+``` kubectl apply -f ~/pkos/3/localpath1.yaml ```
+
+``` kubectl get pvc ```
+``` kubectl describe pvc ```
+를 입력해서 PVC를 확인해보도록 하겠습니다.
+
+![check_pvc.png](check_pvc.png)
+
+위에서 진행하였던 실습과 똑같이 10초마다 1번씩 데이터를 입력하는 POD를 배포해보도록 하겠습니다.
+
+``` kubectl apply -f ~/pkos/3/localpath2.yaml ```
+
+각 워커노드에 Tool을 설치해주도록 하겠습니다.
+
+``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo apt install -y tree jq sysstat ```
+``` ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo apt install -y tree jq sysstat ```
+
+배포된 POD에는 out.txt라는 파일이 있을것입니다. 아래 명령어로 확인 가능합니다.
+
+``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP tree /data ```
+![out.png](out.png)
+
+이 파일은 10초에 1번씩 입력되는 데이터를 저장하는 경로 입니다.
+이제 POD를 제거하면 과연 데이터가 살아있을지 확인해보도록 하겠습니다.
+
+``` kubectl delete pod app ```
+``` kubectl get pod,pv,pvc ```
+
+![data_alive.png](data_alive.png)
+
+POD가 죽었음에도 PV가 살아있으니 데이터또한 같이 살아 있습니다!
+
+다음으로 kubestr & sar을 활용하여 모니터링 및 성능측정 확인을 진행해보도록 하겠습니다.
+
+아래 명령어로 kubestr를 다운로드 받아주도록 하겠습니다.
+
+``` wget https://github.com/kastenhq/kubestr/releases/download/v0.4.36/kubestr_0.4.36_Linux_amd64.tar.gz ```
+``` tar xvfz kubestr_0.4.36_Linux_amd64.tar.gz && mv kubestr /usr/local/bin/ && chmod +x /usr/local/bin/kubestr ```
+
+아래 명령어로 모니터링을 걸어주도록 하겠습니다.
+
+``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP iostat -xmdz 1 -p nvme1n1 ```
+``` ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP iostat -xmdz 1 -p nvme1n1 ```
+
+모니터링에서 표시되는 정보 관련 내용입니다.
+rrqm/s : 초당 드라이버 요청 대기열에 들어가 병합된 읽기 요청 횟수
+wrqm/s : 초당 드라이버 요청 대기열에 들어가 병합된 쓰기 요청 횟수
+r/s : 초당 디스크 장치에 요청한 읽기 요청 횟수
+w/s : 초당 디스크 장치에 요청한 쓰기 요청 횟수
+rMB/s : 초당 디스크 장치에서 읽은 메가바이트 수
+wMB/s : 초당 디스크 장치에 쓴 메가바이트 수
+await : 가장 중요한 지표, 평균 응답 시간. 드라이버 요청 대기열에서 기다린 시간과 장치의 I/O 응답시간을 모두 포함 (단위: ms)
+
+아래 명령어를 입력하여 측정을 시작하겠습니다.(5~10분정도 소요됩니다.)
+``` curl -s -O https://raw.githubusercontent.com/wikibook/kubepractice/main/ch10/fio-read.fio ```
+``` kubestr fio -f fio-read.fio -s local-path --size 10G ```
+
+![kubestr.png](kubestr.png)
+
+``` curl -s -O https://raw.githubusercontent.com/wikibook/kubepractice/main/ch10/fio-write.fio ```
+``` kubestr fio -f fio-write.fio -s local-path --size 10G ```
+
+![kubestr2.png](kubestr2.png)
+
+
+과제3. AWS EBS를 PVC로 사용 후 온라인 볼륨 증가 해보기
+
+아래 명령어를 입력하여 aws-ebs-csi를 확인해봅니다. 미리 설치되어 있다고합니다.(친절한 가시다님ㅜㅜ)
+``` kubectl get pod -n kube-system -l app.kubernetes.io/instance=aws-ebs-csi-driver ```
+
+스토리지 클래스 확인
+``` kubectl get sc kops-csi-1-21 kops-ssd-1-17 ```
+``` kubectl describe sc kops-csi-1-21 | grep Parameters ```
+``` kubectl describe sc kops-ssd-1-17 | grep Parameters ```
+
+아래 명령어를 입력해 워커노드의 EBS 볼륨을 확인해봅시다.
+``` aws ec2 describe-volumes --filters Name=tag:k8s.io/role/node,Values=1 --output table ```
+
+![image_volume.png](image_volume.png)
+
+아래 명령어는 Pod에 추가한 EBS 볼륨을 확인하는 명령어 입니다.
+``` aws ec2 describe-volumes --filters Name=tag:ebs.csi.aws.com/cluster,Values=true --output table ```
+
+![ebs_volume.png](ebs_volume.png)
+
+아래 명령어로 PVC,POD를 생성해주도록 하겠습니다.
+
+``` kubectl apply -f ~/pkos/3/awsebs-pvc.yaml ```
+``` kubectl apply -f ~/pkos/3/awsebs-pod.yaml ```
+
+다음 아래 명령어를 통해 볼륨 정보를 확인하실 수 있습니다.
+``` kubectl exec -it app -- sh -c 'df -hT --type=ext4' ```
+
+![volume_check.png](volume_check.png)
+
+또한 AWS Management Console -> EC2 -> 볼륨으로 들어가면 4Gi의 볼륨이 생성된것을 확인하실 수 있습니다.
+
+![console_ebs.png](console_ebs.png)
+
+아래의 명령어를 통해 4Gi -> 10Gi 로 용량을 증가시켜 준다.
+
+``` kubectl patch pvc ebs-claim -p '{"spec":{"resources":{"requests":{"storage":"10Gi"}}}}' ```
+
+용량이 증가된것을 확인하실 수 있습니다.
+
+![console_ebs2.png](console_ebs2.png)
+
+혹은 아래 명렁어를 통해서도 확인하실 수 있습니다!
+
+``` kubectl exec -it app -- sh -c 'df -hT --type=ext4' ```
+
+과제4. AWS Volume Snapshot 실습
+
+kops edit 을 통해 아래 표시된 부분을 추가해준후 업데이트 해주도록 하겠습니다.
+
+![snapshotcontroller.png](snapshotcontroller.png)
+
+아래 명령어를 통해 업데이트가 되었는지 확인해보겠습니다.
+
+``` kubectl get crd | grep volumesnapshot ```
+
+![volume_snapshot.png](volume_snapshot.png)
+
+아래 명령어를 통해 vsclass 생성해주도록 하겠습니다.
+
+``` kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/aws-ebs-csi-driver/master/examples/kubernetes/snapshot/manifests/classes/snapshotclass.yaml ```
+
+PVC, POD 생성 명령어
+``` kubectl apply -f ~/pkos/3/awsebs-pvc.yaml ```
+``` kubectl apply -f ~/pkos/3/awsebs-pod.yaml ```
+
+아래 명령어를 통해 볼륨 스냅샷을 생성해주도록 하겠습니다.
+``` kubectl apply -f ~/pkos/3/ebs-volume-snapshot.yaml ```
+
+볼륨 스냅샷을 확인하는 명령어 입니다.
+
+``` kubectl get volumesnapshot ```
+
+![volume_snapshot_2.png](volume_snapshot_2.png)
+
+완료가 되었다면 복원을 해보겠습니다.
+임의로 app & pvc를 제거하여 이슈를 만들어보겠습니다.
+
+``` kubectl delete pod app && kubectl delete pvc ebs-claim ```
+
+이후 스냅샷에서 PVC로 복원을 해보겠습니다.
+
+``` kubectl apply -f ~/pkos/3/ebs-snapshot-restored-claim.yaml ```
+``` kubectl apply -f ~/pkos/3/ebs-snapshot-restored-pod.yaml ```
+
+![snapshot_recovery.png](snapshot_recovery.png)
+
+완료되어 이전에 입력되었던 데이터가 그대로 살아있는것을 확인하실 수 있습니다.
+
+
 
 
 ```toc
