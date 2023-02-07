@@ -83,10 +83,10 @@
 <p>kops 원클릭 배포</p>
 <p>원클릭 배포를 위해서는 먼저 SSH 키페어, IAM 계정 키, S3 버킷이 필요합니다.</p>
 <p>위에서 말씀드린 것들은 1주차에서 생성하였으므로 이번 포스팅에서는 생략하겠습니다.</p>
-<p>먼저 cloudformation에서 사용할 yaml 파일이 필요합니다.
-<code class="language-text">curl -O https://s3.ap-northeast-2.amazonaws.com/cloudformation.cloudneta.net/K8S/kops-oneclick.yaml</code></p>
+<p>먼저 cloudformation에서 사용할 yaml 파일이 필요합니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token function">curl</span> -O https://s3.ap-northeast-2.amazonaws.com/cloudformation.cloudneta.net/K8S/kops-oneclick.yaml</code></pre></div>
 <p>해당 파일을 다운받았다면 아래 명렁어를 통하여 배포해줍니다.</p>
-<p><code class="language-text"> aws cloudformation deploy --template-file kops-oneclick.yaml --stack-name mykops --parameter-overrides KeyName=본인의 키페어 이름 SgIngressSshCidr=$(curl -s ipinfo.io/ip)/32  MyIamUserAccessKeyID=액세스키 MyIamUserSecretAccessKey='시크릿키' ClusterBaseName='korwoo.net' S3StateStore='hellokorwoo' MasterNodeInstanceType=c5d.large WorkerNodeInstanceType=c5d.large --region ap-northeast-2</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">aws cloudformation deploy --template-file kops-oneclick.yaml --stack-name mykops --parameter-overrides <span class="token assign-left variable">KeyName</span><span class="token operator">=</span>본인의 키페어 이름 <span class="token assign-left variable">SgIngressSshCidr</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span><span class="token function">curl</span> -s ipinfo.io/ip<span class="token variable">)</span></span>/32  <span class="token assign-left variable">MyIamUserAccessKeyID</span><span class="token operator">=</span>액세스키 <span class="token assign-left variable">MyIamUserSecretAccessKey</span><span class="token operator">=</span><span class="token string">'시크릿키'</span> <span class="token assign-left variable">ClusterBaseName</span><span class="token operator">=</span><span class="token string">'korwoo.net'</span> <span class="token assign-left variable">S3StateStore</span><span class="token operator">=</span><span class="token string">'hellokorwoo'</span> <span class="token assign-left variable">MasterNodeInstanceType</span><span class="token operator">=</span>c5d.large <span class="token assign-left variable">WorkerNodeInstanceType</span><span class="token operator">=</span>c5d.large --region ap-northeast-2</code></pre></div>
 <p><img src="OneClick_Deploy.png" alt="OneClick_Deploy.png"></p>
 <p>5~10분 정도의 시간이 지나면 위에 화면과 같이 컨트롤플레인 및 워커노드가 모두 생성이 되어있는것을 확인하실 수 있습니다.</p>
 <p>다시한번 가시다님의 노고에 감사드립니다ㅜㅜ</p>
@@ -122,8 +122,8 @@
     </span></p>
 <p>같은 네트워크 대역대를 사용함으로서 노드와 파드간의 소통이 좀더 원활하다는 장점을 가지게 됩니다.</p>
 <p>간단하게 내용들을 확인해보겠습니다.</p>
-<p><code class="language-text">kubectl describe daemonset aws-node --namespace kube-system | grep Image | cut -d "/" -f 2</code>
-명령어를 입력하게 되면</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl describe daemonset aws-node --namespace kube-system <span class="token operator">|</span> <span class="token function">grep</span> Image <span class="token operator">|</span> <span class="token function">cut</span> -d <span class="token string">"/"</span> -f <span class="token number">2</span></code></pre></div>
+<p>명령어를 입력하게 되면</p>
 <p><span
       class="gatsby-resp-image-wrapper"
       style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
@@ -149,7 +149,7 @@
       />
     </span></p>
 <p>다음과 같이 CNI 정보를 확인하실 수 있습니다.</p>
-<p><code class="language-text"> aws ec2 describe-instances --query "Reservations[*].Instances[*].{PublicIPAdd:PublicIpAddress,PrivateIPAdd:PrivateIpAddress,InstanceName:Tags[?Key=='Name']|[0].Value,Status:State.Name}" --filters Name=instance-state-name,Values=running --output table</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">aws ec2 describe-instances --query <span class="token string">"Reservations[*].Instances[*].{PublicIPAdd:PublicIpAddress,PrivateIPAdd:PrivateIpAddress,InstanceName:Tags[?Key=='Name']|[0].Value,Status:State.Name}"</span> --filters <span class="token assign-left variable">Name</span><span class="token operator">=</span>instance-state-name,Values<span class="token operator">=</span>running --output table</code></pre></div>
 <p>명령어를 입력하면</p>
 <p><span
       class="gatsby-resp-image-wrapper"
@@ -176,7 +176,7 @@
       />
     </span></p>
 <p>다음과 같이 노드의 IP를 확인할 수 있습니다.</p>
-<p><code class="language-text">kubectl get pod -n kube-system -o=custom-columns=NAME:.metadata.name,IP:.status.podIP,STATUS:.status.phase</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl get pod -n kube-system -o<span class="token operator">=</span>custom-columns<span class="token operator">=</span>NAME:.metadata.name,IP:.status.podIP,STATUS:.status.phase</code></pre></div>
 <p>명령어를 입력하여 Pod의 IP를 확인해보도록합시다.</p>
 <p><span
       class="gatsby-resp-image-wrapper"
@@ -251,7 +251,7 @@
       />
     </span></p>
 <p>파드간 통신 흐름 : 별도의 오버레이 통신 기술 없이, VPC Native 하게 파드간 직접 통신이 가능하다.</p>
-<p><code class="language-text">kubectl apply -f ~/pkos/2/netshoot-2pods.yaml</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl apply -f ~/pkos/2/netshoot-2pods.yaml</code></pre></div>
 <p>먼저 위 명령어를 통해 테스트용 POD를 배포해주도록 하겠습니다.</p>
 <p><span
       class="gatsby-resp-image-wrapper"
@@ -279,19 +279,21 @@
     </span></p>
 <p>배포한 POD를 보면 각각 다른 Node에 배포가 되어 있는것을 확인할 수 있습니다.</p>
 <p>이때 이 POD 끼리의 통신을 테스트해보도록 하겠습니다.</p>
-<p>먼저 각 워커 노드에 접속하여
-<code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP</code>
-<code class="language-text">ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP</code></p>
-<p>아래 명령어를 통하여 패킷 덤프를 확인하는 명령어를 실행시켜 두도록 하겠습니다.
-<code class="language-text">sudo tcpdump -i any -nn icmp</code>
-<code class="language-text">sudo tcpdump -i ens5 -nn icmp</code>
-<code class="language-text">sudo tcpdump -i ens6 -nn icmp</code></p>
-<p><code class="language-text">POD1=$(kubectl get pod pod-1 -o jsonpath={.status.podIP})</code>
-<code class="language-text">POD2=$(kubectl get pod pod-2 -o jsonpath={.status.podIP})</code>
-<code class="language-text">kubectl exec -it pod-1 -- ping -c 2 $POD2</code>
-pod 1 shell 에서 pod2 로 ping 테스트
-<code class="language-text">kubectl exec -it pod-2 -- ping -c 2 $POD1</code>
-pod 2 shell 에서 pod1 로 ping 테스트</p>
+<p>먼저 각 워커 노드에 접속하여</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token function">ssh</span> -i ~/.ssh/id_rsa ubuntu@<span class="token variable">$W1PIP</span>
+<span class="token function">ssh</span> -i ~/.ssh/id_rsa ubuntu@<span class="token variable">$W2PIP</span></code></pre></div>
+<p><code class="language-text">  </code>
+<code class="language-text">  </code></p>
+<p>아래 명령어를 통하여 패킷 덤프를 확인하는 명령어를 실행시켜 두도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token function">sudo</span> tcpdump -i any -nn icmp
+<span class="token function">sudo</span> tcpdump -i ens5 -nn icmp
+<span class="token function">sudo</span> tcpdump -i ens6 -nn icmp</code></pre></div>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token assign-left variable">POD1</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span>kubectl get pod pod-1 -o <span class="token assign-left variable">jsonpath</span><span class="token operator">=</span><span class="token punctuation">{</span>.status.podIP<span class="token punctuation">}</span><span class="token variable">)</span></span>
+<span class="token assign-left variable">POD2</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span>kubectl get pod pod-2 -o <span class="token assign-left variable">jsonpath</span><span class="token operator">=</span><span class="token punctuation">{</span>.status.podIP<span class="token punctuation">}</span><span class="token variable">)</span></span>
+kubectl <span class="token builtin class-name">exec</span> -it pod-1 -- <span class="token function">ping</span> -c <span class="token number">2</span> <span class="token variable">$POD2</span></code></pre></div>
+<p>pod 1 shell 에서 pod2 로 ping 테스트</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl <span class="token builtin class-name">exec</span> -it pod-2 -- <span class="token function">ping</span> -c <span class="token number">2</span> <span class="token variable">$POD1</span></code></pre></div>
+<p>pod 2 shell 에서 pod1 로 ping 테스트</p>
 <p>먼저 any 에서의 패킷 덤프는 확인이 되었습니다.
 <span
       class="gatsby-resp-image-wrapper"
@@ -394,10 +396,10 @@ pod간의 통신은 무조건 첫번째 ENI로만 빠져나가게끔 설정이 �
     </span></p>
 <p>파드에서 외부 통신 흐름 : iptable에 SNAT을 통하여 노드의 eth0 IP로 변경되어 외부와 통신합니다.</p>
 <p>VPC CNI의 External source network address translation 설정에 따라, 외부 통신 시 SNAT 하거나 혹은 SNAT 없이 통신 가능합니다.</p>
-<p>작업용 EC2에서 pod-1 shell에서 외부로 ping을 날려보겠습니다.
-<code class="language-text">kubectl exec -it pod-1 -- ping -c 1 www.google.com</code></p>
-<p>다음 Pod-1에 접속해서 tcpdump를 해주겠습니다.
-<code class="language-text">sudo tcpdump -i any -nn icmp</code></p>
+<p>작업용 EC2에서 pod-1 shell에서 외부로 ping을 날려보겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl <span class="token builtin class-name">exec</span> -it pod-1 -- <span class="token function">ping</span> -c <span class="token number">1</span> www.google.com</code></pre></div>
+<p>다음 Pod-1에 접속해서 tcpdump를 해주겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token function">sudo</span> tcpdump -i any -nn icmp</code></pre></div>
 <p><span
       class="gatsby-resp-image-wrapper"
       style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
@@ -424,10 +426,10 @@ pod간의 통신은 무조건 첫번째 ENI로만 빠져나가게끔 설정이 �
       />
     </span></p>
 <p>tcpdump 에서 확인해보면 POD1의 IP 에서 외부로의 트래픽을 확인하실 수 있습니다.</p>
-<p>작업용 EC2에서 해당 명령어를 입력하여 작업용 EC2에서 외부와 통신할 때 사용하는 public IP 를 확인합니다.
-<code class="language-text">kubectl exec -it pod-1 -- curl -s ipinfo.io/ip ; echo</code></p>
-<p>다음은 워커노드에서 아래 명령어를 입력하여 public IP를 확인합니다.
-<code class="language-text">curl -s ipinfo.io/ip ; echo</code></p>
+<p>작업용 EC2에서 해당 명령어를 입력하여 작업용 EC2에서 외부와 통신할 때 사용하는 public IP 를 확인합니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl <span class="token builtin class-name">exec</span> -it pod-1 -- <span class="token function">curl</span> -s ipinfo.io/ip <span class="token punctuation">;</span> <span class="token builtin class-name">echo</span></code></pre></div>
+<p>다음은 워커노드에서 아래 명령어를 입력하여 public IP를 확인합니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token function">curl</span> -s ipinfo.io/ip <span class="token punctuation">;</span> <span class="token builtin class-name">echo</span></code></pre></div>
 <p>흥미로운 점은 2개의 Public IP가 같다는 점을 확인하실 수 있습니다.</p>
 <p><span
       class="gatsby-resp-image-wrapper"
@@ -457,8 +459,8 @@ POD가 외부로 인터넷을 사용할 때 POD의 IP가 워커노드의 ENI0로
 ENI0(192.168.1.64) -> 그림상 192.168.1.64로 표시되어 있지만 해당 실습에서는 다른 IP주소를 가지고 있습니다.
 ENI0가 외부로 통신할 때에는 Public IP가 인터넷 게이트웨이를 통해 NAT가 되는 구조입니다.</p>
 <h2 id="5-노드에서-pod-생성갯수-제한" style="position:relative;"><a href="#5-%EB%85%B8%EB%93%9C%EC%97%90%EC%84%9C-pod-%EC%83%9D%EC%84%B1%EA%B0%AF%EC%88%98-%EC%A0%9C%ED%95%9C" aria-label="5 노드에서 pod 생성갯수 제한 permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>5. 노드에서 POD 생성갯수 제한</h2>
-<p>아래의 명렁어를 통해 EC2 사이즈 별 생성 가능한 POD의 갯수를 확인해보도록 하겠습니다.
-<code class="language-text"> aws ec2 describe-instance-types --filters Name=instance-type,Values=c5.* \ --query "InstanceTypes[].{Type: InstanceType, MaxENI: NetworkInfo.MaximumNetworkInterfaces, IPv4addr: NetworkInfo.Ipv4AddressesPerInterface}" \ --output table</code></p>
+<p>아래의 명렁어를 통해 EC2 사이즈 별 생성 가능한 POD의 갯수를 확인해보도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">aws ec2 describe-instance-types --filters <span class="token assign-left variable">Name</span><span class="token operator">=</span>instance-type,Values<span class="token operator">=</span>c5.* <span class="token punctuation">\</span> --query <span class="token string">"InstanceTypes[].{Type: InstanceType, MaxENI: NetworkInfo.MaximumNetworkInterfaces, IPv4addr: NetworkInfo.Ipv4AddressesPerInterface}"</span> <span class="token punctuation">\</span> --output table</code></pre></div>
 <p><span
       class="gatsby-resp-image-wrapper"
       style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
@@ -488,7 +490,7 @@ ENI0가 외부로 통신할 때에는 Public IP가 인터넷 게이트웨이를 
 <p>즉 C5d.large의 경우
 ((3*(10-1))+2) 즉 29개의 POD를 생성할 수 있습니다.</p>
 <p>아래의 명렁어를 통해 생성가능한 POD의 갯수를 직접 확인하실 수도 있습니다.</p>
-<p><code class="language-text">kubectl describe node | grep Allocatable: -A6</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl describe node <span class="token operator">|</span> <span class="token function">grep</span> Allocatable: -A6</code></pre></div>
 <p><span
       class="gatsby-resp-image-wrapper"
       style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
@@ -515,7 +517,7 @@ ENI0가 외부로 통신할 때에는 Public IP가 인터넷 게이트웨이를 
 <p>그렇다면 여기서 POD의 갯수가 생성가능한 POD의 갯수를 초과했을 때 어떻게 생성 가능한 POD의 최대 갯수를
 늘릴 수 있을것인지에 대해 확인해보도록 하겠습니다.</p>
 <p>아래 명령의를 통하여 Test용 POD를 배포해보도록 하겠습니다.</p>
-<p><code class="language-text">kubectl apply -f ~/pkos/2/nginx-dp.yaml</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl apply -f ~/pkos/2/nginx-dp.yaml</code></pre></div>
 <p><span
       class="gatsby-resp-image-wrapper"
       style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
@@ -543,7 +545,7 @@ ENI0가 외부로 통신할 때에는 Public IP가 인터넷 게이트웨이를 
     </span></p>
 <p>POD가 정상적으로 기동되고 있는것을 확인하실 수 있습니다.</p>
 <p>그렇다면 POD의 갯수를 천천히 증가시켜보도록 하겠습니다.</p>
-<p><code class="language-text">kubectl scale deployment nginx-deployment --replicas=10</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl scale deployment nginx-deployment --replicas<span class="token operator">=</span><span class="token number">10</span></code></pre></div>
 <p><span
       class="gatsby-resp-image-wrapper"
       style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
@@ -570,11 +572,11 @@ ENI0가 외부로 통신할 때에는 Public IP가 인터넷 게이트웨이를 
       />
     </span></p>
 <p>아직 POD 생성가능 갯수를 넘기지는 않았기에 별다른 이슈없이 POD 가 증가되었습니다.</p>
-<p>그렇다면 MAX POD를 넘어선갯수로 POD를 증가시켜 보도록 하겠습니다.
-<code class="language-text">kubectl scale deployment nginx-deployment --replicas=40</code></p>
-<p>다음 아래의 명령어를 통하여 Pending된 POD와 해당 원인에 대해 조회할 수 있습니다.
-<code class="language-text">kubectl get pods | grep Pending</code>
-<code class="language-text">kubectl describe pod &lt;Pending 파드> | grep Events: -A5</code></p>
+<p>그렇다면 MAX POD를 넘어선갯수로 POD를 증가시켜 보도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl scale deployment nginx-deployment --replicas<span class="token operator">=</span><span class="token number">40</span></code></pre></div>
+<p>다음 아래의 명령어를 통하여 Pending된 POD와 해당 원인에 대해 조회할 수 있습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl get pods <span class="token operator">|</span> <span class="token function">grep</span> Pending
+kubectl describe pod <span class="token operator">&lt;</span>Pending 파드<span class="token operator">></span> <span class="token operator">|</span> <span class="token function">grep</span> Events: -A5</code></pre></div>
 <p><span
       class="gatsby-resp-image-wrapper"
       style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
@@ -607,10 +609,10 @@ EC2의 성능을 업그레이드 해주어 자본주의의 참맛을 보여주�
 <a href="https://blog.psnote.co.kr/186">https://blog.psnote.co.kr/186</a>
 <a href="https://trans.yonghochoi.com/translations/aws_vpc_cni_increase_pods_per_node_limits.ko">https://trans.yonghochoi.com/translations/aws_vpc_cni_increase_pods_per_node_limits.ko</a>
 에서 안내해준 방법을 참고하였습니다.</p>
-<p><code class="language-text">kubectl scale deployment nginx-deployment --replicas=0</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl scale deployment nginx-deployment --replicas<span class="token operator">=</span><span class="token number">0</span></code></pre></div>
 <p>먼저 replicas를 0으로 조절해줍니다.(Deployment를 지우는것이 아닙니다.)</p>
-<p>다음 아래 명령어를 통해 limitrange를 제거해주도록 하겠습니다.
-<code class="language-text">kubectl delete limitranges limits</code></p>
+<p>다음 아래 명령어를 통해 limitrange를 제거해주도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl delete limitranges limits</code></pre></div>
 <p><span
       class="gatsby-resp-image-wrapper"
       style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
@@ -634,8 +636,8 @@ EC2의 성능을 업그레이드 해주어 자본주의의 참맛을 보여주�
         decoding="async"
       />
     </span></p>
-<p>다음 아래 명령어를 통해 POD를 증가시켜 보겠습니다.
-<code class="language-text">kubectl scale deployment nginx-deployment --replicas=50</code></p>
+<p>다음 아래 명령어를 통해 POD를 증가시켜 보겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl scale deployment nginx-deployment --replicas<span class="token operator">=</span><span class="token number">50</span></code></pre></div>
 <p><span
       class="gatsby-resp-image-wrapper"
       style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
@@ -660,10 +662,10 @@ EC2의 성능을 업그레이드 해주어 자본주의의 참맛을 보여주�
       />
     </span></p>
 <p>POD의 최대갯수가 49개까지 늘어났습니다만… 아직 목표인 100대 이상에는 모자릅니다.
-다시 replicas를 0으로 조절해주도록 하겠습니다.
-<code class="language-text">kubectl scale deployment nginx-deployment --replicas=0</code></p>
-<p>수정하기 전에 Node의 External IP 주소를 확인해보도록 하겠습니다.
-<code class="language-text">kubectl get node -owide</code></p>
+다시 replicas를 0으로 조절해주도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl scale deployment nginx-deployment --replicas<span class="token operator">=</span><span class="token number">0</span></code></pre></div>
+<p>수정하기 전에 Node의 External IP 주소를 확인해보도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl get node -owide</code></pre></div>
 <p>저희가 해볼 방법은 kops cluster 를 수정하는 방법입니다.
 이 과정에서 노드에 대한 rolling update를 진행해 줄것인데 Node가 재배포되가 될것입니다.</p>
 <p><span
@@ -692,7 +694,7 @@ EC2의 성능을 업그레이드 해주어 자본주의의 참맛을 보여주�
       />
     </span></p>
 <p>다음 kops cluster 를 수정해주도록 하겠습니다.</p>
-<p><code class="language-text">kops edit cluster</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kops edit cluster</code></pre></div>
 <p><span
       class="gatsby-resp-image-wrapper"
       style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
@@ -723,7 +725,7 @@ EC2의 성능을 업그레이드 해주어 자본주의의 참맛을 보여주�
 다시 kops edit cluster로 들어가서 저장된 내용을 확인해주셔야 합니다.</p>
 <p>수정이 성공적으로 되었다면 아래의 명령어를 통해 rolling update를 진행해 주도록 하겠습니다.
 대략 10분 정도의 시간이 소요될것입니다.</p>
-<p><code class="language-text">kops update cluster --yes &amp;&amp; echo &amp;&amp; sleep 5 &amp;&amp; kops rolling-update cluster --yes</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kops update cluster --yes <span class="token operator">&amp;&amp;</span> <span class="token builtin class-name">echo</span> <span class="token operator">&amp;&amp;</span> <span class="token function">sleep</span> <span class="token number">5</span> <span class="token operator">&amp;&amp;</span> kops rolling-update cluster --yes</code></pre></div>
 <p><span
       class="gatsby-resp-image-wrapper"
       style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
@@ -850,12 +852,12 @@ EC2의 성능을 업그레이드 해주어 자본주의의 참맛을 보여주�
 POD의 IP가 LB의 백엔드풀에 바로 등록이 되는 방식 입니다
 (Node의 IP가 아닌 POD의 IP가 직접 등록되니 IP Table Rule또한 타지 않습니다.)</p>
 <p>실습을 위해서 먼저 LB 생성을 진행하도록 하겠습니다.</p>
-<p>그러기 위해서는 생성된 컨트롤플레인, 워커노드에 LB생성을 위한 권한을 부여해주도록 하겠습니다.
-<code class="language-text">curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.5/docs/install/iam_policy.json</code></p>
-<p><code class="language-text">aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.json</code></p>
-<p><code class="language-text">ACCOUNT_ID=`aws sts get-caller-identity --query 'Account' --output text`</code></p>
-<p><code class="language-text">aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy --role-name masters.$KOPS_CLUSTER_NAME</code></p>
-<p><code class="language-text">aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy --role-name nodes.$KOPS_CLUSTER_NAME</code></p>
+<p>그러기 위해서는 생성된 컨트롤플레인, 워커노드에 LB생성을 위한 권한을 부여해주도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token function">curl</span> -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.5/docs/install/iam_policy.json
+aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.json
+<span class="token assign-left variable">ACCOUNT_ID</span><span class="token operator">=</span><span class="token variable"><span class="token variable">`</span>aws sts get-caller-identity --query <span class="token string">'Account'</span> --output text<span class="token variable">`</span></span>
+aws iam attach-role-policy --policy-arn arn:aws:iam::<span class="token variable">$ACCOUNT_ID</span>:policy/AWSLoadBalancerControllerIAMPolicy --role-name masters.<span class="token variable">$KOPS_CLUSTER_NAME</span>
+aws iam attach-role-policy --policy-arn arn:aws:iam::<span class="token variable">$ACCOUNT_ID</span>:policy/AWSLoadBalancerControllerIAMPolicy --role-name nodes.<span class="token variable">$KOPS_CLUSTER_NAME</span></code></pre></div>
 <p>위의 명렁어를 모두 입력해 주었다면 AWS Management Console -> IAM 역할로 이동하셔서 각 masters.도메인, nodes.도메인 으로 이동하셔서 아래와 같이
 권한이 잘 부여가 되었는지 확인을 해줍니다.
 권한이 부여되어있지 않다면 LB 생성이 불가능 합니다.</p>
@@ -885,7 +887,7 @@ POD의 IP가 LB의 백엔드풀에 바로 등록이 되는 방식 입니다
       />
     </span></p>
 <p>다음으로 kops cluster를 업데이트 해주도록 하겠습니다.</p>
-<p><code class="language-text">kops edit cluster --name ${KOPS_CLUSTER_NAME}</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kops edit cluster --name <span class="token variable">${KOPS_CLUSTER_NAME}</span></code></pre></div>
 <p>다음 아래 그림에 표시된 내용을 입력해주도록 합니다.</p>
 <p>Cert-manager는 K8S Cluster 내 에서 TLS 인증서를 자동으로 프로비저닝 및 관리하는 오픈 소스 입니다.
 <span
@@ -912,8 +914,8 @@ POD의 IP가 LB의 백엔드풀에 바로 등록이 되는 방식 입니다
         decoding="async"
       />
     </span></p>
-<p>다음 Rolling update를 통하여 업데이트를 적용해주도록 하겠습니다.
-<code class="language-text">kops update cluster --yes &amp;&amp; echo &amp;&amp; sleep 5 &amp;&amp; kops rolling-update cluster</code></p>
+<p>다음 Rolling update를 통하여 업데이트를 적용해주도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kops update cluster --yes <span class="token operator">&amp;&amp;</span> <span class="token builtin class-name">echo</span> <span class="token operator">&amp;&amp;</span> <span class="token function">sleep</span> <span class="token number">5</span> <span class="token operator">&amp;&amp;</span> kops rolling-update cluster</code></pre></div>
 <p>성공적으로 업데이트 되었습니다!!</p>
 <p><span
       class="gatsby-resp-image-wrapper"
@@ -940,7 +942,7 @@ POD의 IP가 LB의 백엔드풀에 바로 등록이 되는 방식 입니다
       />
     </span></p>
 <p>아래 명령어를 입력하여 Deployment &#x26; Service 를 생성해주도록 하겠습니다.</p>
-<p><code class="language-text">kubectl apply -f ~/pkos/2/echo-service-nlb.yaml</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl apply -f ~/pkos/2/echo-service-nlb.yaml</code></pre></div>
 <p><span
       class="gatsby-resp-image-wrapper"
       style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
@@ -993,16 +995,16 @@ POD의 IP가 LB의 백엔드풀에 바로 등록이 되는 방식 입니다
       />
     </span></p>
 <h2 id="7-external-dns" style="position:relative;"><a href="#7-external-dns" aria-label="7 external dns permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>7. External DNS</h2>
-<p>dns 관련 파드 갯수를 줄여보도록 하겠습니다.
-<code class="language-text">kubectl delete deploy -n kube-system coredns-autoscaler</code>
-<code class="language-text">kubectl scale deploy -n kube-system coredns --replicas 1</code></p>
+<p>dns 관련 파드 갯수를 줄여보도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl delete deploy -n kube-system coredns-autoscaler
+kubectl scale deploy -n kube-system coredns --replicas <span class="token number">1</span></code></pre></div>
 <p>아래 명령어를 입력하여 컨트롤플레인, 워커노드에 ExternalDNSUpdate 관련 정책을 업에이트 해주도록 하겠습니다.</p>
-<p><code class="language-text">curl -s -O https://s3.ap-northeast-2.amazonaws.com/cloudformation.cloudneta.net/AKOS/externaldns/externaldns-aws-r53-policy.json</code>
-<code class="language-text">aws iam create-policy --policy-name AllowExternalDNSUpdates --policy-document file://externaldns-aws-r53-policy.json</code>
-<code class="language-text">aws iam list-policies --query 'Policies[?PolicyName==`AllowExternalDNSUpdates`].Arn' --output text</code>
-<code class="language-text"> export POLICY_ARN=$(aws iam list-policies --query 'Policies[?PolicyName==`AllowExternalDNSUpdates`].Arn' --output text)</code>
-<code class="language-text">aws iam attach-role-policy --policy-arn $POLICY_ARN --role-name masters.$KOPS_CLUSTER_NAME</code>
-<code class="language-text">aws iam attach-role-policy --policy-arn $POLICY_ARN --role-name nodes.$KOPS_CLUSTER_NAME</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token function">curl</span> -s -O https://s3.ap-northeast-2.amazonaws.com/cloudformation.cloudneta.net/AKOS/externaldns/externaldns-aws-r53-policy.json
+aws iam create-policy --policy-name AllowExternalDNSUpdates --policy-document file://externaldns-aws-r53-policy.json
+aws iam list-policies --query <span class="token string">'Policies[?PolicyName==`AllowExternalDNSUpdates`].Arn'</span> --output text
+<span class="token builtin class-name">export</span> <span class="token assign-left variable">POLICY_ARN</span><span class="token operator">=</span><span class="token variable"><span class="token variable">$(</span>aws iam list-policies --query <span class="token string">'Policies[?PolicyName==`AllowExternalDNSUpdates`].Arn'</span> --output text<span class="token variable">)</span></span>
+aws iam attach-role-policy --policy-arn <span class="token variable">$POLICY_ARN</span> --role-name masters.<span class="token variable">$KOPS_CLUSTER_NAME</span>
+aws iam attach-role-policy --policy-arn <span class="token variable">$POLICY_ARN</span> --role-name nodes.<span class="token variable">$KOPS_CLUSTER_NAME</span></code></pre></div>
 <p>위에서 LB에 대한 권한을 확인했듯이 똑같이 IAM 에서 AllowExternalDNSIPdates를 확인해주도록 합니다.
 <span
       class="gatsby-resp-image-wrapper"
@@ -1080,12 +1082,12 @@ POD의 IP가 LB의 백엔드풀에 바로 등록이 되는 방식 입니다
       />
     </span></p>
 <p>아래 명렁어를 통해 테스트용 서비스/파드를 배포해보도록 하겠습니다.</p>
-<p><code class="language-text">kubectl apply -f ~/pkos/2/echo-service-nlb.yaml</code></p>
-<p>다음 자신의 도메인 정보를 입력하겠습니다.
-<code class="language-text">MyDOMAIN1=nginx.korwoo.net</code>
-<code class="language-text">kubectl annotate service svc-nlb-ip-type "external-dns.alpha.kubernetes.io/hostname=$MyDOMAIN1."</code></p>
-<p>그럼 정상적으로 됬는지 확인해보도록 하겠습니다. 아래 명령어를 입력하면 IP주소가 출력될것입니다.(약 5분정도 시간이 필요합니다.)
-<code class="language-text">dig +short $MyDOMAIN1</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl apply -f ~/pkos/2/echo-service-nlb.yaml</code></pre></div>
+<p>다음 자신의 도메인 정보를 입력하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token assign-left variable">MyDOMAIN1</span><span class="token operator">=</span>nginx.korwoo.net
+kubectl annotate <span class="token function">service</span> svc-nlb-ip-type <span class="token string">"external-dns.alpha.kubernetes.io/hostname=<span class="token variable">$MyDOMAIN1</span>."</span></code></pre></div>
+<p>그럼 정상적으로 됬는지 확인해보도록 하겠습니다. 아래 명령어를 입력하면 IP주소가 출력될것입니다.(약 5분정도 시간이 필요합니다.)</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token function">dig</span> +short <span class="token variable">$MyDOMAIN1</span></code></pre></div>
 <p>이후 Route53에 접속하시면 등록한 도메인이 A레코드로 등록된것을 확인하실 수 있습니다.
 <span
       class="gatsby-resp-image-wrapper"
@@ -1115,21 +1117,21 @@ POD의 IP가 LB의 백엔드풀에 바로 등록이 되는 방식 입니다
 <p>과제3. 서비스(NLB)/파드 배포 시 External DNS 설정해서 각자 자신의 도메인으로 NLB 통해 애플리케이션으로 접속해보기</p>
 <p>다음은 voteing-app 서비스를 배포해보도록 하겠습니다.</p>
 <p>아래의 명렁어를 입력해 git clone을 하겠습니다.</p>
-<p><code class="language-text">git clone https://github.com/dockersamples/example-voting-app</code></p>
-<p>다음 vote 라는 namespace를 만들겠습니다.
-<code class="language-text">kubectl create ns vote</code>
-<code class="language-text">kubectl ns vote</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token function">git</span> clone https://github.com/dockersamples/example-voting-app</code></pre></div>
+<p>다음 vote 라는 namespace를 만들겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl create ns vote
+kubectl ns vote</code></pre></div>
 <p>다음 아래 명령어를 입력하여 서비스파일을 변경하도록 하겠습니다.</p>
-<p><code class="language-text">rm -rf vote-service.yaml result-service.yaml</code>
-<code class="language-text">cp ~/pkos/2/vote-service.yaml .</code>
-<code class="language-text">cp ~/pkos/2/result-service.yaml .</code>
-<code class="language-text">cat vote-service.yaml | yh</code>
-<code class="language-text">cat result-service.yaml | yh</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token function">rm</span> -rf vote-service.yaml result-service.yaml
+<span class="token function">cp</span> ~/pkos/2/vote-service.yaml <span class="token builtin class-name">.</span>
+<span class="token function">cp</span> ~/pkos/2/result-service.yaml <span class="token builtin class-name">.</span>
+<span class="token function">cat</span> vote-service.yaml <span class="token operator">|</span> yh
+<span class="token function">cat</span> result-service.yaml <span class="token operator">|</span> yh</code></pre></div>
 <p>아래 명령어를 통해 서비스를 배포하겠습니다.</p>
-<p><code class="language-text">kubectl apply -f .</code></p>
-<p>다음 아래 명령어를 입력하여 자신의 도메인에 ExternalDNS를 추가하겠습니다.
-<code class="language-text"> MyDOMAIN1=vote.korwoo.net</code>
-<code class="language-text">MyDOMAIN2=result.korwoo.net</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl apply -f <span class="token builtin class-name">.</span></code></pre></div>
+<p>다음 아래 명령어를 입력하여 자신의 도메인에 ExternalDNS를 추가하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token assign-left variable">MyDOMAIN1</span><span class="token operator">=</span>vote.korwoo.net
+<span class="token assign-left variable">MyDOMAIN2</span><span class="token operator">=</span>result.korwoo.net</code></pre></div>
 <p>이후 입력한 도메인으로 접속하여 확인해봅시다!</p>
 <p><span
       class="gatsby-resp-image-wrapper"
@@ -1183,9 +1185,10 @@ POD의 IP가 LB의 백엔드풀에 바로 등록이 되는 방식 입니다
     </span></p>
 <p>과제4. NLB에 TLS 적용하기</p>
 <p>아래 명령어를 입력하여 CERT_ARN을 저장해주도록 합니다.</p>
-<p><code class="language-text">CERT_ARN=`aws acm list-certificates --query 'CertificateSummaryList[].CertificateArn[]' --output text`</code></p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token assign-left variable">CERT_ARN</span><span class="token operator">=</span><span class="token variable"><span class="token variable">`</span>aws acm list-certificates --query <span class="token string">'CertificateSummaryList[].CertificateArn[]'</span> --output text<span class="token variable">`</span></span></code></pre></div>
 <p>다음 아래 명령어를 입력해 Deployment를 생성해주도록 하겠습니다.</p>
-<div class="gatsby-highlight" data-language="cat<<eof | kubectl create -f -"><pre class="language-cat<<eof | kubectl create -f -"><code class="language-cat<<eof | kubectl create -f -">apiVersion: apps/v1
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token function">cat</span> <span class="token operator">&lt;&lt;</span><span class="token string">EOF<span class="token bash punctuation"> <span class="token operator">|</span> kubectl create -f -</span>
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: deploy-echo
@@ -1211,14 +1214,14 @@ kind: Service
 metadata:
   name: svc-nlb-ip-type
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: &quot;${MyDomain}&quot;
+    external-dns.alpha.kubernetes.io/hostname: "<span class="token variable">${MyDomain}</span>"
     service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
     service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
-    service.beta.kubernetes.io/aws-load-balancer-healthcheck-port: &quot;8080&quot;
-    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: &quot;true&quot;
-    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: &quot;https&quot;
-    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: ${CERT_ARN}
-    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: &quot;http&quot;
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-port: "8080"
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: <span class="token variable">${CERT_ARN}</span>
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
 spec:
   ports:
     - port: 80
@@ -1233,7 +1236,7 @@ spec:
   loadBalancerClass: service.k8s.aws/nlb
   selector:
     app: deploy-websrv
-EOF</code></pre></div>
+EOF</span></code></pre></div>
 <p><span
       class="gatsby-resp-image-wrapper"
       style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
@@ -1269,4 +1272,4 @@ EOF</code></pre></div>
 <li><a href="#7-external-dns">7. External DNS</a></li>
 </ul>
 </div>
-<div class="gatsby-highlight" data-language="toc"><pre class="language-toc"><code class="language-toc"></code></pre></div></div></div><div class="post-navigator"><div class="post-navigator-card-wrapper"><a class="post-card prev" href="/Kubernetes/Gasida_Study_homework_1/"><div class="direction">이전 글</div><div class="title">Gasida Kubernetes Study 1주차</div></a></div><div class="post-navigator-card-wrapper"><a class="post-card next" href="/JAVA/Spring2/"><div class="direction">다음 글</div><div class="title">JAVA Spring Study 2</div></a></div></div></main><footer class="page-footer-wrapper"><p class="page-footer">© <!-- -->2023<!-- --> <a href="https://www.github.com">장우석</a> powered by<a href="https://github.com/zoomKoding/zoomkoding-gatsby-blog"> zoomkoding-gatsby-blog</a></p></footer><div class="dark-mode-button-wrapper"><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium dark-mode-button css-1yxmbwk" tabindex="0" type="button"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeLarge dark-mode-icon css-6flbmm" focusable="false" viewBox="0 0 24 24" aria-hidden="true" data-testid="DarkModeIcon"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path></svg></button></div></div></div><div id="gatsby-announcer" style="position:absolute;top:0;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0" aria-live="assertive" aria-atomic="true"></div></div><script id="gatsby-script-loader">/*<![CDATA[*/window.pagePath="/Kubernetes/Gasida_Study_homework_2/";window.___webpackCompilationHash="be3df79066420fcf8434";/*]]>*/</script><script id="gatsby-chunk-mapping">/*<![CDATA[*/window.___chunkMapping={"polyfill":["/polyfill-9b356b5dc44213e24f34.js"],"app":["/app-0f9980b68d4a425d9725.js"],"component---cache-caches-gatsby-plugin-offline-app-shell-js":["/component---cache-caches-gatsby-plugin-offline-app-shell-js-0b8a70f65d0cff4a7a25.js"],"component---src-pages-404-js":["/component---src-pages-404-js-bc51420b294b9123f97d.js"],"component---src-pages-about-js":["/component---src-pages-about-js-39e57401fb032eafb2fb.js"],"component---src-pages-index-js":["/component---src-pages-index-js-0a6bbda26eb501968935.js"],"component---src-templates-blog-template-js":["/component---src-templates-blog-template-js-e3a4bb3c9603d1ed8af7.js"],"component---src-templates-category-template-js":["/component---src-templates-category-template-js-a0af7e239c6cf28d9bb9.js"]};/*]]>*/</script><script src="/polyfill-9b356b5dc44213e24f34.js" nomodule=""></script><script src="/component---src-templates-blog-template-js-e3a4bb3c9603d1ed8af7.js" async=""></script><script src="/f9d3028dbef90a6e9b8db85387d63dd9f4edf538-07f7733d8d97d93498cb.js" async=""></script><script src="/app-0f9980b68d4a425d9725.js" async=""></script><script src="/framework-043f1197be387cb18d15.js" async=""></script><script src="/webpack-runtime-121beace0d37eb670f34.js" async=""></script></body></html>
+<div class="gatsby-highlight" data-language="toc"><pre class="language-toc"><code class="language-toc"></code></pre></div></div></div><div class="post-navigator"><div class="post-navigator-card-wrapper"><a class="post-card prev" href="/DevOps/AKS&amp;DevOps1/"><div class="direction">이전 글</div><div class="title">Azure Kubernetes Service 생성 &amp; Test</div></a></div><div class="post-navigator-card-wrapper"><a class="post-card next" href="/Kubernetes/Gasida_Study_homework_3/"><div class="direction">다음 글</div><div class="title">Gasida Kubernetes Study 3주차</div></a></div></div></main><footer class="page-footer-wrapper"><p class="page-footer">© <!-- -->2023<!-- --> <a href="https://www.github.com">장우석</a> powered by<a href="https://github.com/zoomKoding/zoomkoding-gatsby-blog"> zoomkoding-gatsby-blog</a></p></footer><div class="dark-mode-button-wrapper"><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium dark-mode-button css-1yxmbwk" tabindex="0" type="button"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeLarge dark-mode-icon css-6flbmm" focusable="false" viewBox="0 0 24 24" aria-hidden="true" data-testid="DarkModeIcon"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path></svg></button></div></div></div><div id="gatsby-announcer" style="position:absolute;top:0;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0" aria-live="assertive" aria-atomic="true"></div></div><script id="gatsby-script-loader">/*<![CDATA[*/window.pagePath="/Kubernetes/Gasida_Study_homework_2/";window.___webpackCompilationHash="be3df79066420fcf8434";/*]]>*/</script><script id="gatsby-chunk-mapping">/*<![CDATA[*/window.___chunkMapping={"polyfill":["/polyfill-9b356b5dc44213e24f34.js"],"app":["/app-0f9980b68d4a425d9725.js"],"component---cache-caches-gatsby-plugin-offline-app-shell-js":["/component---cache-caches-gatsby-plugin-offline-app-shell-js-0b8a70f65d0cff4a7a25.js"],"component---src-pages-404-js":["/component---src-pages-404-js-bc51420b294b9123f97d.js"],"component---src-pages-about-js":["/component---src-pages-about-js-39e57401fb032eafb2fb.js"],"component---src-pages-index-js":["/component---src-pages-index-js-0a6bbda26eb501968935.js"],"component---src-templates-blog-template-js":["/component---src-templates-blog-template-js-e3a4bb3c9603d1ed8af7.js"],"component---src-templates-category-template-js":["/component---src-templates-category-template-js-a0af7e239c6cf28d9bb9.js"]};/*]]>*/</script><script src="/polyfill-9b356b5dc44213e24f34.js" nomodule=""></script><script src="/component---src-templates-blog-template-js-e3a4bb3c9603d1ed8af7.js" async=""></script><script src="/f9d3028dbef90a6e9b8db85387d63dd9f4edf538-07f7733d8d97d93498cb.js" async=""></script><script src="/app-0f9980b68d4a425d9725.js" async=""></script><script src="/framework-043f1197be387cb18d15.js" async=""></script><script src="/webpack-runtime-121beace0d37eb670f34.js" async=""></script></body></html>
