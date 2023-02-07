@@ -18,15 +18,19 @@ categories: Kubernetes
 
 
 아래 명령어를 통해 인스토어 스토어 볼륨이 있는 c5모든 타입의 스토리지 크기를 조회하실 수 있습니다.
-``` aws ec2 describe-instance-types \ --filters "Name=instance-type,Values=c5*" "Name=instance-storage-supported,Values=true" \ --query "InstanceTypes[].[InstanceType, InstanceStorageInfo.TotalSizeInGB]" \ --output table```
+```bash
+aws ec2 describe-instance-types \ --filters "Name=instance-type,Values=c5*" "Name=instance-storage-supported,Values=true" \ --query "InstanceTypes[].[InstanceType, InstanceStorageInfo.TotalSizeInGB]" \ --output table
+```
 
 저희가 배포한 c5d.large는 50Gib 만큼의 크기를 제공하고 있습니다.
 
 먼저 각 워커노드의 스토리지를 확인해 보도록 하겠습니다.
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo apt install -y nvme-cli ```\n
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo apt install -y nvme-cli ```\n
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo nvme list ```\n
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo nvme list ```\n
+```bash
+ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo apt install -y nvme-cli
+ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo apt install -y nvme-cli
+ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo nvme list
+ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo nvme list
+```
 
 nvm list를 통해서 보면 2개의 스토리지를 확인하실 수 있습니다.
 
@@ -39,14 +43,16 @@ nvm list를 통해서 보면 2개의 스토리지를 확인하실 수 있습니�
 인스턴스 스토어에 대한 정보는 스토리지 정보에 출력이 되지 않는다는 점을 확인하실 수 있습니다.
 
 아래의 명령어를 통해 파일시스템 생성 및 /data를 마운트 시킬 수 있습니다.
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo mkfs -t xfs /dev/nvme1n1 ```\n
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo mkfs -t xfs /dev/nvme1n1 ```\n
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo mkdir /data ```\n
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo mkdir /data ```\n
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo mount /dev/nvme1n1 /data ```\n
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo mount /dev/nvme1n1 /data ```\n
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP df -hT -t ext4 -t xfs ```\n
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP df -hT -t ext4 -t xfs ```\n
+```bash
+ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo mkfs -t xfs /dev/nvme1n1
+ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo mkfs -t xfs /dev/nvme1n1
+ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo mkdir /data
+ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo mkdir /data
+ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo mount /dev/nvme1n1 /data
+ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo mount /dev/nvme1n1 /data
+ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP df -hT -t ext4 -t xfs
+ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP df -hT -t ext4 -t xfs
+```
 
 ## 2.Ingress
 
@@ -54,22 +60,32 @@ nvm list를 통해서 보면 2개의 스토리지를 확인하실 수 있습니�
 각 EC2에 LB생성 권한을 부여해 LB를 생성하고 여기에 배포를 하여 외부에 오픈해주는 작업을 진행해 보겠습니다.
 
 각 컨트롤플레인, 워커노드에 LB 생성 권한을 부여하겠습니다.
-``` aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy --role-name nodes.$KOPS_CLUSTER_NAME ```\n
-``` aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy --role-name nodes.$KOPS_CLUSTER_NAME ```\n
+```bash
+aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy --role-name nodes.$KOPS_CLUSTER_NAME
+aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy --role-name nodes.$KOPS_CLUSTER_NAME
+```
+
 
 아래 명령어를 통해 IAM 권한또한 부여하겠습니다.
-
-``` aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AllowExternalDNSUpdates --role-name masters.$KOPS_CLUSTER_NAME ```\n
-``` aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AllowExternalDNSUpdates --role-name nodes.$KOPS_CLUSTER_NAME ```\n
+```bash
+aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AllowExternalDNSUpdates --role-name masters.$KOPS_CLUSTER_NAME
+aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AllowExternalDNSUpdates --role-name nodes.$KOPS_CLUSTER_NAME ```\n
+```
+ 
 
 다음 kops cluster edit을 통해
 
 spec.cerManager.enable:ture
 spec.LoadBalancerController.enable:true
 spec.externalDns.provider:external-dns
+
+
 를 추가해준 후 업데이트를 진행해주도록 하겠습니다.
 
-``` kops update cluster --yes && echo && sleep 3 && kops rolling-update cluster ```\n
+```bash
+kops update cluster --yes && echo && sleep 3 && kops rolling-update cluster
+```
+
 
 실습을 진행하기 전 항상 IAM에 해당 권한이 정상적으로 부여가 되었는지 확인 후 진행하기를 권장드립니다.
 권한이 부여되어있지 않다면 LB가 생성되지 않습니다..ㅜㅜ
@@ -78,7 +94,9 @@ spec.externalDns.provider:external-dns
 IAM 권한을 확인하였다면 POD를 배포해보도록 하겠습니다.
 아래 명령어를 통해 POD를 배포해보도록 하겠습니다.
 
-``` kubectl apply -f ~/pkos/3/ingress1.yaml ```\n
+```bash
+kubectl apply -f ~/pkos/3/ingress1.yaml
+```
 
 배포 후 AWS Management Console 에서 LB가 생성된것을 확인하실 수 있습니다.
 
@@ -86,18 +104,24 @@ IAM 권한을 확인하였다면 POD를 배포해보도록 하겠습니다.
 
 아래 명렁어를 통해 Ingress를 확인하실 수 있습니다.
 
-``` kubectl describe ingress -n game-2048 ingress-2048 ```\n
+```bash
+kubectl describe ingress -n game-2048 ingress-2048
+```
 
 아래 명렁어를 통해 외부에서 접속 가능한 게임의 URL 주소가 생성이 됩니다. 해당 URL에 접속해보도록 하겠습니다.
 
-``` kubectl get ingress -n game-2048 ingress-2048 -o jsonpath={.status.loadBalancer.ingress[0].hostname} | awk '{ print "Game URL = http://"$1 }' ```\n
+```bash
+kubectl get ingress -n game-2048 ingress-2048 -o jsonpath={.status.loadBalancer.ingress[0].hostname} | awk '{ print "Game URL = http://"$1 }'
+```
 
 정상적으로 접속 됩니다!
 
 ![game_url.png](game_url.png)
 
 명령어를 통해 POD의 IP를 조회해보겠습니다.
-```  kubectl get pod -n game-2048 -owide ``` \n 
+```bash
+kubectl get pod -n game-2048 -owide
+```
 
 ![LB_BP.png](LB_BP.png)
 
@@ -110,15 +134,21 @@ IAM 권한을 확인하였다면 POD를 배포해보도록 하겠습니다.
 
 이후 아래 명령어를 통해 실습 리소스를 제거해주도록 합니다.
 
-``` kubectl delete ingress ingress-2048 -n game-2048 ``` \n
-``` kubectl delete svc service-2048 -n game-2048 && kubectl delete deploy deployment-2048 -n game-2048 && kubectl delete ns game-2048 ``` \n
+```bash
+kubectl delete ingress ingress-2048 -n game-2048
+kubectl delete svc service-2048 -n game-2048 && kubectl delete deploy deployment-2048 -n game-2048 && kubectl delete ns game-2048
+```
+
 
 다음 실습으로 넘어가겠습니다.
 
 아래의 명렁어를 입력하여 본인이 지정한 도메인에 pod를 배포해보도록 하겠습니다.
 
-``` WEBDOMAIN=albweb.korwoo.net ``` \n
-``` WEBDOMAIN=$WEBDOMAIN envsubst < ~/pkos/3/ingress2.yaml | kubectl apply -f - ``` \n
+```bash
+WEBDOMAIN=albweb.korwoo.net
+WEBDOMAIN=$WEBDOMAIN envsubst < ~/pkos/3/ingress2.yaml | kubectl apply -f -
+```
+
 
 AWS Management Console에서 본인이 지정한 도메인이 등록되어있는것을 확인하실 수 있습니다.
 
@@ -147,11 +177,18 @@ K8S 스토리지에서 가장 중요한 부분을 뽑자면 파드 내부의 데
 
 간단한 실습으로 데이터의 보존 여부를 체크해보겠습니다.
 아래의 명령어를 통해 10초마다 1번씩 데이터를 기록하는 POD를 배포해보겠습니다.
-``` kubectl apply -f ~/pkos/3/date-busybox-pod.yaml ``` \n
+
+```bash
+kubectl apply -f ~/pkos/3/date-busybox-pod.yaml
+```
 
 해당 POD를 배포하면 주기적으로 데이터를 기록하게 되는데
-``` kubectl delete pod busybox ``` \n
-``` kubectl apply -f ~/pkos/3/date-busybox-pod.yaml ``` \n
+
+```bash
+kubectl delete pod busybox
+kubectl apply -f ~/pkos/3/date-busybox-pod.yaml
+```
+
 
 위의 명령어를 통해서 POD를 제거하였다가 다시 생성하였을 시 이전에 기록한 데이터가 남아있는지 확인합니다.
 
@@ -161,7 +198,10 @@ K8S 스토리지에서 가장 중요한 부분을 뽑자면 파드 내부의 데
 
 먼저 HostPath를 사용하는 PV/PVC 스토리지 클래스를 배포하도록 하겠습니다!
 local path 정의 파일 다운로드
-``` curl -s -O https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.23/deploy/local-path-storage.yaml ``` \n
+
+```bash
+curl -s -O https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.23/deploy/local-path-storage.yaml
+```
 
 vim local-path-storage.yaml 을 통해 각자 Control Plane의 이름 입력해줍니다.
 
@@ -171,37 +211,54 @@ vim local-path-storage.yaml 을 통해 각자 Control Plane의 이름 입력해�
 
 아래 명령어를 입력해서 배포해보도록 하겠습니다.
 
-``` kubectl apply -f local-path-storage.yaml ``` \n
+```bash
+kubectl apply -f local-path-storage.yaml
+```
+
 
 다음으로 PV/PVC를 사용하는 POD를 생성해보도록 하겠습니다.
 
-``` kubectl apply -f ~/pkos/3/localpath1.yaml ``` \n
+```bash
+kubectl apply -f ~/pkos/3/localpath1.yaml
+kubectl get pvc
+kubectl describe pvc
+```
 
-``` kubectl get pvc ``` \n
-``` kubectl describe pvc ``` \n
 를 입력해서 PVC를 확인해보도록 하겠습니다.
 
 ![check_pvc.png](check_pvc.png)
 
 위에서 진행하였던 실습과 똑같이 10초마다 1번씩 데이터를 입력하는 POD를 배포해보도록 하겠습니다.
 
-``` kubectl apply -f ~/pkos/3/localpath2.yaml ``` \n
+```bash
+kubectl apply -f ~/pkos/3/localpath2.yaml
+```
 
 각 워커노드에 Tool을 설치해주도록 하겠습니다.
 
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo apt install -y tree jq sysstat ``` \n
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo apt install -y tree jq sysstat ``` \n
+```bash
+ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP sudo apt install -y tree jq sysstat
+ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP sudo apt install -y tree jq sysstat
+```
+
 
 배포된 POD에는 out.txt라는 파일이 있을것입니다. 아래 명령어로 확인 가능합니다.
 
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP tree /data ``` \n
+```bash
+ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP tree /data
+```
+
 ![out.png](out.png)
 
 이 파일은 10초에 1번씩 입력되는 데이터를 저장하는 경로 입니다.
 이제 POD를 제거하면 과연 데이터가 살아있을지 확인해보도록 하겠습니다.
 
-``` kubectl delete pod app ``` \n
-``` kubectl get pod,pv,pvc ``` \n
+```bash
+kubectl delete pod app
+kubectl get pod,pv,pvc
+```
+
+
 
 ![data_alive.png](data_alive.png)
 
@@ -211,13 +268,21 @@ POD가 죽었음에도 PV가 살아있으니 데이터또한 같이 살아 있�
 
 아래 명령어로 kubestr를 다운로드 받아주도록 하겠습니다.
 
-``` wget https://github.com/kastenhq/kubestr/releases/download/v0.4.36/kubestr_0.4.36_Linux_amd64.tar.gz ``` \n
-``` tar xvfz kubestr_0.4.36_Linux_amd64.tar.gz && mv kubestr /usr/local/bin/ && chmod +x /usr/local/bin/kubestr ``` \n
+```bash
+wget https://github.com/kastenhq/kubestr/releases/download/v0.4.36/kubestr_0.4.36_Linux_amd64.tar.gz
+tar xvfz kubestr_0.4.36_Linux_amd64.tar.gz && mv kubestr /usr/local/bin/ && chmod +x /usr/local/bin/kubestr
+```
+
+
 
 아래 명령어로 모니터링을 걸어주도록 하겠습니다.
 
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP iostat -xmdz 1 -p nvme1n1 ``` \n
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP iostat -xmdz 1 -p nvme1n1 ``` \n
+```bash
+ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP iostat -xmdz 1 -p nvme1n1
+ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP iostat -xmdz 1 -p nvme1n1
+```
+
+
 
 모니터링에서 표시되는 정보 관련 내용입니다.
 rrqm/s : 초당 드라이버 요청 대기열에 들어가 병합된 읽기 요청 횟수
