@@ -28,11 +28,15 @@ kops 원클릭 배포
 위에서 말씀드린 것들은 1주차에서 생성하였으므로 이번 포스팅에서는 생략하겠습니다.
 
 먼저 cloudformation에서 사용할 yaml 파일이 필요합니다.
-``` curl -O https://s3.ap-northeast-2.amazonaws.com/cloudformation.cloudneta.net/K8S/kops-oneclick.yaml ```
+```bash
+curl -O https://s3.ap-northeast-2.amazonaws.com/cloudformation.cloudneta.net/K8S/kops-oneclick.yaml
+```
+
 
 해당 파일을 다운받았다면 아래 명렁어를 통하여 배포해줍니다.
-
-``` aws cloudformation deploy --template-file kops-oneclick.yaml --stack-name mykops --parameter-overrides KeyName=본인의 키페어 이름 SgIngressSshCidr=$(curl -s ipinfo.io/ip)/32  MyIamUserAccessKeyID=액세스키 MyIamUserSecretAccessKey='시크릿키' ClusterBaseName='korwoo.net' S3StateStore='hellokorwoo' MasterNodeInstanceType=c5d.large WorkerNodeInstanceType=c5d.large --region ap-northeast-2```
+```bash
+aws cloudformation deploy --template-file kops-oneclick.yaml --stack-name mykops --parameter-overrides KeyName=본인의 키페어 이름 SgIngressSshCidr=$(curl -s ipinfo.io/ip)/32  MyIamUserAccessKeyID=액세스키 MyIamUserSecretAccessKey='시크릿키' ClusterBaseName='korwoo.net' S3StateStore='hellokorwoo' MasterNodeInstanceType=c5d.large WorkerNodeInstanceType=c5d.large --region ap-northeast-2
+```
 
 ![OneClick_Deploy.png](OneClick_Deploy.png)
 
@@ -60,24 +64,28 @@ AWS VPC CNI의 강조되는 특징중 하나는 POD와 NODE의 네트워크 대�
 같은 네트워크 대역대를 사용함으로서 노드와 파드간의 소통이 좀더 원활하다는 장점을 가지게 됩니다.
 
 간단하게 내용들을 확인해보겠습니다.
+```bash
+kubectl describe daemonset aws-node --namespace kube-system | grep Image | cut -d "/" -f 2
+```
 
-```kubectl describe daemonset aws-node --namespace kube-system | grep Image | cut -d "/" -f 2```
 명령어를 입력하게 되면
 
 ![CNI_Info](CNI_Info.png)
 
 다음과 같이 CNI 정보를 확인하실 수 있습니다.
 
-
-```  aws ec2 describe-instances --query "Reservations[*].Instances[*].{PublicIPAdd:PublicIpAddress,PrivateIPAdd:PrivateIpAddress,InstanceName:Tags[?Key=='Name']|[0].Value,Status:State.Name}" --filters Name=instance-state-name,Values=running --output table ```
+```bash
+aws ec2 describe-instances --query "Reservations[*].Instances[*].{PublicIPAdd:PublicIpAddress,PrivateIPAdd:PrivateIpAddress,InstanceName:Tags[?Key=='Name']|[0].Value,Status:State.Name}" --filters Name=instance-state-name,Values=running --output table
+```
 
 명령어를 입력하면
 
 ![Node_IP.png](Node_IP.png)
 
 다음과 같이 노드의 IP를 확인할 수 있습니다.
-
-``` kubectl get pod -n kube-system -o=custom-columns=NAME:.metadata.name,IP:.status.podIP,STATUS:.status.phase ```
+```bash
+kubectl get pod -n kube-system -o=custom-columns=NAME:.metadata.name,IP:.status.podIP,STATUS:.status.phase
+```
 
 명령어를 입력하여 Pod의 IP를 확인해보도록합시다.
 
@@ -93,9 +101,10 @@ AWS VPC CNI의 강조되는 특징중 하나는 POD와 NODE의 네트워크 대�
 
 파드간 통신 흐름 : 별도의 오버레이 통신 기술 없이, VPC Native 하게 파드간 직접 통신이 가능하다.
 
+```bash
+kubectl apply -f ~/pkos/2/netshoot-2pods.yaml
+```
 
-
-``` kubectl apply -f ~/pkos/2/netshoot-2pods.yaml ```
 
 먼저 위 명령어를 통해 테스트용 POD를 배포해주도록 하겠습니다.
 
@@ -106,19 +115,30 @@ AWS VPC CNI의 강조되는 특징중 하나는 POD와 NODE의 네트워크 대�
 이때 이 POD 끼리의 통신을 테스트해보도록 하겠습니다.
 
 먼저 각 워커 노드에 접속하여
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP ```
-``` ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP ```
+```bash
+ssh -i ~/.ssh/id_rsa ubuntu@$W1PIP
+ssh -i ~/.ssh/id_rsa ubuntu@$W2PIP
+```
+```  ```
+```  ```
 
 아래 명령어를 통하여 패킷 덤프를 확인하는 명령어를 실행시켜 두도록 하겠습니다.
-``` sudo tcpdump -i any -nn icmp ``` 
-``` sudo tcpdump -i ens5 -nn icmp ```
-``` sudo tcpdump -i ens6 -nn icmp ```
+```bash
+sudo tcpdump -i any -nn icmp
+sudo tcpdump -i ens5 -nn icmp
+sudo tcpdump -i ens6 -nn icmp
+```
 
-``` POD1=$(kubectl get pod pod-1 -o jsonpath={.status.podIP}) ```
-``` POD2=$(kubectl get pod pod-2 -o jsonpath={.status.podIP}) ```
-``` kubectl exec -it pod-1 -- ping -c 2 $POD2 ```
+```bash
+POD1=$(kubectl get pod pod-1 -o jsonpath={.status.podIP})
+POD2=$(kubectl get pod pod-2 -o jsonpath={.status.podIP})
+kubectl exec -it pod-1 -- ping -c 2 $POD2
+```
+
 pod 1 shell 에서 pod2 로 ping 테스트
-``` kubectl exec -it pod-2 -- ping -c 2 $POD1 ```
+```bash
+kubectl exec -it pod-2 -- ping -c 2 $POD1
+```
 pod 2 shell 에서 pod1 로 ping 테스트
 
 먼저 any 에서의 패킷 덤프는 확인이 되었습니다.
@@ -145,10 +165,15 @@ VPC CNI의 External source network address translation 설정에 따라, 외부 
 
 
 작업용 EC2에서 pod-1 shell에서 외부로 ping을 날려보겠습니다.
-``` kubectl exec -it pod-1 -- ping -c 1 www.google.com ```
+```bash
+kubectl exec -it pod-1 -- ping -c 1 www.google.com
+```
 
 다음 Pod-1에 접속해서 tcpdump를 해주겠습니다.
-``` sudo tcpdump -i any -nn icmp ```
+```bash
+sudo tcpdump -i any -nn icmp
+```
+
 
 ![tcpdump_out.png](tcpdump_out.png)
 
@@ -156,10 +181,14 @@ tcpdump 에서 확인해보면 POD1의 IP 에서 외부로의 트래픽을 확�
 
 
 작업용 EC2에서 해당 명령어를 입력하여 작업용 EC2에서 외부와 통신할 때 사용하는 public IP 를 확인합니다.
-``` kubectl exec -it pod-1 -- curl -s ipinfo.io/ip ; echo ```
+```bash
+kubectl exec -it pod-1 -- curl -s ipinfo.io/ip ; echo
+```
 
 다음은 워커노드에서 아래 명령어를 입력하여 public IP를 확인합니다.
-``` curl -s ipinfo.io/ip ; echo ```
+```bash
+curl -s ipinfo.io/ip ; echo
+```
 
 흥미로운 점은 2개의 Public IP가 같다는 점을 확인하실 수 있습니다.
 
@@ -174,7 +203,9 @@ ENI0가 외부로 통신할 때에는 Public IP가 인터넷 게이트웨이를 
 ## 5. 노드에서 POD 생성갯수 제한
 
 아래의 명렁어를 통해 EC2 사이즈 별 생성 가능한 POD의 갯수를 확인해보도록 하겠습니다.
-``` aws ec2 describe-instance-types --filters Name=instance-type,Values=c5.* \ --query "InstanceTypes[].{Type: InstanceType, MaxENI: NetworkInfo.MaximumNetworkInterfaces, IPv4addr: NetworkInfo.Ipv4AddressesPerInterface}" \ --output table```
+```bash
+aws ec2 describe-instance-types --filters Name=instance-type,Values=c5.* \ --query "InstanceTypes[].{Type: InstanceType, MaxENI: NetworkInfo.MaximumNetworkInterfaces, IPv4addr: NetworkInfo.Ipv4AddressesPerInterface}" \ --output table
+```
 
 ![EC2_SIZE.png](EC2_SIZE.png)
 
@@ -187,7 +218,9 @@ ENI0가 외부로 통신할 때에는 Public IP가 인터넷 게이트웨이를 
 
 아래의 명렁어를 통해 생성가능한 POD의 갯수를 직접 확인하실 수도 있습니다.
 
-``` kubectl describe node | grep Allocatable: -A6 ```
+```bash
+kubectl describe node | grep Allocatable: -A6
+```
 
 ![MAX_POD.png](MAX_POD.png)
 
@@ -197,7 +230,9 @@ ENI0가 외부로 통신할 때에는 Public IP가 인터넷 게이트웨이를 
 
 아래 명령의를 통하여 Test용 POD를 배포해보도록 하겠습니다.
 
-``` kubectl apply -f ~/pkos/2/nginx-dp.yaml ```
+```bash
+kubectl apply -f ~/pkos/2/nginx-dp.yaml
+```
 
 ![POD_WATCH.png](POD_WATCH.png)
 
@@ -206,7 +241,10 @@ POD가 정상적으로 기동되고 있는것을 확인하실 수 있습니다.
 
 그렇다면 POD의 갯수를 천천히 증가시켜보도록 하겠습니다.
 
-``` kubectl scale deployment nginx-deployment --replicas=10 ```
+```bash
+kubectl scale deployment nginx-deployment --replicas=10
+```
+
 
 ![POD_WATCH2.png](POD_WATCH2.png)
 
@@ -214,11 +252,16 @@ POD가 정상적으로 기동되고 있는것을 확인하실 수 있습니다.
 
 
 그렇다면 MAX POD를 넘어선갯수로 POD를 증가시켜 보도록 하겠습니다.
-``` kubectl scale deployment nginx-deployment --replicas=40 ```
+```bash
+kubectl scale deployment nginx-deployment --replicas=40
+```
 
 다음 아래의 명령어를 통하여 Pending된 POD와 해당 원인에 대해 조회할 수 있습니다.
-``` kubectl get pods | grep Pending ```
-``` kubectl describe pod <Pending 파드> | grep Events: -A5 ```
+```bash
+kubectl get pods | grep Pending
+kubectl describe pod <Pending 파드> | grep Events: -A5
+```
+
 
 ![POD_Pendding.png](POD_Pendding.png)
 
@@ -232,26 +275,36 @@ https://blog.psnote.co.kr/186
 https://trans.yonghochoi.com/translations/aws_vpc_cni_increase_pods_per_node_limits.ko
 에서 안내해준 방법을 참고하였습니다.
 
-``` kubectl scale deployment nginx-deployment --replicas=0 ```
+```bash
+kubectl scale deployment nginx-deployment --replicas=0
+```
 
 먼저 replicas를 0으로 조절해줍니다.(Deployment를 지우는것이 아닙니다.)
 
 다음 아래 명령어를 통해 limitrange를 제거해주도록 하겠습니다.
-``` kubectl delete limitranges limits ```
+```bash
+kubectl delete limitranges limits
+```
 
 ![limit_range.png](limit_range.png)
 
 다음 아래 명령어를 통해 POD를 증가시켜 보겠습니다.
-``` kubectl scale deployment nginx-deployment --replicas=50 ```
+```bash
+kubectl scale deployment nginx-deployment --replicas=50
+```
 
 ![MAX_POD2.png](MAX_POD2.png)
 
 POD의 최대갯수가 49개까지 늘어났습니다만... 아직 목표인 100대 이상에는 모자릅니다.
 다시 replicas를 0으로 조절해주도록 하겠습니다.
-``` kubectl scale deployment nginx-deployment --replicas=0 ```
+```bash
+kubectl scale deployment nginx-deployment --replicas=0
+```
 
 수정하기 전에 Node의 External IP 주소를 확인해보도록 하겠습니다.
-``` kubectl get node -owide ```
+```bash
+kubectl get node -owide
+```
 
 저희가 해볼 방법은 kops cluster 를 수정하는 방법입니다.
 이 과정에서 노드에 대한 rolling update를 진행해 줄것인데 Node가 재배포되가 될것입니다.
@@ -261,7 +314,9 @@ POD의 최대갯수가 49개까지 늘어났습니다만... 아직 목표인 100
 
 다음 kops cluster 를 수정해주도록 하겠습니다.
 
-``` kops edit cluster ```
+```bash
+kops edit cluster
+```
 
 ![kops_edit.png](kops_edit.png)
 
@@ -274,7 +329,9 @@ POD의 최대갯수가 49개까지 늘어났습니다만... 아직 목표인 100
 수정이 성공적으로 되었다면 아래의 명령어를 통해 rolling update를 진행해 주도록 하겠습니다.
 대략 10분 정도의 시간이 소요될것입니다.
 
-``` kops update cluster --yes && echo && sleep 5 && kops rolling-update cluster --yes ```
+```bash
+kops update cluster --yes && echo && sleep 5 && kops rolling-update cluster --yes
+```
 
 ![rollingUpdate.png](rollingUpdate.png)
 
@@ -298,15 +355,13 @@ POD의 IP가 LB의 백엔드풀에 바로 등록이 되는 방식 입니다
 실습을 위해서 먼저 LB 생성을 진행하도록 하겠습니다.
 
 그러기 위해서는 생성된 컨트롤플레인, 워커노드에 LB생성을 위한 권한을 부여해주도록 하겠습니다.
-``` curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.5/docs/install/iam_policy.json ```
-
-``` aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.json ```
-
-``` ACCOUNT_ID=`aws sts get-caller-identity --query 'Account' --output text` ```
-
-``` aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy --role-name masters.$KOPS_CLUSTER_NAME ```
-
-``` aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy --role-name nodes.$KOPS_CLUSTER_NAME ```
+```bash
+curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.5/docs/install/iam_policy.json
+aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.json
+ACCOUNT_ID=`aws sts get-caller-identity --query 'Account' --output text`
+aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy --role-name masters.$KOPS_CLUSTER_NAME
+aws iam attach-role-policy --policy-arn arn:aws:iam::$ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy --role-name nodes.$KOPS_CLUSTER_NAME
+```
 
 위의 명렁어를 모두 입력해 주었다면 AWS Management Console -> IAM 역할로 이동하셔서 각 masters.도메인, nodes.도메인 으로 이동하셔서 아래와 같이
 권한이 잘 부여가 되었는지 확인을 해줍니다.
@@ -315,8 +370,10 @@ POD의 IP가 LB의 백엔드풀에 바로 등록이 되는 방식 입니다
 ![IAM_CHECK.png](IAM_CHECK.png)
 
 다음으로 kops cluster를 업데이트 해주도록 하겠습니다.
+```bash
+kops edit cluster --name ${KOPS_CLUSTER_NAME}
+```
 
-``` kops edit cluster --name ${KOPS_CLUSTER_NAME} ```
 
 다음 아래 그림에 표시된 내용을 입력해주도록 합니다.
 
@@ -324,7 +381,9 @@ Cert-manager는 K8S Cluster 내 에서 TLS 인증서를 자동으로 프로비�
 ![Edit_Kops.png](Edit_Kops.png)
 
 다음 Rolling update를 통하여 업데이트를 적용해주도록 하겠습니다.
-``` kops update cluster --yes && echo && sleep 5 && kops rolling-update cluster ```
+```bash
+kops update cluster --yes && echo && sleep 5 && kops rolling-update cluster
+```
 
 성공적으로 업데이트 되었습니다!!
 
@@ -332,7 +391,9 @@ Cert-manager는 K8S Cluster 내 에서 TLS 인증서를 자동으로 프로비�
 
 아래 명령어를 입력하여 Deployment & Service 를 생성해주도록 하겠습니다.
 
-``` kubectl apply -f ~/pkos/2/echo-service-nlb.yaml ```
+```bash
+kubectl apply -f ~/pkos/2/echo-service-nlb.yaml
+```
 
 ![Service_Check.png](Service_Check.png)
 
@@ -343,17 +404,23 @@ AWS Management Console에서 LoadBalancer을 들어가보면 POD의 IP가 LB의 
 ## 7. External DNS
 
 dns 관련 파드 갯수를 줄여보도록 하겠습니다.
-``` kubectl delete deploy -n kube-system coredns-autoscaler ```
-``` kubectl scale deploy -n kube-system coredns --replicas 1 ```
+```bash
+kubectl delete deploy -n kube-system coredns-autoscaler
+kubectl scale deploy -n kube-system coredns --replicas 1
+```
+
 
 아래 명령어를 입력하여 컨트롤플레인, 워커노드에 ExternalDNSUpdate 관련 정책을 업에이트 해주도록 하겠습니다.
 
-``` curl -s -O https://s3.ap-northeast-2.amazonaws.com/cloudformation.cloudneta.net/AKOS/externaldns/externaldns-aws-r53-policy.json ```
-``` aws iam create-policy --policy-name AllowExternalDNSUpdates --policy-document file://externaldns-aws-r53-policy.json ```
-``` aws iam list-policies --query 'Policies[?PolicyName==`AllowExternalDNSUpdates`].Arn' --output text ```
-``` export POLICY_ARN=$(aws iam list-policies --query 'Policies[?PolicyName==`AllowExternalDNSUpdates`].Arn' --output text)```
-``` aws iam attach-role-policy --policy-arn $POLICY_ARN --role-name masters.$KOPS_CLUSTER_NAME ```
-``` aws iam attach-role-policy --policy-arn $POLICY_ARN --role-name nodes.$KOPS_CLUSTER_NAME ```
+
+```bash
+curl -s -O https://s3.ap-northeast-2.amazonaws.com/cloudformation.cloudneta.net/AKOS/externaldns/externaldns-aws-r53-policy.json
+aws iam create-policy --policy-name AllowExternalDNSUpdates --policy-document file://externaldns-aws-r53-policy.json
+aws iam list-policies --query 'Policies[?PolicyName==`AllowExternalDNSUpdates`].Arn' --output text
+export POLICY_ARN=$(aws iam list-policies --query 'Policies[?PolicyName==`AllowExternalDNSUpdates`].Arn' --output text)
+aws iam attach-role-policy --policy-arn $POLICY_ARN --role-name masters.$KOPS_CLUSTER_NAME
+aws iam attach-role-policy --policy-arn $POLICY_ARN --role-name nodes.$KOPS_CLUSTER_NAME
+```
 
 위에서 LB에 대한 권한을 확인했듯이 똑같이 IAM 에서 AllowExternalDNSIPdates를 확인해주도록 합니다.
 ![External_IAM.png](External_IAM.png)
@@ -368,14 +435,22 @@ dns 관련 파드 갯수를 줄여보도록 하겠습니다.
 
 아래 명렁어를 통해 테스트용 서비스/파드를 배포해보도록 하겠습니다.
 
-``` kubectl apply -f ~/pkos/2/echo-service-nlb.yaml ```
+```bash
+kubectl apply -f ~/pkos/2/echo-service-nlb.yaml
+```
 
 다음 자신의 도메인 정보를 입력하겠습니다.
-``` MyDOMAIN1=nginx.korwoo.net ```
-``` kubectl annotate service svc-nlb-ip-type "external-dns.alpha.kubernetes.io/hostname=$MyDOMAIN1." ```
+```bash
+MyDOMAIN1=nginx.korwoo.net
+kubectl annotate service svc-nlb-ip-type "external-dns.alpha.kubernetes.io/hostname=$MyDOMAIN1."
+```
 
 그럼 정상적으로 됬는지 확인해보도록 하겠습니다. 아래 명령어를 입력하면 IP주소가 출력될것입니다.(약 5분정도 시간이 필요합니다.)
-``` dig +short $MyDOMAIN1 ```
+
+```bash
+dig +short $MyDOMAIN1
+```
+
 
 이후 Route53에 접속하시면 등록한 도메인이 A레코드로 등록된것을 확인하실 수 있습니다.
 ![Route53.png](Route53.png)
@@ -386,27 +461,40 @@ dns 관련 파드 갯수를 줄여보도록 하겠습니다.
 
 아래의 명렁어를 입력해 git clone을 하겠습니다.
 
-``` git clone https://github.com/dockersamples/example-voting-app ```
+```bash
+git clone https://github.com/dockersamples/example-voting-app
+```
+
 
 다음 vote 라는 namespace를 만들겠습니다.
-``` kubectl create ns vote ```
-``` kubectl ns vote ```
+
+```bash
+kubectl create ns vote
+kubectl ns vote
+```
 
 다음 아래 명령어를 입력하여 서비스파일을 변경하도록 하겠습니다.
 
-``` rm -rf vote-service.yaml result-service.yaml ```
-``` cp ~/pkos/2/vote-service.yaml . ```
-``` cp ~/pkos/2/result-service.yaml . ```
-``` cat vote-service.yaml | yh ```
-``` cat result-service.yaml | yh ```
+```bash
+rm -rf vote-service.yaml result-service.yaml
+cp ~/pkos/2/vote-service.yaml .
+cp ~/pkos/2/result-service.yaml .
+cat vote-service.yaml | yh
+cat result-service.yaml | yh
+```
 
 아래 명령어를 통해 서비스를 배포하겠습니다.
-
-``` kubectl apply -f . ```
+```bash
+kubectl apply -f .
+```
 
 다음 아래 명령어를 입력하여 자신의 도메인에 ExternalDNS를 추가하겠습니다.
-``` MyDOMAIN1=vote.korwoo.net```
-``` MyDOMAIN2=result.korwoo.net ```
+
+```bash
+MyDOMAIN1=vote.korwoo.net
+MyDOMAIN2=result.korwoo.net
+```
+
 
 이후 입력한 도메인으로 접속하여 확인해봅시다!
 
@@ -416,11 +504,15 @@ dns 관련 파드 갯수를 줄여보도록 하겠습니다.
 과제4. NLB에 TLS 적용하기
 
 아래 명령어를 입력하여 CERT_ARN을 저장해주도록 합니다.
+```bash
+CERT_ARN=`aws acm list-certificates --query 'CertificateSummaryList[].CertificateArn[]' --output text`
+```
 
-``` CERT_ARN=`aws acm list-certificates --query 'CertificateSummaryList[].CertificateArn[]' --output text` ```
 
 다음 아래 명령어를 입력해 Deployment를 생성해주도록 하겠습니다.
-``` cat <<EOF | kubectl create -f -
+
+```bash
+cat <<EOF | kubectl create -f -
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -473,12 +565,6 @@ EOF
 ```
 
 ![TLS.png](TLS.png)
-
-
-
-
-
-
 
 
 ```toc
