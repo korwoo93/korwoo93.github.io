@@ -43,11 +43,11 @@ module.exports = {
       // ========================================================
       // ========================================================
       {
-        date: '2022.08 ~',
-        activity: '개인 블로그 개발 및 운영',
+        date: '2020.12 ~ ',
+        activity: 'Azure Cloud Engineer , Devops Engineer',
         links: {
           post: '/gatsby-starter-zoomkoding-introduction',
-          github: 'https://github.com/zoomkoding/zoomkoding-gatsby-blog',
+          github: 'https://github.com/korwoo93',
           demo: 'https://www.zoomkoding.com',
         },
       },
