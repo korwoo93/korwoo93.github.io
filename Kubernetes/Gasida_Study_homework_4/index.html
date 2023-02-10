@@ -129,8 +129,8 @@ helm fetch harbor/harbor --untar</code></pre></div>
 expose.tls.certSource<span class="token operator">=</span>none  <span class="token comment"># 19줄</span>
 expose.ingress.hosts.core<span class="token operator">=</span>harbor.<span class="token operator">&lt;</span>각자자신의도메인<span class="token operator">></span>    <span class="token comment"># 36줄</span>
 expose.ingress.hosts.notary<span class="token operator">=</span>notary.<span class="token operator">&lt;</span>각자자신의도메인<span class="token operator">></span>  <span class="token comment"># 37줄</span>
-expose.ingress.hosts.core<span class="token operator">=</span>harbor.gasida.link    
-expose.ingress.hosts.notary<span class="token operator">=</span>notary.gasida.link  
+expose.ingress.hosts.core<span class="token operator">=</span>harbor.korwoo.link    
+expose.ingress.hosts.notary<span class="token operator">=</span>notary.korwoo.link  
 expose.ingress.controller<span class="token operator">=</span>alb                      <span class="token comment"># 44줄</span>
 expose.ingress.className<span class="token operator">=</span>alb                       <span class="token comment"># 47줄</span>
 expose.ingress.annotations<span class="token operator">=</span>alb.ingress.kubernetes.io/scheme: internet-facing
@@ -138,7 +138,7 @@ expose.ingress.annotations<span class="token operator">=</span>alb.ingress.kuber
 expose.ingress.annotations<span class="token operator">=</span>alb.ingress.kubernetes.io/listen-ports: <span class="token string">'[{"HTTPS":443}, {"HTTP":80}]'</span>
 expose.ingress.annotations<span class="token operator">=</span>alb.ingress.kubernetes.io/certificate-arn: <span class="token variable">${CERT_ARN}</span>
 <span class="token assign-left variable">externalURL</span><span class="token operator">=</span>https://harbor.<span class="token operator">&lt;</span>각자자신의도메인<span class="token operator">></span>
-<span class="token assign-left variable">externalURL</span><span class="token operator">=</span>https://harbor.gasida.link             <span class="token comment"># 131줄</span></code></pre></div>
+<span class="token assign-left variable">externalURL</span><span class="token operator">=</span>https://harbor.korwoo.link             <span class="token comment"># 131줄</span></code></pre></div>
 <p>위의 yaml 파일 내용수정 중
 51~54번째줄에 해당하는 내용은 주석처리를 해주시면 됩니다.
 추가적으로 expore.ingress.annotations=alb.ingress.kubernetes.io/certificate-arn: ${CERT_ARN} 부분은
@@ -522,9 +522,9 @@ PW : 위의 명령어의 출력값
 
 <span class="token comment"># git clone</span>
 <span class="token function">git</span> clone https://gitlab.<span class="token variable">$KOPS_CLUSTER_NAME</span>/<span class="token operator">&lt;</span>각자 자신의 Gialba 계정<span class="token operator">></span>/test-stg.git
-<span class="token function">git</span> clone https://gitlab.<span class="token variable">$KOPS_CLUSTER_NAME</span>/gasida/test-stg.git
+<span class="token function">git</span> clone https://gitlab.<span class="token variable">$KOPS_CLUSTER_NAME</span>/korwoo/test-stg.git
 Cloning into <span class="token string">'test-stg'</span><span class="token punctuation">..</span>.
-Username <span class="token keyword">for</span> <span class="token string">'https://gitlab.korwoo.net'</span><span class="token builtin class-name">:</span> gasida
+Username <span class="token keyword">for</span> <span class="token string">'https://gitlab.korwoo.net'</span><span class="token builtin class-name">:</span> korwoo
 Password <span class="token keyword">for</span> <span class="token string">'https://korwoo@gitlab.korwoo.net'</span><span class="token builtin class-name">:</span> <span class="token operator">&lt;</span>토큰 입력<span class="token operator">></span>
 
 <span class="token comment"># 이동</span>
