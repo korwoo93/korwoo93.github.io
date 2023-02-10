@@ -83,8 +83,8 @@ vim ~/harbor/values.yaml
 expose.tls.certSource=none  # 19줄
 expose.ingress.hosts.core=harbor.<각자자신의도메인>    # 36줄
 expose.ingress.hosts.notary=notary.<각자자신의도메인>  # 37줄
-expose.ingress.hosts.core=harbor.gasida.link    
-expose.ingress.hosts.notary=notary.gasida.link  
+expose.ingress.hosts.core=harbor.korwoo.link    
+expose.ingress.hosts.notary=notary.korwoo.link  
 expose.ingress.controller=alb                      # 44줄
 expose.ingress.className=alb                       # 47줄
 expose.ingress.annotations=alb.ingress.kubernetes.io/scheme: internet-facing
@@ -92,7 +92,7 @@ expose.ingress.annotations=alb.ingress.kubernetes.io/target-type: ip
 expose.ingress.annotations=alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
 expose.ingress.annotations=alb.ingress.kubernetes.io/certificate-arn: ${CERT_ARN}
 externalURL=https://harbor.<각자자신의도메인>
-externalURL=https://harbor.gasida.link             # 131줄
+externalURL=https://harbor.korwoo.link             # 131줄
 ```
 위의 yaml 파일 내용수정 중 
 51~54번째줄에 해당하는 내용은 주석처리를 해주시면 됩니다.
@@ -279,9 +279,9 @@ git config --global user.email "<각자 자신의 Gitlab 계정의 이메일>"
 
 # git clone
 git clone https://gitlab.$KOPS_CLUSTER_NAME/<각자 자신의 Gialba 계정>/test-stg.git
-git clone https://gitlab.$KOPS_CLUSTER_NAME/gasida/test-stg.git
+git clone https://gitlab.$KOPS_CLUSTER_NAME/korwoo/test-stg.git
 Cloning into 'test-stg'...
-Username for 'https://gitlab.korwoo.net': gasida
+Username for 'https://gitlab.korwoo.net': korwoo
 Password for 'https://korwoo@gitlab.korwoo.net': <토큰 입력>
 
 # 이동
