@@ -411,7 +411,7 @@ kubectl apply -f rabbitmq-helm-argo-application.yml
 
 ![argo_check.png](argo_check.png)
 
-##5. 과제 1.  Harbor에 자신만의 아무 이미지나 태그해서 업로드하고 다운로드해서 스크린샷
+## 5.과제 1.  Harbor에 자신만의 아무 이미지나 태그해서 업로드하고 다운로드해서 스크린샷
 
 저는 Azure에 이미지 저장소를 하나 만들어서 컨테이너를 하나 Push해둔 상태입니다.
 Azure Container Registry에 저장되어 있는 이미지를 Harbor에 Push & Pull 해보겠습니다.
@@ -445,7 +445,7 @@ docker pull harbor.korwoo.net/pkos/stayfocus:0.1
 ![harbor_pull.png](harbor_pull.png)
 
 
-##6.과제 2.   자신만의 텍스트 파일을 kops-ec2 로컬에서 GitLab에 올려보기
+## 6.과제 2.   자신만의 텍스트 파일을 kops-ec2 로컬에서 GitLab에 올려보기
 
 ```bash
 mkdir korwoo-gitlab && cd korwoo-gitlab
@@ -469,7 +469,7 @@ git push
 
 ![gitlab_push_2.png](gitlab_push_2.png)
 
-##7 과제3 . 교제의 책 273P GitOPS 실습 해보기(클러스터 설정 내역 변경과 깃 저장소 자동 반영)
+## 7 과제3 . 교제의 책 273P GitOPS 실습 해보기(클러스터 설정 내역 변경과 깃 저장소 자동 반영)
 
 클러스터 설정 변경 검증을 위한 2개의 애플리케이션 배포를 위한 yml파일을 준비해주겠습니다.
 
