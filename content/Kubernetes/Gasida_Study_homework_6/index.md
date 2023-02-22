@@ -57,7 +57,7 @@ Prometheus, Grafana 등에서 값들은 정상적으로 받아오더군요..
 
 AWS 리소스 제한이 제일 테스트해보기 쉬우니 테스트를 진행해보겠습니다.
 
-테스트 진행중 ㅜㅜ
+![img_10.png](img_10.png)
 
 
 ## 3. Prometheus, Grafana, Alert Manager 배포
