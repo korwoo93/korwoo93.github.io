@@ -44,7 +44,7 @@ I0222 22:24:12.336747    8250 instancegroups.go:533] Cluster did not pass valida
 의 오류메세지가 반복적으로 출력 되면서 Rolling Update가 정상적으로 수행되지 않는 이슈가 있었습니다.
 
 롤링업데이트룰 중단하고 kops validate cluster 를 통해 확인해 보니 Validation Error가 발생한 상태이더군요..
-워커노드 재생성또한 진행되지 않았습니다.
+컨트롤 플레인에 해당하는 EC2는 재생이 정상적으로 되었으나 워커노드 재생성또한 진행되지 않았습니다.
 근데 또 노드의 상태는 정상적으로 표시가 되고
 Prometheus, Grafana 등에서 값들은 정상적으로 받아오더군요..
 
@@ -58,6 +58,15 @@ Prometheus, Grafana 등에서 값들은 정상적으로 받아오더군요..
 AWS 리소스 제한이 제일 테스트해보기 쉬우니 테스트를 진행해보겠습니다.
 
 ![img_10.png](img_10.png)
+
+https://support.console.aws.amazon.com/support/home#/case/create?issueType=service-limit-increase&limitType=service-code-ec2-instances&serviceLimitIncreaseType=ec2-instances&type=service_limit_increase
+
+증설 요청은 위의 링크에서 하실 수 있습니다.
+
+증설 요청을 하면 특별한 사유가 없다면 10분 이내로 빠르게 증설이 될것입니다.
+
+다행스럽게도 원인은 자원이 부족해서 발생한 이슈가 맞았습니다ㅎㅎ
+
 
 
 ## 3. Prometheus, Grafana, Alert Manager 배포
@@ -251,6 +260,157 @@ kubectl label $(kubectl get pod -n kube-system -l k8s-app=kube-scheduler -oname)
 ![img_9.png](img_9.png)
 
 Prometheus 에서 해당 이슈가 없어진 것을 확인하실 수 있습니다.
+
+
+이번에는 고의적으로 시스템에 이슈를 만들어보겠습니다.
+노드를 하나 추가해주고 그 노드를 다운시켜보겠습니다.
+아래 명령어를 입력해서 노드를 1개 추가해주도록 하겠습니다.
+```bash
+ kops edit ig nodes-ap-northeast-2a --set spec.minSize=2 --set spec.maxSize=2
+ kops update cluster --yes && echo && sleep 3 && kops rolling-update cluster
+```
+
+다음 AWS Console에 접속해보시면 지역이 ap-norrheast-2a에 해당하는 EC2가 2개로 증가되어있는것을 확인하실 수 있습니다.
+
+신규 생성된 Node에 접속하여 Kubelet을 Down시켜 보도록 하겠습니다.
+```bash
+WNODE3=<신규생성된 Worker Node의 Public IP>
+ssh -i ~/.ssh/id_rsa ubuntu@$WNODE3 hostname
+ssh -i ~/.ssh/id_rsa ubuntu@$WNODE3 sudo systemctl stop kubelet
+ssh -i ~/.ssh/id_rsa ubuntu@$WNODE3 sudo systemctl status kubelet
+```
+
+![img_11.png](img_11.png)
+
+kubelet을 Down시키면 처음 Prometheus 에서는 Pending 상태로 표시가 됩니다.
+이후 10분이 지나면 Firing 상태로 변하게 됩니다.
+
+kubectl get prometheusrules -n monitoring -o json | grep TargetDown -B1 -A11 명령어를 입력하시면 아래에 해당해당 내용이 나오는데
+아래에 정의되어있는 규칙으로 인하여 10분 뒤 Firing 상태로 변하게되는 원리 입니다.
+```bash
+{
+                                "alert": "TargetDown",
+                                "annotations": {
+                                    "description": "{{ printf \"%.4g\" $value }}% of the {{ $labels.job }}/{{ $labels.service }} targets in {{ $labels.namespace }} namespace are down.",
+                                    "runbook_url": "https://runbooks.prometheus-operator.dev/runbooks/general/targetdown",
+                                    "summary": "One or more targets are unreachable."
+                                },
+                                "expr": "100 * (count(up == 0) BY (job, namespace, service) / count(up) BY (job, namespace, service)) \u003e 10",
+                                "for": "10m",
+                                "labels": {
+                                    "severity": "warning"
+                                }
+                            },
+```
+
+![img_12.png](img_12.png)
+이후 WebHook 에서도 확인하실 수 있습니다!
+
+##5. PLG Stack
+
+PLG(`P`romtail, `L`oki, `G`rafana) 에 대해서 실습해보는 시간입니다.
+PLG는 위의 3가지의 요소를 묶어 여러 파드의 로그를 중앙 서버에 저장하고 조회하는 기능입니다.
+(https://www.infracloud.io/blogs/logging-in-kubernetes-efk-vs-plg-stack/)
+
+![img_13.png](img_13.png)
+
+Promtail은 로그를 로컬 시스템에서 Loki로 전송하는 에이전트 입니다.
+Loki는 Promtail로 부터 로그를 받아 이것을 저장하고 분석하는데 적합합니다.
+Grfana는 Loki에서 로그를 가져와서 이것을 시각화 해주게 됩니다.
+
+
+먼저 실습을 위한 Nginx를 설치해주도록 하겠습니다.
+
+```bash
+helm repo add bitnami https://charts.bitnami.com/bitnami
+
+cat <<EOT > ~/nginx-values.yaml
+metrics:
+  enabled: true
+
+  service:
+    port: 9113
+
+  serviceMonitor:
+    enabled: true
+    namespace: monitoring
+    interval: 10s
+EOT
+
+helm install nginx bitnami/nginx --version 13.2.27 -f nginx-values.yaml
+
+#CLB에 EnternalDNS로 도메인을 연결해주기
+kubectl annotate service nginx "external-dns.alpha.kubernetes.io/hostname=nginx.$KOPS_CLUSTER_NAME"
+
+```
+
+그렇다면 Loki, Promtail를 설치해보도록 하겠습니다.
+```bash
+
+#Loki 생성
+kubectl create ns loki
+helm repo add grafana https://grafana.github.io/helm-charts
+
+cat <<EOT > ~/loki-values.yaml
+persistence:
+  enabled: true
+  size: 20Gi
+
+serviceMonitor:
+  enabled: true
+EOT
+
+helm install loki grafana/loki --version 2.16.0 -f loki-values.yaml --namespace loki
+```
+
+설치를 완료 하였다면 Curl 을 수행해줄 Test용 Pod를 생성해주어 로키 Gateway 접속확인을 해보도록 하겠습니다.
+kubectl apply -f ~/pkos/2/netshoot-2pods.yaml
+
+kubectl exec -it pod-1 -- curl -s http://loki.loki.svc:3100/api/prom/label
+
+![img_14.png](img_14.png)
+
+위의 화면과 같이 나오면 정상적으로 접속이 완료된것입니다.
+
+이제 Promtail을 설치해보겠습니다.
+
+```bash
+#Promtail 설치
+
+cat <<EOT > ~/promtail-values.yaml
+serviceMonitor:
+  enabled: true
+config:
+  serverPort: 3101
+  clients:
+    - url: http://loki-headless:3100/loki/api/v1/push
+#defaultVolumes:
+#  - name: pods
+#    hostPath:
+#      path: /var/log/pods
+EOT
+
+```
+
+다음 Gragana 에 접속하여
+Configuration -> Data source -> Add data source 로 들어가서 Loki 를 추가해주도록 하겠습니다.
+이떄 URL은 http://loki-headless.loki:3100 해보도록 하겠습니다.
+
+![img_15.png](img_15.png)
+
+그 다음 Loki에서의 Log 확인을 위해
+while true; do curl -s http://nginx.$KOPS_CLUSTER_NAME -I | head -n 1; date; sleep 1; done 
+명령어를 사용하여 Nginx에 반복 접속을 걸어주도록 하겠습니다.
+
+다음 Grafana에서 Exploer -> Loki 로 접속한 뒤 상단에 Prometheus가 아닌 Loki로 선택 후 Label filter는 nginx로 선택하시고 
+상단에 파란색 Run query를 클릭해주시면 아래 화면과 같이 Log 확인이 가능합니다!
+![img_16.png](img_16.png)
+
+
+##6. 과제 1 교제 367 ~ 372 페이지 사용자 정의 Prometheusrules 정책 설정 : 파일 시스템 사용률 초과 80% 시 경고
+
+
+
 
 
 
