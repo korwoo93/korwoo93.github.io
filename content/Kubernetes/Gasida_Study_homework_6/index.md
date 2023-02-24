@@ -409,9 +409,22 @@ while true; do curl -s http://nginx.$KOPS_CLUSTER_NAME -I | head -n 1; date; sle
 
 ##6. 과제 1 교제 367 ~ 372 페이지 사용자 정의 Prometheusrules 정책 설정 : 파일 시스템 사용률 초과 80% 시 경고
 
+![img_19.png](img_19.png)
+
+![img_20.png](img_20.png)
+
+##7. 과제 2 교제 386 ~ 389 페이지 - LogQL 
+
+![img_17.png](img_17.png)
+
+![img_18.png](img_18.png)
 
 
+##8. 과제 3 스터디에서 배우지 않은 Alert Rule 생성 및 적용 
 
+![img_21.png](img_21.png)
+
+![img_22.png](img_22.png)
 
 
 ```toc
