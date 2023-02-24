@@ -1,0 +1,910 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="ie=edge"/><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/><meta data-react-helmet="true" property="og:type" content="website"/><meta data-react-helmet="true" property="og:image" content="/og-image.png"/><meta data-react-helmet="true" property="og:author" content="장우석"/><meta data-react-helmet="true" property="og:description" content="가시다님 스터디 : https://www.notion.so/gasidaseo/23-7635cc4f02c04954a3260b317588113e  본 포스팅은 가시다님의 쿠버네티스 스터디 내용과 이정훈님의 
+책을 참고하여 포스팅하였습니다. 6주차 Alert Manager Logging System 1. Alert Manager?? 쿠버네티스를 학습하며 Prometheus, Grafana 등에대해서는 한번쯤은 들어봤지만
+솔직히 AlertManager는 처음들어봤습니다.. AlertManager는 Prometheus의 특정 임계값을 넘거나 메트릭의 변화에 대한 알림을 slack, email 등으로 전송해주는 역할을 하는 친구입니다. 쉽게생각해  라고 생각해주시면 되겠습니다. 개인적으로 왜 분리를 시켜두었는지 잘 이해가 되지 않네요.. 참고로 Grafana v4.0 에서 Alert 기능이 추가되었다고 하는데 Alert Manager 의 미래가 어떻게 될지는 한번 지켜봐야 되지 않을까 싶…"/><meta data-react-helmet="true" name="description" content="가시다님 스터디 : https://www.notion.so/gasidaseo/23-7635cc4f02c04954a3260b317588113e  본 포스팅은 가시다님의 쿠버네티스 스터디 내용과 이정훈님의 
+책을 참고하여 포스팅하였습니다. 6주차 Alert Manager Logging System 1. Alert Manager?? 쿠버네티스를 학습하며 Prometheus, Grafana 등에대해서는 한번쯤은 들어봤지만
+솔직히 AlertManager는 처음들어봤습니다.. AlertManager는 Prometheus의 특정 임계값을 넘거나 메트릭의 변화에 대한 알림을 slack, email 등으로 전송해주는 역할을 하는 친구입니다. 쉽게생각해  라고 생각해주시면 되겠습니다. 개인적으로 왜 분리를 시켜두었는지 잘 이해가 되지 않네요.. 참고로 Grafana v4.0 에서 Alert 기능이 추가되었다고 하는데 Alert Manager 의 미래가 어떻게 될지는 한번 지켜봐야 되지 않을까 싶…"/><meta data-react-helmet="true" property="og:site_title" content="Gasida Kubernetes Study 6주차"/><meta data-react-helmet="true" property="og:title" content="Gasida Kubernetes Study 6주차"/><meta data-react-helmet="true" name="viewport" content="initial-scale=1, width=device-width"/><meta name="generator" content="Gatsby 4.9.3"/><style data-href="/styles.853e65090dc89bfbb4ac.css" data-identity="gatsby-global-css">@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:100;src:local("Montserrat Thin "),local("Montserrat-Thin"),url(/static/montserrat-latin-100-8d7d79679b70dbe27172b6460e7a7910.woff2) format("woff2"),url(/static/montserrat-latin-100-ec38980a9e0119a379e2a9b3dbb1901a.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:100;src:local("Montserrat Thin italic"),local("Montserrat-Thinitalic"),url(/static/montserrat-latin-100italic-e279051046ba1286706adc886cf1c96b.woff2) format("woff2"),url(/static/montserrat-latin-100italic-3b325a3173c8207435cd1b76e19bf501.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:200;src:local("Montserrat Extra Light "),local("Montserrat-Extra Light"),url(/static/montserrat-latin-200-9d266fbbfa6cab7009bd56003b1eeb67.woff2) format("woff2"),url(/static/montserrat-latin-200-2d8ba08717110d27122e54c34b8a5798.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:200;src:local("Montserrat Extra Light italic"),local("Montserrat-Extra Lightitalic"),url(/static/montserrat-latin-200italic-6e5b3756583bb2263eb062eae992735e.woff2) format("woff2"),url(/static/montserrat-latin-200italic-a0d6f343e4b536c582926255367a57da.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:300;src:local("Montserrat Light "),local("Montserrat-Light"),url(/static/montserrat-latin-300-00b3e893aab5a8fd632d6342eb72551a.woff2) format("woff2"),url(/static/montserrat-latin-300-ea303695ceab35f17e7d062f30e0173b.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:300;src:local("Montserrat Light italic"),local("Montserrat-Lightitalic"),url(/static/montserrat-latin-300italic-56f34ea368f6aedf89583d444bbcb227.woff2) format("woff2"),url(/static/montserrat-latin-300italic-54b0bf2c8c4c12ffafd803be2466a790.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:400;src:local("Montserrat Regular "),local("Montserrat-Regular"),url(/static/montserrat-latin-400-b71748ae4f80ec8c014def4c5fa8688b.woff2) format("woff2"),url(/static/montserrat-latin-400-0659a9f4e90db5cf51b50d005bff1e41.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:400;src:local("Montserrat Regular italic"),local("Montserrat-Regularitalic"),url(/static/montserrat-latin-400italic-6eed6b4cbb809c6efc7aa7ddad6dbe3e.woff2) format("woff2"),url(/static/montserrat-latin-400italic-7583622cfde30ae49086d18447ab28e7.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:500;src:local("Montserrat Medium "),local("Montserrat-Medium"),url(/static/montserrat-latin-500-091b209546e16313fd4f4fc36090c757.woff2) format("woff2"),url(/static/montserrat-latin-500-edd311588712a96bbf435fad264fff62.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:500;src:local("Montserrat Medium italic"),local("Montserrat-Mediumitalic"),url(/static/montserrat-latin-500italic-c90ced68b46050061d1a41842d6dfb43.woff2) format("woff2"),url(/static/montserrat-latin-500italic-5146cbfe02b1deea5dffea27a5f2f998.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:600;src:local("Montserrat SemiBold "),local("Montserrat-SemiBold"),url(/static/montserrat-latin-600-0480d2f8a71f38db8633b84d8722e0c2.woff2) format("woff2"),url(/static/montserrat-latin-600-b77863a375260a05dd13f86a1cee598f.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:600;src:local("Montserrat SemiBold italic"),local("Montserrat-SemiBolditalic"),url(/static/montserrat-latin-600italic-cf46ffb11f3a60d7df0567f8851a1d00.woff2) format("woff2"),url(/static/montserrat-latin-600italic-c4fcfeeb057724724097167e57bd7801.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:700;src:local("Montserrat Bold "),local("Montserrat-Bold"),url(/static/montserrat-latin-700-7dbcc8a5ea2289d83f657c25b4be6193.woff2) format("woff2"),url(/static/montserrat-latin-700-99271a835e1cae8c76ef8bba99a8cc4e.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:700;src:local("Montserrat Bold italic"),local("Montserrat-Bolditalic"),url(/static/montserrat-latin-700italic-c41ad6bdb4bd504a843d546d0a47958d.woff2) format("woff2"),url(/static/montserrat-latin-700italic-6779372f04095051c62ed36bc1dcc142.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:800;src:local("Montserrat ExtraBold "),local("Montserrat-ExtraBold"),url(/static/montserrat-latin-800-db9a3e0ba7eaea32e5f55328ace6cf23.woff2) format("woff2"),url(/static/montserrat-latin-800-4e3c615967a2360f5db87d2f0fd2456f.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:800;src:local("Montserrat ExtraBold italic"),local("Montserrat-ExtraBolditalic"),url(/static/montserrat-latin-800italic-bf45bfa14805969eda318973947bc42b.woff2) format("woff2"),url(/static/montserrat-latin-800italic-fe82abb0bcede51bf724254878e0c374.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:normal;font-weight:900;src:local("Montserrat Black "),local("Montserrat-Black"),url(/static/montserrat-latin-900-e66c7edc609e24bacbb705175669d814.woff2) format("woff2"),url(/static/montserrat-latin-900-8211f418baeb8ec880b80ba3c682f957.woff) format("woff")}@font-face{font-display:swap;font-family:Montserrat;font-style:italic;font-weight:900;src:local("Montserrat Black italic"),local("Montserrat-Blackitalic"),url(/static/montserrat-latin-900italic-4454c775e48152c1a72510ceed3603e2.woff2) format("woff2"),url(/static/montserrat-latin-900italic-efcaa0f6a82ee0640b83a0916e6e8d68.woff) format("woff")}.search-input-wrapper{align-items:center;display:none;margin-top:3px;width:180px}@media(min-width:768px){.search-input-wrapper{display:flex}}.search-icon{color:var(--primary-text-color);margin-right:2px}.search-input{height:100%;width:100%}.search-input .MuiAutocomplete-inputRoot{padding-right:0!important}.search-input .MuiInputBase-input{color:var(--primary-text-color)!important;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;font-size:16px;font-weight:500;padding-bottom:2px!important}.search-input .MuiInput-underline:before{border-bottom-width:1px}.search-input .MuiInput-underline:after,.search-input .MuiInput-underline:before{border-bottom-color:var(--primary-text-color)}.page-header-wrapper{display:flex;height:60px;justify-content:center;width:100%}.page-header-wrapper .page-header{align-items:center;display:flex;justify-content:space-between;max-width:720px;width:100%}.page-header-wrapper .page-header .link{color:var(--primary-text-color);font-size:17px;font-weight:700}@media(min-width:768px){.page-header-wrapper .page-header .link{font-size:20px;font-weight:700}}.page-header-wrapper .page-header .trailing-section{align-items:center;display:flex}.page-header-wrapper .page-header .trailing-section .link{margin-right:10px}@media(min-width:768px){.page-header-wrapper .page-header .trailing-section .link{margin-right:20px}}.page-footer-wrapper{align-items:center;display:flex;height:62px;justify-content:center;margin-top:auto;width:100%}.page-footer-wrapper .page-footer{max-width:720px;text-align:center;width:100%}.page-footer-wrapper .page-footer .link{color:var(--primary-text-color);font-size:20px;font-weight:700;margin-right:20px}.page-footer-wrapper .page-footer a{color:#3a95ff}.dark-mode-button-wrapper{align-items:center;bottom:20px;display:flex;justify-content:center;position:fixed;right:20px}.dark-mode-button{-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);background-color:#363f47!important;border-radius:50px;box-shadow:0 5px 25px rgba(0,0,0,.12);cursor:pointer;height:50px;width:50px;z-index:3}.dark-mode-icon{color:#fff}a,abbr,acronym,address,applet,article,aside,audio,b,big,blockquote,body,canvas,caption,center,cite,code,dd,del,details,dfn,div,dl,dt,em,embed,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,html,i,iframe,img,ins,kbd,label,legend,li,mark,menu,nav,object,ol,output,p,pre,q,ruby,s,samp,section,small,span,strike,strong,sub,summary,sup,table,tbody,td,tfoot,th,thead,time,tr,tt,u,ul,var,video{border:0;font-size:100%;font:inherit;margin:0;padding:0;vertical-align:baseline}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:after,blockquote:before,q:after,q:before{content:"";content:none}table{border-collapse:collapse;border-spacing:0}a{outline:none;text-decoration:none}html{--background-color:#fff;--primary-text-color:#000;--secondary-text-color:#9e9e9e;--content-text-color:#37352f;--button-background-color:#f3f3f4;--button-text-color:#363f47;--tab-text-color:#6e6d7a;--tab-hover-text-color:#0d0c22;--tab-selected-background-color:rgba(13,12,34,.05);--bio-link-icon-color:rgba(0,0,0,.54);--about-link-icon-color:#a8a8a8;--chip-background-color:#f3f3f4;--link-text-color:rgba(55,53,47,.7);--post-card-border-color:rgba(0,0,0,.12);--markdown-table-even-cell-background-color:#f6f8fa;--markdown-table-border-color:#dfe2e5;--markdown-blockquote-border-color:#dfe2e5;--markdown-border-color:#e1e4e8}html[data-theme=dark]{--background-color:#232326;--primary-text-color:#e6e6e6;--secondary-text-color:#768390;--content-text-color:#e6e6e6;--button-background-color:#444c56;--button-text-color:#363f47;--tab-text-color:#768390;--tab-hover-text-color:#acbac7;--tab-selected-background-color:#373e47;--chip-background-color:#323a42;--bio-link-icon-color:#e6e6e6;--about-link-icon-color:#a8a8a8;--link-text-color:#90b0ec;--post-card-border-color:#363f47;--markdown-table-even-cell-background-color:#2d333b;--markdown-table-border-color:#444c56;--markdown-blockquote-border-color:#4f5864;--markdown-border-color:#e1e4e8}*{-webkit-appearance:none;appearance:none;box-sizing:border-box}html{font-size:14px;height:100%;overflow-y:scroll;width:100%}body{background-color:var(--background-color)!important}a{color:var(--link-text-color)}.page-wrapper{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;color:var(--primary-text-color);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;justify-content:center;min-height:100vh;padding-left:15px;padding-right:15px;word-break:keep-all}.page-wrapper,.page-wrapper .page-content{align-items:center;display:flex;flex-direction:column;width:100%}.page-wrapper .page-content{max-width:720px}.icon{color:var(--about-link-icon-color);font-size:20px}.social-links .icon{color:var(--bio-link-icon-color);font-size:30px}@-webkit-keyframes blinking-cursor{0%{opacity:0}50%{opacity:1}to{opacity:0}}@keyframes blinking-cursor{0%{opacity:0}50%{opacity:1}to{opacity:0}}.bio{color:var(--primary-text-color);display:flex;flex-direction:column;justify-content:space-between;margin-bottom:120px;margin-top:120px;width:100%}@media(min-width:768px){.bio{align-items:center;flex-direction:row}}.bio .introduction{display:flex;flex-direction:column;word-break:keep-all}.bio .introduction .react-rotating-text-cursor{-webkit-animation:blinking-cursor .8s cubic-bezier(.68,.01,.01,.99) 0s infinite;animation:blinking-cursor .8s cubic-bezier(.68,.01,.01,.99) 0s infinite}.bio .introduction strong{display:inline-block;font-weight:600}.bio .introduction.korean{font-size:32px;font-weight:100;line-height:1.2}.bio .introduction.korean .title .react-rotating-text-cursor{font-size:35px;line-height:35px}@media(min-width:768px){.bio .introduction.korean{font-size:40px}.bio .introduction.korean .title .react-rotating-text-cursor{font-size:45px;line-height:45px}}.bio .introduction.english{font-family:montserrat;font-size:25px;line-height:1.2}@media(min-width:768px){.bio .introduction.english{font-size:45px}}.bio .introduction.english .name{font-size:35px;font-weight:600}.bio .introduction.english .job{font-size:35px}.bio .introduction.english .description{font-size:20px;font-weight:200;margin-top:8px}.bio .introduction.english .social-links{display:flex;margin-top:20px}.bio .thumbnail-wrapper{display:none}@media(min-width:768px){.bio .thumbnail-wrapper{display:block}}.section-header-wrapper{display:flex;justify-content:center;margin-bottom:32px;width:100%}.section-header-wrapper .section-header{border-bottom:4px solid var(--primary-text-color);color:var(--primary-text-color);font-size:30px;font-weight:700;padding-bottom:5px}.timestamp-section{align-items:center;display:flex;flex-direction:column;justify-content:center;margin-bottom:50px;width:100%;word-break:keep-all}.timestamp-section .body{padding:0 10px;width:100%}.timestamp-section .body .timestamp{border-left:2px solid #bdbdbd;display:flex;font-size:18px;font-weight:400;justify-items:center;margin-left:5px;padding:10px 0;width:100%}.timestamp-section .body .timestamp:first-child{padding-top:7px}.timestamp-section .body .timestamp:last-child{padding-bottom:7px}.timestamp-section .body .timestamp:before{align-self:center;background-color:var(--background-color);border:2px solid #828282;border-radius:10px;content:"";height:10px;left:-1px;position:relative;-webkit-transform:translatex(-50%);transform:translatex(-50%);width:10px}.timestamp-section .body .timestamp .date{align-self:center;color:#828282;margin-left:5px;margin-right:5px;min-width:115px;width:115px}@media(min-width:768px){.timestamp-section .body .timestamp .date{min-width:200px;width:200px}}.timestamp-section .body .timestamp .activity{line-height:23px;width:100%}.project-section{align-items:center;justify-content:center}.project-section,.project-section .project{display:flex;flex-direction:column;width:100%}.project-section .project{margin-bottom:30px;padding:15px}.project-section .project .head{font-size:20px;font-weight:700;line-height:30px;margin-bottom:10px}.project-section .project .body{display:flex;flex-direction:column;width:100%}.project-section .project .body .thumbnail{margin-bottom:10px;width:100%}.project-section .project .body .tech-stack{display:flex;margin-bottom:10px}.project-section .project .body .tech-stack .tech{background-color:var(--chip-background-color);border-radius:10px;font-size:15px;font-weight:500;margin-right:5px;padding:5px 7px}.project-section .project .body .description{font-size:16px;font-weight:400;line-height:1.4}@media(min-width:768px){.project-section .project .body{flex-direction:column}.project-section .project .body .content{margin-top:0}}.post-header{border-bottom:1px solid var(--post-card-border-color);display:flex;flex-direction:column;justify-content:center;margin-bottom:40px;margin-top:20px;padding-bottom:10px;width:100%;word-break:keep-all}.post-header .emoji{font-size:78px;margin-bottom:20px}.post-header .categories{margin-bottom:5px}.post-header .categories .category{color:var(--primary-text-color);font-weight:600;margin-right:4px}.post-header .categories .category:hover{text-decoration:underline}.post-header .title{color:var(--primary-text-color);font-size:32px;font-weight:600;line-height:1.3;margin-bottom:6px}.post-header .info{color:var(--secondary-text-color);display:flex;flex-wrap:wrap;font-size:16px;font-weight:500;line-height:1.5;width:100%}.post-header .info .author{margin-right:4px}.post-header .info strong{color:var(--primary-text-color);font-weight:600}.post-navigator{-webkit-column-gap:1.4%;column-gap:1.4%;display:grid;grid-template-columns:49.3% 49.3%;width:100%}.post-navigator .post-card{border:1px solid var(--post-card-border-color);border-radius:6px;color:var(--primary-text-color);cursor:pointer;display:flex;flex-direction:column;padding:15px;transition:-webkit-transform .2s;transition:transform .2s;transition:transform .2s,-webkit-transform .2s;width:100%}.post-navigator .post-card:hover .title{text-decoration:underline}.post-navigator .post-card.prev{margin-right:auto}.post-navigator .post-card.next{margin-left:auto}.post-navigator .post-card .direction{color:gray;font-size:14px;font-weight:500;margin-bottom:5px}.post-navigator .post-card .title{font-size:16px;font-weight:600;line-height:1.4;margin-bottom:7px}.markdown .octicon{fill:currentColor;display:inline-block;vertical-align:text-bottom}.markdown .anchor{float:left;line-height:1;margin-left:-20px;padding-right:4px}.markdown .anchor:focus{outline:none}.markdown h1 .octicon-link,.markdown h2 .octicon-link,.markdown h3 .octicon-link,.markdown h4 .octicon-link,.markdown h5 .octicon-link,.markdown h6 .octicon-link{color:#1b1f23;vertical-align:middle;visibility:hidden}.markdown h1:hover .anchor,.markdown h2:hover .anchor,.markdown h3:hover .anchor,.markdown h4:hover .anchor,.markdown h5:hover .anchor,.markdown h6:hover .anchor{text-decoration:none}.markdown h1:hover .anchor .octicon-link,.markdown h2:hover .anchor .octicon-link,.markdown h3:hover .anchor .octicon-link,.markdown h4:hover .anchor .octicon-link,.markdown h5:hover .anchor .octicon-link,.markdown h6:hover .anchor .octicon-link{visibility:visible}.markdown h1:hover .anchor .octicon-link:before,.markdown h2:hover .anchor .octicon-link:before,.markdown h3:hover .anchor .octicon-link:before,.markdown h4:hover .anchor .octicon-link:before,.markdown h5:hover .anchor .octicon-link:before,.markdown h6:hover .anchor .octicon-link:before{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' aria-hidden='true' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z'/%3E%3C/svg%3E");content:" ";display:inline-block;height:16px;width:16px}.markdown{-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;word-wrap:break-word;color:var(--content-text-color);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;font-size:16px;font-weight:500;line-height:1.5}.markdown details{display:block}.markdown summary{display:list-item}.markdown a{background-color:initial}.markdown a:active,.markdown a:hover{outline-width:0}.markdown strong{font-weight:inherit;font-weight:bolder}.markdown h1{margin:.67em 0}.markdown img{border-style:none}.markdown code,.markdown kbd,.markdown pre{font-family:monospace,monospace;font-size:1em}.markdown hr{box-sizing:initial;overflow:visible}.markdown input{font:inherit;margin:0;overflow:visible}.markdown [type=checkbox]{box-sizing:border-box;padding:0}.markdown *{box-sizing:border-box}.markdown input{font-family:inherit;font-size:inherit;line-height:inherit}.markdown a{border-bottom:.05em solid;border-color:var(--link-text-color);color:var(--link-text-color);text-decoration:none}.markdown a.anchor{border-bottom:none}.markdown strong{font-weight:700}.markdown hr{background:transparent;border-bottom:1px solid var(--markdown-blockquote-border-color);height:0;margin:15px 0;overflow:hidden}.markdown hr:after,.markdown hr:before{content:"";display:table}.markdown hr:after{clear:both}.markdown table{border-collapse:collapse;border-spacing:0}.markdown td,.markdown th{padding:0}.markdown details summary{cursor:pointer}.markdown h1,.markdown h2,.markdown h3,.markdown h4,.markdown h5,.markdown h6{margin-bottom:0;margin-top:0}.markdown h1{font-size:32px}.markdown h1,.markdown h2{font-weight:600}.markdown h2{font-size:24px}.markdown h3{font-size:20px}.markdown h3,.markdown h4{font-weight:600}.markdown h4{font-size:16px}.markdown h5{font-size:14px}.markdown h5,.markdown h6{font-weight:600}.markdown h6{font-size:12px}.markdown p{margin-bottom:10px;margin-top:0}.markdown blockquote{margin:0}.markdown ol,.markdown ul{margin-bottom:0;margin-top:0;padding-left:0}.markdown ol ol,.markdown ul ol{list-style-type:lower-roman}.markdown ol ol ol,.markdown ol ul ol,.markdown ul ol ol,.markdown ul ul ol{list-style-type:lower-alpha}.markdown dd{margin-left:0}.markdown code,.markdown pre{font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;font-size:12px}.markdown code.language-text{border-radius:3px;font-size:85%;padding:.2em .4em}.markdown :not(pre)>code.language-text{background:hsla(44,6%,50%,.15);color:#eb5757;overflow-wrap:break-word}.markdown pre{margin-bottom:0;margin-top:0}.markdown input::-webkit-inner-spin-button,.markdown input::-webkit-outer-spin-button{-webkit-appearance:none;appearance:none;margin:0}.markdown :checked+.radio-label{border-color:#0366d6;position:relative;z-index:1}.markdown .border{border:1px solid var(--markdown-border-color)!important}.markdown .border-0{border:0!important}.markdown .border-bottom{border-bottom:1px solid var(--markdown-border-color)!important}.markdown .rounded-1{border-radius:3px!important}.markdown .bg-white{background-color:transparent!important}.markdown .bg-gray-light{background-color:#fafbfc!important}.markdown .text-gray-light{color:#6a737d!important}.markdown .pl-3,.markdown .px-3{padding-left:16px!important}.markdown .px-3{padding-right:16px!important}.markdown .f6{font-size:12px!important}.markdown .lh-condensed{line-height:1.25!important}.markdown .text-bold{font-weight:600!important}.markdown .pl-c{color:#6a737d}.markdown .pl-c1,.markdown .pl-s .pl-v{color:#005cc5}.markdown .pl-e,.markdown .pl-en{color:#6f42c1}.markdown .pl-s .pl-s1,.markdown .pl-smi{color:#24292e}.markdown .pl-ent{color:#22863a}.markdown .pl-k{color:#d73a49}.markdown .pl-pds,.markdown .pl-s,.markdown .pl-s .pl-pse .pl-s1,.markdown .pl-sr,.markdown .pl-sr .pl-cce,.markdown .pl-sr .pl-sra,.markdown .pl-sr .pl-sre{color:#032f62}.markdown .pl-smw,.markdown .pl-v{color:#e36209}.markdown .pl-bu{color:#b31d28}.markdown .pl-ii{background-color:#b31d28;color:#fafbfc}.markdown .pl-c2{background-color:#d73a49;color:#fafbfc}.markdown .pl-c2:before{content:"^M"}.markdown .pl-sr .pl-cce{color:#22863a;font-weight:700}.markdown .pl-ml{color:#735c0f}.markdown .pl-mh,.markdown .pl-mh .pl-en,.markdown .pl-ms{color:#005cc5;font-weight:700}.markdown .pl-mi{color:#24292e;font-style:italic}.markdown .pl-mb{color:#24292e;font-weight:700}.markdown .pl-md{background-color:#ffeef0;color:#b31d28}.markdown .pl-mi1{background-color:#f0fff4;color:#22863a}.markdown .pl-mc{background-color:#ffebda;color:#e36209}.markdown .pl-mi2{background-color:#005cc5;color:#f6f8fa}.markdown .pl-mdr{color:#6f42c1;font-weight:700}.markdown .pl-ba{color:#586069}.markdown .pl-sg{color:#959da5}.markdown .pl-corl{color:#032f62;text-decoration:underline}.markdown .mb-0{margin-bottom:0!important}.markdown .my-2{margin-bottom:8px!important;margin-top:8px!important}.markdown .pl-0{padding-left:0!important}.markdown .py-0{padding-bottom:0!important;padding-top:0!important}.markdown .pl-1{padding-left:4px!important}.markdown .pl-2{padding-left:8px!important}.markdown .py-2{padding-bottom:8px!important;padding-top:8px!important}.markdown .pl-3{padding-left:16px!important}.markdown .pl-4{padding-left:24px!important}.markdown .pl-5{padding-left:32px!important}.markdown .pl-6{padding-left:40px!important}.markdown .pl-7{padding-left:48px!important}.markdown .pl-8{padding-left:64px!important}.markdown .pl-9{padding-left:80px!important}.markdown .pl-10{padding-left:96px!important}.markdown .pl-11{padding-left:112px!important}.markdown .pl-12{padding-left:128px!important}.markdown hr{border-bottom-color:#eee}.markdown kbd{background-color:#fafbfc;border:1px solid #d1d5da;border-radius:3px;box-shadow:inset 0 -1px 0 #d1d5da;color:#444d56;display:inline-block;font:11px SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;line-height:10px;padding:3px 5px;vertical-align:middle}.markdown:after,.markdown:before{content:"";display:table}.markdown:after{clear:both}.markdown>:first-child{margin-top:0!important}.markdown>:last-child{margin-bottom:0!important}.markdown a:not([href]){color:inherit;text-decoration:none}.markdown blockquote,.markdown details,.markdown dl,.markdown ol,.markdown p,.markdown pre,.markdown table,.markdown ul{margin-bottom:16px;margin-top:0}.markdown hr{background-color:var(--markdown-border-color);border:0;height:.25em;margin:24px 0;padding:0}.markdown blockquote{border-left:.25em solid var(--markdown-blockquote-border-color);color:#6a737d;padding:0 1em}.markdown blockquote>:first-child{margin-top:0}.markdown blockquote>:last-child{margin-bottom:0}.markdown h1,.markdown h2,.markdown h3,.markdown h4,.markdown h5,.markdown h6{font-weight:600;line-height:1.25;margin-bottom:16px;margin-top:24px}.markdown h1{font-size:2em}.markdown h2{font-size:1.5em}.markdown h3{font-size:1.25em}.markdown h4{font-size:1em}.markdown h5{font-size:.875em}.markdown h6{color:#6a737d;font-size:.85em}.markdown ol,.markdown ul{padding-left:2em}.markdown ol ol,.markdown ol ul,.markdown ul ol,.markdown ul ul{margin-bottom:0;margin-top:0}.markdown ol{list-style-type:decimal}.markdown ul{list-style-type:disc}.markdown li{word-wrap:break-all;display:list-item;text-align:-webkit-match-parent}.markdown li>p{margin-top:16px}.markdown li+li{margin-top:.25em}.markdown dl{padding:0}.markdown dl dt{font-size:1em;font-style:italic;font-weight:600;margin-top:16px;padding:0}.markdown dl dd{margin-bottom:16px;padding:0 16px}.markdown table{display:block;overflow:auto;width:100%}.markdown table th{font-weight:600}.markdown table td,.markdown table th{border:1px solid var(--markdown-table-border-color);padding:6px 13px}.markdown table tr{border-top:1px solid var(--markdown-table-border-color)}.markdown table tr:nth-child(2n){background-color:var(--markdown-table-even-cell-background-color)}.markdown img{background-color:transparent;box-sizing:initial;display:block;margin:0 auto;max-width:100%}.markdown img[align=right]{padding-left:20px}.markdown img[align=left]{padding-right:20px}.markdown code{background-color:rgba(27,31,35,.05);border-radius:3px;font-size:85%;margin:0;padding:.2em .4em}.markdown pre{word-wrap:normal}.markdown pre>code{background:transparent;border:0;font-size:100%;margin:0;padding:0;white-space:pre;word-break:normal}.markdown .highlight{margin-bottom:16px}.markdown .highlight pre{margin-bottom:0;word-break:normal}.markdown .highlight pre,.markdown pre{background-color:#f6f8fa;border-radius:3px;font-size:85%;line-height:1.45;overflow:auto;padding:16px}.markdown pre code{word-wrap:normal;background-color:initial;border:0;display:inline;line-height:inherit;margin:0;max-width:auto;overflow:visible;padding:0}.markdown .commit-tease-sha{color:#444d56;display:inline-block;font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;font-size:90%}.markdown .full-commit .btn-outline:not(:disabled):hover{border-color:#005cc5;color:#005cc5}.markdown .blob-wrapper{overflow-x:auto;overflow-y:hidden}.markdown .blob-wrapper-embedded{max-height:240px;overflow-y:auto}.markdown .blob-num{color:rgba(27,31,35,.3);cursor:pointer;font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;font-size:12px;line-height:20px;min-width:50px;padding-left:10px;padding-right:10px;text-align:right;-webkit-user-select:none;-ms-user-select:none;user-select:none;vertical-align:top;white-space:nowrap;width:1%}.markdown .blob-num:hover{color:rgba(27,31,35,.6)}.markdown .blob-num:before{content:attr(data-line-number)}.markdown .blob-code{line-height:20px;padding-left:10px;padding-right:10px;position:relative;vertical-align:top}.markdown .blob-code-inner{word-wrap:normal;color:#24292e;font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;font-size:12px;overflow:visible;white-space:pre}.markdown .pl-token.active,.markdown .pl-token:hover{background:#ffea7f;cursor:pointer}.markdown .tab-size[data-tab-size="1"]{-o-tab-size:1;tab-size:1}.markdown .tab-size[data-tab-size="2"]{-o-tab-size:2;tab-size:2}.markdown .tab-size[data-tab-size="3"]{-o-tab-size:3;tab-size:3}.markdown .tab-size[data-tab-size="4"]{-o-tab-size:4;tab-size:4}.markdown .tab-size[data-tab-size="5"]{-o-tab-size:5;tab-size:5}.markdown .tab-size[data-tab-size="6"]{-o-tab-size:6;tab-size:6}.markdown .tab-size[data-tab-size="7"]{-o-tab-size:7;tab-size:7}.markdown .tab-size[data-tab-size="8"]{-o-tab-size:8;tab-size:8}.markdown .tab-size[data-tab-size="9"]{-o-tab-size:9;tab-size:9}.markdown .tab-size[data-tab-size="10"]{-o-tab-size:10;tab-size:10}.markdown .tab-size[data-tab-size="11"]{-o-tab-size:11;tab-size:11}.markdown .tab-size[data-tab-size="12"]{-o-tab-size:12;tab-size:12}.markdown .task-list-item{list-style-type:none}.markdown .task-list-item+.task-list-item{margin-top:3px}.markdown .task-list-item input{margin:0 .2em .25em -1.6em;vertical-align:middle}.markdown .table-of-contents{align-items:flex-start;display:flex;flex-direction:column;justify-content:center;position:fixed;right:0;top:75px;width:340px}@media(max-width:1300px){.markdown .table-of-contents{display:none}}.markdown .table-of-contents ul{cursor:pointer;list-style-type:none}.markdown .table-of-contents ul li a{border-bottom:none;color:var(--secondary-text-color);font-size:14px;height:30px;padding:6px 2px;width:100%}.markdown .table-of-contents ul p{margin:0}.markdown .gatsby-resp-image-wrapper{display:flex!important;justify-content:center!important;max-height:560px!important;width:100%!important}.markdown .gatsby-resp-image-wrapper img{height:auto!important;max-height:560px!important;max-width:100%!important;position:relative!important;width:auto!important}.markdown .gatsby-resp-image-wrapper+em{color:#6a737d;display:block;font-size:15px;font-style:italic;text-align:center}code[class*=language-],pre[class*=language-]{word-wrap:normal;background:none;color:#ccc;font-family:Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace;font-size:1em;-webkit-hyphens:none;-ms-hyphens:none;hyphens:none;line-height:1.5;-o-tab-size:4;tab-size:4;text-align:left;white-space:pre;word-break:normal;word-spacing:normal}pre[class*=language-]{margin:.5em 0;overflow:auto;padding:1em}:not(pre)>code[class*=language-],pre[class*=language-]{background:#2d2d2d}:not(pre)>code[class*=language-]{border-radius:.3em;padding:.1em;white-space:normal}.token.block-comment,.token.cdata,.token.comment,.token.doctype,.token.prolog{color:#999}.token.punctuation{color:#ccc}.token.attr-name,.token.deleted,.token.namespace,.token.tag{color:#e2777a}.token.function-name{color:#6196cc}.token.boolean,.token.function,.token.number{color:#f08d49}.token.class-name,.token.constant,.token.property,.token.symbol{color:#f8c555}.token.atrule,.token.builtin,.token.important,.token.keyword,.token.selector{color:#cc99cd}.token.attr-value,.token.char,.token.regex,.token.string,.token.variable{color:#7ec699}.token.entity,.token.operator,.token.url{color:#67cdcc}.token.bold,.token.important{font-weight:700}.token.italic{font-style:italic}.token.entity{cursor:help}.token.inserted{color:green}.post-content{margin-bottom:20px;width:100%}.category-page-header-wrapper,.post-content{display:flex;flex-direction:column;justify-content:center}.category-page-header-wrapper{align-items:center;margin-bottom:30px;margin-top:30px}.category-page-header-wrapper .category-page-title{border-bottom:3px solid var(--primary-text-color);font-size:40px;font-weight:700;margin-bottom:15px;padding-bottom:7px;text-align:center;width:-webkit-fit-content;width:-moz-fit-content;width:fit-content}.category-page-header-wrapper .category-page-subtitle{font-size:20px;font-weight:500;padding-bottom:10px;text-align:center}.post-card-wrapper{display:flex;justify-content:center;min-height:150px;width:100%}.post-card-wrapper .post-card{border:1px solid var(--post-card-border-color);border-radius:6px;color:var(--primary-text-color);cursor:pointer;display:flex;flex-direction:column;height:100%;margin-bottom:15px;max-width:720px;padding:15px;transition:-webkit-transform .2s;transition:transform .2s;transition:transform .2s,-webkit-transform .2s;width:100%}.post-card-wrapper .post-card:hover .title{text-decoration:underline}@media(min-width:768px){.post-card-wrapper .post-card{margin-bottom:0}}.post-card-wrapper .post-card .title{font-size:18px;font-weight:600;line-height:1.4;margin-bottom:7px}.post-card-wrapper .post-card .description{-webkit-line-clamp:3;-webkit-box-orient:vertical;color:var(--primary-text-color);display:-webkit-box;font-size:13px;line-height:20px;margin-bottom:10px;overflow:hidden;text-overflow:ellipsis}.post-card-wrapper .post-card .info{color:var(--about-link-icon-color);display:flex;font-size:14px;justify-content:space-between;margin-top:auto}.post-card-wrapper .post-card .info .categories{display:flex}.post-card-wrapper .post-card .info .categories .category{margin-left:4px}.post-card-wrapper .post-card .info .categories .category:hover{text-decoration:underline}.post-card-column-wrapper{display:flex;justify-content:center;width:100%}.post-card-column-wrapper .post-card-column{align-items:center;display:flex;flex-direction:column;width:100%}.post-card-column-wrapper .post-card-column .post-card-wrapper{margin-bottom:10px}.post-card-column-wrapper .post-card-column .more-post-card-button{background-color:var(--button-background-color);color:var(--tab-hover-text-color);font-size:15px;font-weight:500;height:40px}.post-tabs-wrapper{align-self:flex-start;display:flex;flex-direction:column;justify-content:center;top:0;width:100%}.post-tabs-wrapper .post-tabs{display:flex;height:40px;justify-content:center;margin-bottom:12px;max-width:760px;width:100%}.post-tabs-wrapper .post-tabs .mui-tabs .MuiTab-root{color:var(--tab-text-color);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;font-size:17px;font-weight:500;height:40px;min-height:auto;min-width:auto;padding:10px 12px;transition:all .2s ease}.post-tabs-wrapper .post-tabs .mui-tabs .Mui-selected,.post-tabs-wrapper .post-tabs .mui-tabs .MuiTab-root :hover{color:var(--tab-hover-text-color);transition:all .2s ease}.post-tabs-wrapper .post-tabs .mui-tabs .Mui-selected{background-color:var(--tab-selected-background-color);border-radius:8px;font-weight:600}.post-tabs-wrapper .post-tabs .mui-tabs .MuiTabScrollButton-root{height:40px;width:20px}.post-tabs-wrapper .post-tabs .mui-tabs .MuiTabs-scrollable{height:40px}.post-tabs-wrapper .post-tabs .mui-tabs .MuiTabs-indicator{display:none}</style><style data-emotion="css-global o6gwfi">html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;box-sizing:border-box;-webkit-text-size-adjust:100%;}*,*::before,*::after{box-sizing:inherit;}strong,b{font-weight:700;}body{margin:0;color:rgba(0, 0, 0, 0.87);font-family:"Roboto","Helvetica","Arial",sans-serif;font-weight:400;font-size:1rem;line-height:1.5;letter-spacing:0.00938em;background-color:#fff;}@media print{body{background-color:#fff;}}body::backdrop{background-color:#fff;}</style><style data-emotion="css-global 1prfaxn">@-webkit-keyframes mui-auto-fill{from{display:block;}}@keyframes mui-auto-fill{from{display:block;}}@-webkit-keyframes mui-auto-fill-cancel{from{display:block;}}@keyframes mui-auto-fill-cancel{from{display:block;}}</style><style data-emotion="css 1l6di18 feqhe6 11tfndm mnn31 vubbuv 1yxmbwk 6flbmm">.css-1l6di18.Mui-focused .MuiAutocomplete-clearIndicator{visibility:visible;}@media (pointer: fine){.css-1l6di18:hover .MuiAutocomplete-clearIndicator{visibility:visible;}}.css-1l6di18 .MuiAutocomplete-tag{margin:3px;max-width:calc(100% - 6px);}.css-1l6di18 .MuiAutocomplete-inputRoot{-webkit-box-flex-wrap:wrap;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;}.MuiAutocomplete-hasPopupIcon.css-1l6di18 .MuiAutocomplete-inputRoot,.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiAutocomplete-inputRoot{padding-right:30px;}.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiAutocomplete-inputRoot{padding-right:56px;}.css-1l6di18 .MuiAutocomplete-inputRoot .MuiAutocomplete-input{width:0;min-width:30px;}.css-1l6di18 .MuiInput-root{padding-bottom:1px;}.css-1l6di18 .MuiInput-root .MuiInput-input{padding:4px 4px 4px 0px;}.css-1l6di18 .MuiInput-root.MuiInputBase-sizeSmall .MuiInput-input{padding:2px 4px 3px 0;}.css-1l6di18 .MuiOutlinedInput-root{padding:9px;}.MuiAutocomplete-hasPopupIcon.css-1l6di18 .MuiOutlinedInput-root,.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiOutlinedInput-root{padding-right:39px;}.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiOutlinedInput-root{padding-right:65px;}.css-1l6di18 .MuiOutlinedInput-root .MuiAutocomplete-input{padding:7.5px 4px 7.5px 6px;}.css-1l6di18 .MuiOutlinedInput-root .MuiAutocomplete-endAdornment{right:9px;}.css-1l6di18 .MuiOutlinedInput-root.MuiInputBase-sizeSmall{padding:6px;}.css-1l6di18 .MuiOutlinedInput-root.MuiInputBase-sizeSmall .MuiAutocomplete-input{padding:2.5px 4px 2.5px 6px;}.css-1l6di18 .MuiFilledInput-root{padding-top:19px;padding-left:8px;}.MuiAutocomplete-hasPopupIcon.css-1l6di18 .MuiFilledInput-root,.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiFilledInput-root{padding-right:39px;}.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon.css-1l6di18 .MuiFilledInput-root{padding-right:65px;}.css-1l6di18 .MuiFilledInput-root .MuiFilledInput-input{padding:7px 4px;}.css-1l6di18 .MuiFilledInput-root .MuiAutocomplete-endAdornment{right:9px;}.css-1l6di18 .MuiFilledInput-root.MuiInputBase-sizeSmall{padding-bottom:1px;}.css-1l6di18 .MuiFilledInput-root.MuiInputBase-sizeSmall .MuiFilledInput-input{padding:2.5px 4px;}.css-1l6di18 .MuiInputBase-hiddenLabel{padding-top:8px;}.css-1l6di18 .MuiAutocomplete-input{-webkit-box-flex:1;-webkit-flex-grow:1;-ms-flex-positive:1;flex-grow:1;text-overflow:ellipsis;opacity:1;}.css-feqhe6{display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;position:relative;min-width:0;padding:0;margin:0;border:0;vertical-align:top;width:100%;}.css-11tfndm{font-family:"Roboto","Helvetica","Arial",sans-serif;font-weight:400;font-size:1rem;line-height:1.4375em;letter-spacing:0.00938em;color:rgba(0, 0, 0, 0.87);box-sizing:border-box;position:relative;cursor:text;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;width:100%;position:relative;}.css-11tfndm.Mui-disabled{color:rgba(0, 0, 0, 0.38);cursor:default;}label+.css-11tfndm{margin-top:16px;}.css-11tfndm:after{border-bottom:2px solid #1976d2;left:0;bottom:0;content:"";position:absolute;right:0;-webkit-transform:scaleX(0);-moz-transform:scaleX(0);-ms-transform:scaleX(0);transform:scaleX(0);-webkit-transition:-webkit-transform 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;transition:transform 200ms cubic-bezier(0.0, 0, 0.2, 1) 0ms;pointer-events:none;}.css-11tfndm.Mui-focused:after{-webkit-transform:scaleX(1);-moz-transform:scaleX(1);-ms-transform:scaleX(1);transform:scaleX(1);}.css-11tfndm.Mui-error:after{border-bottom-color:#d32f2f;-webkit-transform:scaleX(1);-moz-transform:scaleX(1);-ms-transform:scaleX(1);transform:scaleX(1);}.css-11tfndm:before{border-bottom:1px solid rgba(0, 0, 0, 0.42);left:0;bottom:0;content:"\00a0";position:absolute;right:0;-webkit-transition:border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;pointer-events:none;}.css-11tfndm:hover:not(.Mui-disabled):before{border-bottom:2px solid rgba(0, 0, 0, 0.87);}@media (hover: none){.css-11tfndm:hover:not(.Mui-disabled):before{border-bottom:1px solid rgba(0, 0, 0, 0.42);}}.css-11tfndm.Mui-disabled:before{border-bottom-style:dotted;}.css-mnn31{font:inherit;letter-spacing:inherit;color:currentColor;padding:4px 0 5px;border:0;box-sizing:content-box;background:none;height:1.4375em;margin:0;-webkit-tap-highlight-color:transparent;display:block;min-width:0;width:100%;-webkit-animation-name:mui-auto-fill-cancel;animation-name:mui-auto-fill-cancel;-webkit-animation-duration:10ms;animation-duration:10ms;}.css-mnn31::-webkit-input-placeholder{color:currentColor;opacity:0.42;-webkit-transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;}.css-mnn31::-moz-placeholder{color:currentColor;opacity:0.42;-webkit-transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;}.css-mnn31:-ms-input-placeholder{color:currentColor;opacity:0.42;-webkit-transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;}.css-mnn31::-ms-input-placeholder{color:currentColor;opacity:0.42;-webkit-transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:opacity 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;}.css-mnn31:focus{outline:0;}.css-mnn31:invalid{box-shadow:none;}.css-mnn31::-webkit-search-decoration{-webkit-appearance:none;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31::-webkit-input-placeholder{opacity:0!important;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31::-moz-placeholder{opacity:0!important;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31:-ms-input-placeholder{opacity:0!important;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31::-ms-input-placeholder{opacity:0!important;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31:focus::-webkit-input-placeholder{opacity:0.42;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31:focus::-moz-placeholder{opacity:0.42;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31:focus:-ms-input-placeholder{opacity:0.42;}label[data-shrink=false]+.MuiInputBase-formControl .css-mnn31:focus::-ms-input-placeholder{opacity:0.42;}.css-mnn31.Mui-disabled{opacity:1;-webkit-text-fill-color:rgba(0, 0, 0, 0.38);}.css-mnn31:-webkit-autofill{-webkit-animation-duration:5000s;animation-duration:5000s;-webkit-animation-name:mui-auto-fill;animation-name:mui-auto-fill;}.css-vubbuv{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:1em;height:1em;display:inline-block;fill:currentColor;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;-webkit-transition:fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;font-size:1.5rem;}.css-1yxmbwk{display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;position:relative;box-sizing:border-box;-webkit-tap-highlight-color:transparent;background-color:transparent;outline:0;border:0;margin:0;border-radius:0;padding:0;cursor:pointer;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;vertical-align:middle;-moz-appearance:none;-webkit-appearance:none;-webkit-text-decoration:none;text-decoration:none;color:inherit;text-align:center;-webkit-flex:0 0 auto;-ms-flex:0 0 auto;flex:0 0 auto;font-size:1.5rem;padding:8px;border-radius:50%;overflow:visible;color:rgba(0, 0, 0, 0.54);-webkit-transition:background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;}.css-1yxmbwk::-moz-focus-inner{border-style:none;}.css-1yxmbwk.Mui-disabled{pointer-events:none;cursor:default;}@media print{.css-1yxmbwk{-webkit-print-color-adjust:exact;color-adjust:exact;}}.css-1yxmbwk:hover{background-color:rgba(0, 0, 0, 0.04);}@media (hover: none){.css-1yxmbwk:hover{background-color:transparent;}}.css-1yxmbwk.Mui-disabled{background-color:transparent;color:rgba(0, 0, 0, 0.26);}.css-6flbmm{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;width:1em;height:1em;display:inline-block;fill:currentColor;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;-webkit-transition:fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;font-size:2.1875rem;}</style><link rel="preconnect" href="https://www.google-analytics.com"/><link rel="dns-prefetch" href="https://www.google-analytics.com"/><script>
+  
+  function gaOptout(){document.cookie=disableStr+'=true; expires=Thu, 31 Dec 2099 23:59:59 UTC;path=/',window[disableStr]=!0}var gaProperty='0',disableStr='ga-disable-'+gaProperty;document.cookie.indexOf(disableStr+'=true')>-1&&(window[disableStr]=!0);
+  if(true) {
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  }
+  if (typeof ga === "function") {
+    ga('create', '0', 'auto', {});
+      ga('set', 'anonymizeIp', true);
+      
+      
+      
+      
+      }</script><link rel="icon" href="/favicon-32x32.png?v=ad9e124e5060ab5ddbaf24744e1cfc72" type="image/png"/><link rel="manifest" href="/manifest.webmanifest" crossorigin="anonymous"/><link rel="apple-touch-icon" sizes="48x48" href="/icons/icon-48x48.png?v=ad9e124e5060ab5ddbaf24744e1cfc72"/><link rel="apple-touch-icon" sizes="72x72" href="/icons/icon-72x72.png?v=ad9e124e5060ab5ddbaf24744e1cfc72"/><link rel="apple-touch-icon" sizes="96x96" href="/icons/icon-96x96.png?v=ad9e124e5060ab5ddbaf24744e1cfc72"/><link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png?v=ad9e124e5060ab5ddbaf24744e1cfc72"/><link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png?v=ad9e124e5060ab5ddbaf24744e1cfc72"/><link rel="apple-touch-icon" sizes="256x256" href="/icons/icon-256x256.png?v=ad9e124e5060ab5ddbaf24744e1cfc72"/><link rel="apple-touch-icon" sizes="384x384" href="/icons/icon-384x384.png?v=ad9e124e5060ab5ddbaf24744e1cfc72"/><link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.png?v=ad9e124e5060ab5ddbaf24744e1cfc72"/><style type="text/css">
+    .anchor.before {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: translateX(-100%);
+      padding-right: 4px;
+    }
+    .anchor.after {
+      display: inline-block;
+      padding-left: 4px;
+    }
+    h1 .anchor svg,
+    h2 .anchor svg,
+    h3 .anchor svg,
+    h4 .anchor svg,
+    h5 .anchor svg,
+    h6 .anchor svg {
+      visibility: hidden;
+    }
+    h1:hover .anchor svg,
+    h2:hover .anchor svg,
+    h3:hover .anchor svg,
+    h4:hover .anchor svg,
+    h5:hover .anchor svg,
+    h6:hover .anchor svg,
+    h1 .anchor:focus svg,
+    h2 .anchor:focus svg,
+    h3 .anchor:focus svg,
+    h4 .anchor:focus svg,
+    h5 .anchor:focus svg,
+    h6 .anchor:focus svg {
+      visibility: visible;
+    }
+  </style><script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+      var hash = window.decodeURI(location.hash.replace('#', ''))
+      if (hash !== '') {
+        var element = document.getElementById(hash)
+        if (element) {
+          var scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
+          var clientTop = document.documentElement.clientTop || document.body.clientTop || 0
+          var offset = element.getBoundingClientRect().top + scrollTop - clientTop
+          // Wait for the browser to finish rendering before scrolling.
+          setTimeout((function() {
+            window.scrollTo(0, offset - 0)
+          }), 0)
+        }
+      }
+    })
+  </script><title data-react-helmet="true">Gasida Kubernetes Study 6주차</title><link rel="preload" as="font" type="font/woff2" crossorigin="anonymous" href="/static/webfonts/s/roboto/v30/KFOlCnqEu92Fr1MmSU5fBBc4.woff2"/><link rel="preload" as="font" type="font/woff2" crossorigin="anonymous" href="/static/webfonts/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxK.woff2"/><link rel="preload" as="font" type="font/woff2" crossorigin="anonymous" href="/static/webfonts/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc4.woff2"/><style>@font-face{font-display:swap;font-family:Roboto;font-style:normal;font-weight:300;src:url(/static/webfonts/s/roboto/v30/KFOlCnqEu92Fr1MmSU5fBBc4.woff2) format("woff2")}@font-face{font-display:swap;font-family:Roboto;font-style:normal;font-weight:400;src:url(/static/webfonts/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxK.woff2) format("woff2")}@font-face{font-display:swap;font-family:Roboto;font-style:normal;font-weight:500;src:url(/static/webfonts/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc4.woff2) format("woff2")}@font-face{font-display:swap;font-family:Roboto;font-style:normal;font-weight:300;src:url(/static/webfonts/s/roboto/v30/KFOlCnqEu92Fr1MmSU5fBBc-.woff) format("woff")}@font-face{font-display:swap;font-family:Roboto;font-style:normal;font-weight:400;src:url(/static/webfonts/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxM.woff) format("woff")}@font-face{font-display:swap;font-family:Roboto;font-style:normal;font-weight:500;src:url(/static/webfonts/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc-.woff) format("woff")}</style><link rel="sitemap" type="application/xml" href="/sitemap.xml"/><style>.gatsby-image-wrapper{position:relative;overflow:hidden}.gatsby-image-wrapper picture.object-fit-polyfill{position:static!important}.gatsby-image-wrapper img{bottom:0;height:100%;left:0;margin:0;max-width:none;padding:0;position:absolute;right:0;top:0;width:100%;object-fit:cover}.gatsby-image-wrapper [data-main-image]{opacity:0;transform:translateZ(0);transition:opacity .25s linear;will-change:opacity}.gatsby-image-wrapper-constrained{display:inline-block;vertical-align:top}</style><noscript><style>.gatsby-image-wrapper noscript [data-main-image]{opacity:1!important}.gatsby-image-wrapper [data-placeholder-image]{opacity:0!important}</style></noscript><script type="module">const e="undefined"!=typeof HTMLImageElement&&"loading"in HTMLImageElement.prototype;e&&document.body.addEventListener("load",(function(e){if(void 0===e.target.dataset.mainImage)return;if(void 0===e.target.dataset.gatsbyImageSsr)return;const t=e.target;let a=null,n=t;for(;null===a&&n;)void 0!==n.parentNode.dataset.gatsbyImageWrapper&&(a=n.parentNode),n=n.parentNode;const o=a.querySelector("[data-placeholder-image]"),r=new Image;r.src=t.currentSrc,r.decode().catch((()=>{})).then((()=>{t.style.opacity=1,o&&(o.style.opacity=0,o.style.transition="opacity 500ms linear")}))}),!0);</script><link as="script" rel="preload" href="/webpack-runtime-121beace0d37eb670f34.js"/><link as="script" rel="preload" href="/framework-043f1197be387cb18d15.js"/><link as="script" rel="preload" href="/app-0f9980b68d4a425d9725.js"/><link as="script" rel="preload" href="/f9d3028dbef90a6e9b8db85387d63dd9f4edf538-07f7733d8d97d93498cb.js"/><link as="script" rel="preload" href="/component---src-templates-blog-template-js-e3a4bb3c9603d1ed8af7.js"/><link as="fetch" rel="preload" href="/page-data/Kubernetes/Gasida_Study_homework_6/page-data.json" crossorigin="anonymous"/><link as="fetch" rel="preload" href="/page-data/sq/d/1073350324.json" crossorigin="anonymous"/><link as="fetch" rel="preload" href="/page-data/sq/d/1956554647.json" crossorigin="anonymous"/><link as="fetch" rel="preload" href="/page-data/sq/d/2938748437.json" crossorigin="anonymous"/><link as="fetch" rel="preload" href="/page-data/app-data.json" crossorigin="anonymous"/></head><body><div id="___gatsby"><div style="outline:none" tabindex="-1" id="gatsby-focus-wrapper"><div class="page-wrapper"><header class="page-header-wrapper"><div class="page-header"><div class="front-section"><a class="link" href="/">korwoo93.github.io</a></div><div class="trailing-section"><a class="link" href="/about">about</a><a class="link" href="/posts">posts</a><div class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-1l6di18" role="combobox" aria-expanded="false"><div class="search-input-wrapper"><div class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root search-input css-feqhe6"><div class="MuiInput-root MuiInput-underline MuiInputBase-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-11tfndm"><input type="text" aria-invalid="false" autoComplete="off" value="" class="MuiInput-input MuiInputBase-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-mnn31" aria-autocomplete="list" autoCapitalize="none" spellcheck="false"/><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium search-icon css-vubbuv" focusable="false" viewBox="0 0 24 24" aria-hidden="true" data-testid="SearchOutlinedIcon"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg></div></div></div></div></div></div></header><main class="page-content"><header class="post-header"><div class="emoji">🔮</div><div class="info"><div class="categories"><a class="category" href="/posts/Kubernetes">Kubernetes</a></div></div><h1 class="title">Gasida Kubernetes Study 6주차</h1><div class="info"><div class="author">posted by <strong>KORWOO</strong>,</div> <!-- -->February 25, 2023</div></header><div class="post-content"><div class="markdown"><p>가시다님 스터디 : <a href="https://www.notion.so/gasidaseo/23-7635cc4f02c04954a3260b317588113e">https://www.notion.so/gasidaseo/23-7635cc4f02c04954a3260b317588113e</a></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 56.111111111111114%; position: relative; bottom: 0; left: 0; background-image: url('data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAALABQDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAAMEAf/EABUBAQEAAAAAAAAAAAAAAAAAAAAB/9oADAMBAAIQAxAAAAG5S0peaL//xAAaEAACAgMAAAAAAAAAAAAAAAABAgARAxIT/9oACAEBAAEFAmvVOlzMxDB2uf/EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQMBAT8BP//EABQRAQAAAAAAAAAAAAAAAAAAABD/2gAIAQIBAT8BP//EABkQAAIDAQAAAAAAAAAAAAAAAAABECIxIf/aAAgBAQAGPwKulkko4zY//8QAGRABAQEAAwAAAAAAAAAAAAAAAREAECFB/9oACAEBAAE/IZKL4NR5KYcQ6znw/9oADAMBAAIAAwAAABD87//EABURAQEAAAAAAAAAAAAAAAAAABBB/9oACAEDAQE/EKf/xAAWEQADAAAAAAAAAAAAAAAAAAAQESH/2gAIAQIBAT8QcH//xAAaEAEBAAMBAQAAAAAAAAAAAAABEQAhgRBR/9oACAEBAAE/EKsTlGXHSkUBFHmbMTEN53AhcAmj55//2Q=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="book.jpg"
+        title="book.jpg"
+        src="/static/ffca88658c8e7539216186bdb5832d9c/80e3c/book.jpg"
+        srcset="/static/ffca88658c8e7539216186bdb5832d9c/4ec73/book.jpg 180w,
+/static/ffca88658c8e7539216186bdb5832d9c/158ba/book.jpg 360w,
+/static/ffca88658c8e7539216186bdb5832d9c/80e3c/book.jpg 720w,
+/static/ffca88658c8e7539216186bdb5832d9c/47311/book.jpg 1080w,
+/static/ffca88658c8e7539216186bdb5832d9c/644c5/book.jpg 1440w,
+/static/ffca88658c8e7539216186bdb5832d9c/93719/book.jpg 4000w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>본 포스팅은 가시다님의 쿠버네티스 스터디 내용과 이정훈님의 <code class="language-text">24단계 실습으로 정복하는 쿠버네티스</code>
+책을 참고하여 포스팅하였습니다.</p>
+<h1 id="6주차-alert-manager-logging-system" style="position:relative;"><a href="#6%EC%A3%BC%EC%B0%A8-alert-manager-logging-system" aria-label="6주차 alert manager logging system permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>6주차 Alert Manager Logging System</h1>
+<h2 id="1-alert-manager" style="position:relative;"><a href="#1-alert-manager" aria-label="1 alert manager permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>1. Alert Manager??</h2>
+<p>쿠버네티스를 학습하며 Prometheus, Grafana 등에대해서는 한번쯤은 들어봤지만
+솔직히 AlertManager는 처음들어봤습니다..</p>
+<p>AlertManager는 Prometheus의 특정 임계값을 넘거나 메트릭의 변화에 대한 알림을 slack, email 등으로 전송해주는 역할을 하는 친구입니다.</p>
+<p>쉽게생각해 <code class="language-text">Prometheus 에서의 알림 시스템 기능을 AlertManager로 분리시켰다</code> 라고 생각해주시면 되겠습니다.</p>
+<p>개인적으로 왜 분리를 시켜두었는지 잘 이해가 되지 않네요..</p>
+<p>참고로 Grafana v4.0 에서 Alert 기능이 추가되었다고 하는데 Alert Manager 의 미래가 어떻게 될지는 한번 지켜봐야 되지 않을까 싶습니다..</p>
+<h2 id="2-실습환경-배포-중-이슈-발생" style="position:relative;"><a href="#2-%EC%8B%A4%EC%8A%B5%ED%99%98%EA%B2%BD-%EB%B0%B0%ED%8F%AC-%EC%A4%91-%EC%9D%B4%EC%8A%88-%EB%B0%9C%EC%83%9D" aria-label="2 실습환경 배포 중 이슈 발생 permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>2. 실습환경 배포 중 이슈 발생</h2>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 95%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAATCAYAAACQjC21AAAACXBIWXMAAAsTAAALEwEAmpwYAAABs0lEQVQ4y52U147DMAwE/Zree0MSpDi9Acn//xgPQ2AN2efkgnsQSMnkaClKjkajkQ2HQxuPxzYYDNyfTCbu9/t9t9Vq1crlslUqFR/4eaNUKlnUbret1Wr5wGfU63XTeqPRsG636+BOp+N+rVazQqFgxWLRIfiCRovFwpMJBEDidDr1j6zPZjO3zWYzgbIJPjn4VJUAn8+n7fd7u16vbpfLpb1eLwdJNSUDYrAGXOpRiy+10fl8tt1u57Db7Wbz+dxOp5Pd73e7XC52OBz8O5bYOI59zoYoYxPU9no9txEBx+PRIdjtduvJKGYeApnjr1YrPxYGjVMTaWxEADB2FxD7eDx8jW/EsCbFxKCQISBquTGRgkkmYbPZ+JzygYUKBV+v14lCSpXCBBgqBEjyJyAxeSWngIKq5BBIwwTEl0JAKNSjSJWspkhhXlPelZwCsqPOjwS6jg2bIpia8lXJJCv425I/NuXTGYbH8q5klKaASsgqxEeVrhb+u5JTF5uEv5qil5LX5V8KBdVT/PdLoQQB816KVGWvTRaYlMxuKAnVkMzfJtsUNlSXSUYRfxvU6W/zA2HdF9J3ODVSAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_3.png"
+        title="img_3.png"
+        src="/static/74dc5a4635285d50343f3d30d16a0da4/37523/img_3.png"
+        srcset="/static/74dc5a4635285d50343f3d30d16a0da4/e9ff0/img_3.png 180w,
+/static/74dc5a4635285d50343f3d30d16a0da4/f21e7/img_3.png 360w,
+/static/74dc5a4635285d50343f3d30d16a0da4/37523/img_3.png 720w,
+/static/74dc5a4635285d50343f3d30d16a0da4/00172/img_3.png 1044w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span>
+<span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 42.77777777777778%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAAsTAAALEwEAmpwYAAABJUlEQVQoz41S2W6DQAzkMRyBBBKuUJYryyEQ8P8fN9FYWtQmldqH0R5ej2fHtnTT4asboKoavdaoqgphGCKKItxuN8RxjPv9LmfHcWDbtoB713Xhed6xEpaqFCpVSsL1esXj8RCSuq6Rpil835cYcblcpGCWZQiC4INMCIdhwLwsWJYFSimM44g8z7GuK57PpyRSMUHyeZ6x7zumaZLYB2FZlkiSRKpTIb/HZKrj2Tw8n8+yMkYrqPhXhVRGlW3bCkHf92iaRr5+Op1+PCboncF77CDctk1IeUF/jAJj/l8wjSIsqimKQvyidyRiU6iWqgkWoBUEYwTvTOHvMYskTCZMNwl6xjsmmaaYcSLM+T3P4hhordF13TFvbAjHxqih8f/5OvECiAjdw9pfT9oAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_2.png"
+        title="img_2.png"
+        src="/static/03cdbd361e8b15ed1d961b415dca03ff/37523/img_2.png"
+        srcset="/static/03cdbd361e8b15ed1d961b415dca03ff/e9ff0/img_2.png 180w,
+/static/03cdbd361e8b15ed1d961b415dca03ff/f21e7/img_2.png 360w,
+/static/03cdbd361e8b15ed1d961b415dca03ff/37523/img_2.png 720w,
+/static/03cdbd361e8b15ed1d961b415dca03ff/22475/img_2.png 1039w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>Rolling Update 수행 중
+I0222 22:24:12.336747    8250 instancegroups.go:533] Cluster did not pass validation, will retry in ”30s”: InstanceGroup “nodes-ap-northeast-2a” did not have enough nodes 0 vs 2.
+의 오류메세지가 반복적으로 출력 되면서 Rolling Update가 정상적으로 수행되지 않는 이슈가 있었습니다.</p>
+<p>롤링업데이트룰 중단하고 kops validate cluster 를 통해 확인해 보니 Validation Error가 발생한 상태이더군요..
+컨트롤 플레인에 해당하는 EC2는 재생이 정상적으로 되었으나 워커노드 재생성또한 진행되지 않았습니다.
+근데 또 노드의 상태는 정상적으로 표시가 되고
+Prometheus, Grafana 등에서 값들은 정상적으로 받아오더군요..</p>
+<p>요즘 핫한 ChatGPT에게 자문을 구해보았습니다.
+처음에는 이친구가 제 질문을 이해를 못하고 이상한 소리만 해서 고생좀 했습니다만…
+정리해가면서 질문을 계속 하니 제법 유용한 답변을 제공하였습니다.</p>
+<p>첫번째는 클러스터 버전 호환성 문제이고
+두번쨰는 AWS 리소스 제한 관련 이슈입니다.</p>
+<p>AWS 리소스 제한이 제일 테스트해보기 쉬우니 테스트를 진행해보겠습니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 174.44444444444446%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAjCAYAAACU9ioYAAAACXBIWXMAAAsTAAALEwEAmpwYAAAESElEQVRIx61WSW/bRhTWP2+BHOzUSW25kSLHsBMYtS+5pj20x6LLsa1ju2ktrxIpiuRwhttw/4r3SO1y7AIl8PENB8OPb97yDVtHJ+/x7vg9uvtH2O2+wc6rHrZ3u2zbr3rY7ezNoYdObx+dvUPs9t4yXh98i97hMd68PcHe4TFau919dPaPsNM9wMt2B89ftrGxtY3NrW08e/41vtyc4YuNF3j2oo2tdhdf7fSw1d7DzutDxjd777DdOUAL//PViqIYvh/AdQXiOEZRFMjzfAE0J4SHn37+DWfnf/FcmqYNMqRZhjwvEIQhWlprHtiugB9EyGhxVi/KsnpMc0r5+PjxHGfnF7DHNjxPwnFdeMKDlBJlWbJDLZ0k8IMAhmVh5LgQUsJTagp6VkEA2olhWjBGFgbGiGEYJgzLxshy2NtYa7TolqQpirJERq4XBW9xhhwFgNS6hPxuA+qHbagf25DfbyL8/QPSCsiLElVVIWIPmy3HsQZ5uwJNNkUcBoice0TOALFzj9i+R6zcZo1m7+oYJgmEELgfDBBFUR1wjt8ieK6okJVgmxLyYi45CcJJUlSUYByksGSIkReyXYbtx7C8ACPhT58dP2YrohQqLRFEzZZp4s7T+Gdoo28KXI0E+qbLdjIeejGGMsZAhGxNlcBUmq0VZnB0BT9qskxpt8Y2sqLk4qzWFGy1hLJqAECnGYOzPCkbz/M4uEWeo6pKBtVW2WSfbM1crdBXzVxNqDXCKMJ4bHNdUQETAX2Igr1MSC+voNnF1ENKt/J9tkRORRxQMTetSO01T7iOeIGQyExrzF1BJGEcT20QRfDDkAt/nnAa2xVCXdeP7/tc3PRizgJR1LbBZ7c8T0g3iuOk5UgIiJQWlc3icu6lddcKIcVtoh6u8JAklIyKiSeZLh4BrYkmakMx9KTkFqQSIhmiNoyaWD4F9A4lsq5DIhQubNvhDPM257xbFtyHQE7UvRynuJUp96nhKgwdiSFZV8EQPqQuuFdVUkImxQw6Z6ikmPVyojXcMMEfZohPdyZO+wOc3xi4uDVwdj3Exa2Jy6GNS8PB39TrhoMr08WtJXBlSfQthRsnwjgqZuJAHqq0wo0Toj/20bckru2AcUUY+4xPpsSQ1EhpjFSMka8Zhp/AjstFQiuuYAYZRJzDDjOMwxR2lMEOUx7zczNvBTXGjITHC4RUNlIquEIi1Om0FEjaZyiWbLlY+NWcOFAPu0LAcgRMV/EHCJPeTpqjYN4SJk1Bc5RlPvV4MkkW2mq+ZKay9cg1PaTWEeIBAXgMK4Rre/QzPfyghwQ+2Sa/FmnKavNfvCuXz+UwiqfJ8IP6ee05vfbspsRQEoNaD6VSGNs2DNNkSx4mTyCiNSnZvAIFLdBZLQ6kNI4QsB0Hjiug/IAVqLbr4LMqKaVgCwl5/SfkryeQt6cz+aJt15iQPQH0M6UCyJtTyF+Ooe7O8C/9WWw/kALwLwAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_10.png"
+        title="img_10.png"
+        src="/static/d0ef78edab26a8cc9b1b7384540d5de3/37523/img_10.png"
+        srcset="/static/d0ef78edab26a8cc9b1b7384540d5de3/e9ff0/img_10.png 180w,
+/static/d0ef78edab26a8cc9b1b7384540d5de3/f21e7/img_10.png 360w,
+/static/d0ef78edab26a8cc9b1b7384540d5de3/37523/img_10.png 720w,
+/static/d0ef78edab26a8cc9b1b7384540d5de3/00d43/img_10.png 1000w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p><a href="https://support.console.aws.amazon.com/support/home#/case/create?issueType=service-limit-increase&#x26;limitType=service-code-ec2-instances&#x26;serviceLimitIncreaseType=ec2-instances&#x26;type=service_limit_increase">https://support.console.aws.amazon.com/support/home#/case/create?issueType=service-limit-increase&#x26;limitType=service-code-ec2-instances&#x26;serviceLimitIncreaseType=ec2-instances&#x26;type=service_limit_increase</a></p>
+<p>증설 요청은 위의 링크에서 하실 수 있습니다.</p>
+<p>증설 요청을 하면 특별한 사유가 없다면 10분 이내로 빠르게 증설이 될것입니다.</p>
+<p>다행스럽게도 원인은 자원이 부족해서 발생한 이슈가 맞았습니다ㅎㅎ</p>
+<h2 id="3-prometheus-grafana-alert-manager-배포" style="position:relative;"><a href="#3-prometheus-grafana-alert-manager-%EB%B0%B0%ED%8F%AC" aria-label="3 prometheus grafana alert manager 배포 permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>3. Prometheus, Grafana, Alert Manager 배포</h2>
+<p>실습환경을 셋팅하는 과정은 앞의 포스팅에서 계속해서 다뤘으므로 생략하도록 하겠습니다.</p>
+<p>본 리소스들은 Helm을 이용하여 배포할것입니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl create ns monitoring
+helm repo <span class="token function">add</span> prometheus-community https://prometheus-community.github.io/helm-charts</code></pre></div>
+<p>위 명령어를 이용하여 Namespace 변경 및 Helm Chart를 다운받도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token function">cat</span> <span class="token operator">&lt;&lt;</span><span class="token string">EOT<span class="token bash punctuation"> <span class="token operator">></span> ~/monitor-values.yaml</span>
+
+alertmanager:
+  ingress:
+    enabled: true
+    ingressClassName: alb
+
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+      alb.ingress.kubernetes.io/certificate-arn: <span class="token variable">$CERT_ARN</span>
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      alb.ingress.kubernetes.io/group.name: "monitoring"
+
+    hosts:
+      - alertmanager.<span class="token variable">$KOPS_CLUSTER_NAME</span>
+
+    paths:
+      - /*
+
+
+grafana:
+  defaultDashboardsTimezone: Asia/Seoul
+  adminPassword: prom-operator
+
+  ingress:
+    enabled: true
+    ingressClassName: alb
+
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+      alb.ingress.kubernetes.io/certificate-arn: <span class="token variable">$CERT_ARN</span>
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      alb.ingress.kubernetes.io/group.name: "monitoring"
+
+    hosts:
+      - grafana.<span class="token variable">$KOPS_CLUSTER_NAME</span>
+
+    paths:
+      - /*
+
+prometheus:
+  ingress:
+    enabled: true
+    ingressClassName: alb
+
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+      alb.ingress.kubernetes.io/certificate-arn: <span class="token variable">$CERT_ARN</span>
+      alb.ingress.kubernetes.io/success-codes: 200-399
+      alb.ingress.kubernetes.io/group.name: "monitoring"
+
+    hosts:
+      - prometheus.<span class="token variable">$KOPS_CLUSTER_NAME</span>
+
+    paths:
+      - /*
+
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
+    retention: 5d
+    retentionSize: "10GiB"
+EOT</span>
+
+helm <span class="token function">install</span> kube-prometheus-stack prometheus-community/kube-prometheus-stack --version <span class="token number">45.0</span>.0 -f monitor-values.yaml --namespace monitoring
+</code></pre></div>
+<p>다음 위의 명령어를 이용하여 YAML 파일을 생성하고 Helm Install 을 진행해주도록 하겠습니다.</p>
+<p>각각의 접속 주소는
+Grafana : grafana.본인도메인
+Prometheus : Prometheus.본인도메인
+AlertManager : alertmanager.본인도메인</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 102.22222222222221%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAACXBIWXMAAAsTAAALEwEAmpwYAAADgElEQVQ4y42UWY/cRBSF/dMIKBnQJBCWCIkIEAghgeCB/8MryhviNS+AyEQkKJ2ZkDBr2+12t9t7ubxV2e7lQ+WeGSUhSLH06dx7yrbKVadsffPdD3z8yRfc/vRLbnx4m50bt3jn5i123vuIa7s32bn+AW+9/S5v7ty45Irh2nWu7Fznjau7XN19n8+//p7PvvoWa//0GXce/cydh3/y996PPLj/E3/98huTP+4xDyPOxg7PDo8Z286A6W3HZTqd4XlbTk/HHNk2x2Mba7lZI7Qk14pll6O1RJc1S6VYs0F3HbXStF0/oNuO5WrFerNhYwDWG9gsQsgLrELkRPMFSRASBRGhHxAuzvF9wrk/jCVhRLRYEAchtSyocrnF1LJAnYxpZz6WOrWJ7j8ge7RP+fQf1NEJ/ZlDd2bTDXqB/QrvOSYenTvDUmc20d4DxOiA6unh8FA/nrwGzgt1O57QOVOsuiiIg4A0isjimDSKSUNTJ4Nn+gs/i+Lh840vzseNJ9IMdfCU1p5gSSnxgwB/EZAJQd00VFVNWVaU1ZbKUNeDDl5ZUtfN5XjTKFayYFXVWNpxEaN9xOMDstE+2ejxsJbN8Qm947Kazli6Bu9cX9V7dNMZnTfHiudz5rMMbybxvBzHFUSBQERbylRQZ4LmOV7uG7FVledYc9/HjzKyUpEWDbJuyesWUWlkramUptEa9RKNVtTqRcx9VhAEOI5DksSkSUwhc2QuKAt5XucURYHIBLkQCEOWDV5TN9R1TVPXW20aLFkUw5Fypx4Td3p5vIzazgTbdvA8D3fiMp/NWSyCgdAEPYoGNZuklEKbGVZFjqokm1XLqtOsOsVm2bLuNate07YtsiwptB6OmZmZlAV937Ner1mZY7heUw+7X2E9dBrunvTsTWHPhXsu3J/C7xMYzRku5S9I7/5KP52RFSVRFA+faNbSvGS5XKGXS5q2xYqrNU7S4SQtbtoxSbbYSc8sa2n7JZ0saGwXlaRo85Mwm9KoAZNNrVuWccqqKLFUU5FlEblIkTJFZAl5lgwqREIUx0RpSpjnLJJtnwpBaPwkJTFjcUJzdErnB1jKniBGT8hGB4jHT6gPj1Enp0OoL7ENk61e9Jf+tr4MduR5OOOAs3GMbcfEfkISZBRJTpWeh/Z1uAj2IgyJMkmpOmSzDXNeaQqzPmad1H8D/H+YYP8Lne65pPri1SEAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img.png"
+        title="img.png"
+        src="/static/073a7942fcbc372790fd916c5679db7f/37523/img.png"
+        srcset="/static/073a7942fcbc372790fd916c5679db7f/e9ff0/img.png 180w,
+/static/073a7942fcbc372790fd916c5679db7f/f21e7/img.png 360w,
+/static/073a7942fcbc372790fd916c5679db7f/37523/img.png 720w,
+/static/073a7942fcbc372790fd916c5679db7f/d2c2a/img.png 929w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>위의 화면은 Prometheus에서 오류가 발생하고 있는 항목들 입니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 100.55555555555556%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAACXBIWXMAAAsTAAALEwEAmpwYAAACJUlEQVQ4y41UWa7bMAx89z9UL9AjtCgKFK8fzWJb+0JyClJ24iQOWgEMZcUacYYjf7TWUGuF8x6n8wXnyxWX64Tr9QofAlIuiCkj5my5lIyvPxf8OAVc5hnn2SGEhN9/PvF5+oUP7AYRofcOYkYlQWkMZgFEIGvo+PI94tu5ooogk+wh8LG9xMwotaKUYjlXQmlk67IDtANsyMO6hhb0AFhrMfoKStTHNnndyAdrG8YKKNDf1gnee9NOQRV8q+bdOATcFhRgWRYE7+GcQ4zRNGrEyJ3RWSwXUo1HbKA3wP2Cdty5UeHiHLJSZwYRo9PIGsz3+bb3EFA7HGJEUovEaPOYkkXSHBNKGRqnlMeBRDdA3X/XUIBGZEAKoPTvGr4f8sTwQUM9QQG1mpyzAXYBSMT02nJjMT37aqEHwP2CUpmmyRpznSbM84zZR/iYkGozPUsna9IW2BX0Aqh6eB+McgjRGqTdVitl0zCimxTFGJScjdU2DikP/xXL+twYRk2tQpr7sMutQsh7DVWzaZrvlNWTKZvhTUMeIH0XL4DPtlmcN3s4H2xuEsTRJJWhlrLaZljpkLKBsSB2RioVsVSkWm2uVEvraG+uocgBZX1JLaGddEG7GrH4YN2N61VTUP0oGOX/tU1r1boagjf9lKZVnAtCrkPDHVhjfgV8LnmaF9NOAW8xL3aQ2kgP4d11E/lHU/TDYB70oyGa9VmB7L/1Jm13+BnwL8UfIzge/kX9AAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_1.png"
+        title="img_1.png"
+        src="/static/1c629872cc1247b23372c393e9d86cc3/37523/img_1.png"
+        srcset="/static/1c629872cc1247b23372c393e9d86cc3/e9ff0/img_1.png 180w,
+/static/1c629872cc1247b23372c393e9d86cc3/f21e7/img_1.png 360w,
+/static/1c629872cc1247b23372c393e9d86cc3/37523/img_1.png 720w,
+/static/1c629872cc1247b23372c393e9d86cc3/f1901/img_1.png 942w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>오류가 발생하고 있는 항목들에 대해서 alertmanager 또한 동일하게 표시해주고 있는것을 확인하실 수 있습니다.</p>
+<p>##4. Slack으로 WebHook 날려보기</p>
+<p>이제 Slack 으로 WebHook을 날려보도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">https://hooks.slack.com/services/blabla/blabla/blabla
+<span class="token assign-left variable">WEBHOOK</span><span class="token operator">=</span><span class="token string">'https://hooks.slack.com/services/blabla/blabla/blabla'</span>
+
+<span class="token function">curl</span> -X POST --data-urlencode <span class="token string">"payload={<span class="token entity" title="\&quot;">\"</span>channel<span class="token entity" title="\&quot;">\"</span>: <span class="token entity" title="\&quot;">\"</span>#webhook<span class="token entity" title="\&quot;">\"</span>, <span class="token entity" title="\&quot;">\"</span>username<span class="token entity" title="\&quot;">\"</span>: <span class="token entity" title="\&quot;">\"</span>pkosbot<span class="token entity" title="\&quot;">\"</span>, <span class="token entity" title="\&quot;">\"</span>text<span class="token entity" title="\&quot;">\"</span>: <span class="token entity" title="\&quot;">\"</span><span class="token variable">$KOPS_CLUSTER_NAME</span> 다음주 종강! - 봇 제공<span class="token entity" title="\&quot;">\"</span>}"</span> <span class="token variable">$WEBHOOK</span>
+<span class="token function">curl</span> -X POST --data-urlencode <span class="token string">"payload={<span class="token entity" title="\&quot;">\"</span>channel<span class="token entity" title="\&quot;">\"</span>: <span class="token entity" title="\&quot;">\"</span>#webhook<span class="token entity" title="\&quot;">\"</span>, <span class="token entity" title="\&quot;">\"</span>username<span class="token entity" title="\&quot;">\"</span>: <span class="token entity" title="\&quot;">\"</span>pkosbot<span class="token entity" title="\&quot;">\"</span>, <span class="token entity" title="\&quot;">\"</span>text<span class="token entity" title="\&quot;">\"</span>: <span class="token entity" title="\&quot;">\"</span><span class="token variable">$KOPS_CLUSTER_NAME</span> 다음주 종강! - 봇 제공<span class="token entity" title="\&quot;">\"</span>, <span class="token entity" title="\&quot;">\"</span>icon_emoji<span class="token entity" title="\&quot;">\"</span>: <span class="token entity" title="\&quot;">\"</span>:ghost:<span class="token entity" title="\&quot;">\"</span>}"</span> <span class="token variable">$WEBHOOK</span>
+</code></pre></div>
+<p>가시다님의 스터디채널의 미리 구성된 WebHook 채널에 WebHook을 날려보는 과정입니다.
+WebHook URL은 본인의 Slack 채널의 WebHook URL을 입력해주시길 바랍니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 295px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 31.11111111111111%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAGCAYAAADDl76dAAAACXBIWXMAAAsTAAALEwEAmpwYAAABKklEQVQY06WPW26CUBBAWVVX2K8uodvoZ38t1cTaaPGJKBIvIiCIolzgwmm4id1AJzmZx8eZGaNSitvkG5We8TyPXs9k0B/QN/vMF0u8nUsUhgRBQBzHRFFEXddIKVF1jVJK0/VFUWDIJCF+eaJ4e0b4CePJFGs6ZzZf4XoC/xDoRbZt/+Xj8cgtvyKEj9gLhBDcbnctNWR2JrNeke470enOZh+x9RO8Q8LKC9mKEGdtY5ofOM6GyXiMZVmkyUnLrR+L4fCLyzWn7IRN29KApiwrCllqpK4r7oUkz3PSNCXLMs0ly6irStdp0s0v1ErRNA0GQNuqLhGnOfYuZL2Pcf3uwggvOLHdOHz2TdzdTl+4WCz1y2vHYWbNGH2NKKtaO4y2bXnwn3g4fgFp1cJRcCNNxgAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_4.png"
+        title="img_4.png"
+        src="/static/1b58b5b6000b0115371ffa00902a9924/e4a3f/img_4.png"
+        srcset="/static/1b58b5b6000b0115371ffa00902a9924/e9ff0/img_4.png 180w,
+/static/1b58b5b6000b0115371ffa00902a9924/e4a3f/img_4.png 295w"
+        sizes="(max-width: 295px) 100vw, 295px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>WebHook이 정상적으로 날라가는군요!!</p>
+<p>다음 Alert Manager에 WebHook URL 정보를 반영해보도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token function">cat</span> <span class="token operator">&lt;&lt;</span><span class="token string">EOT<span class="token bash punctuation"> <span class="token operator">></span> ~/alertmanager-slack.yaml</span>
+alertmanager:
+  config:
+    global:
+      resolve_timeout: 5m
+      slack_api_url: 'https://hooks.slack.com/services/blabla/blabla/blabla'
+    route:
+      group_by: ['job']  # namespace
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 5m
+      receiver: 'slack-notifications'
+      routes:
+      - receiver: 'slack-notifications'
+        matchers:
+          - alertname =~ "InfoInhibitor|Watchdog"
+    receivers:
+    - name: 'slack-notifications'
+      slack_configs:
+      - channel: '#webhook'
+        send_resolved: true
+        title: '[{{.Status | toUpper}}] {{ .CommonLabels.alertname }}'
+        text: |
+          *Description:* {{ .CommonAnnotations.description }}
+EOT</span>
+
+helm upgrade kube-prometheus-stack prometheus-community/kube-prometheus-stack --version <span class="token number">45.0</span>.0 --reuse-values -f alertmanager-slack.yaml --namespace monitoring
+</code></pre></div>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 471px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 88.88888888888889%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAASCAYAAABb0P4QAAAACXBIWXMAAAsTAAALEwEAmpwYAAACrklEQVQ4y52UyY7bOBRF6///o7f9FUEWvWmgy1WeB1mcRVqyJVuT7dMgnbjSFWSRJvDAJ5G8vO/yki/d2xfa+V9MF2smkymTyRtv7+846zgeK8qy5HK5ENv9fufZfsxju924dT0v7fuf1F//QMx2/L1U/LMQTLeaWeZ4XWt81cTV3G63BPi9/55fr9eP/8BLBO9CSTGbstplrFZLNtsdUmqUNriiQCmFLRxaKXzhE3vvHNZZjDYUzqOlom7qb4DW4OdzslyyzzK22w35Psc5i5SKPMuQQtB1LeM4MgzDMyLDcRjp+z6NfQO0hOUS44oEVFibAIwxeOcxWuOtRSuNLwJlCFhjcbZAa80hHFLvnHsAtsZQrlco6xB7gRCC9XpNe2kfDK4frLque+Tjg1X8btsuachTw8RwjjIWkQu0lhhrWS1XZFlG4QuKwlF4T1VWFFHD4AmFRymJ1ZamOX8AtglwgTE2iSuVxCiFkBKR5wR/4Hy50DQNfRdZ9bRtm9il6PvENrJ8MvSLOUIppBRoYxNg3D3qdqoqQghJo8gwhAOHsuQQtbTukZeHJM9Tw2ibvRDssxwhJJvtht12gxQyLThHdn3P6XSirmvqpuGTtT9KHuuaNgRCWeFckUo8nY40dcP5XGOt5eA9p+MpWSky9SHQD0O6MfcfIgEOwWNXG2ayYiVLhDsx3wdm+4LcHfmd9tTQTd9ZbncsFjNW6zVK6RRaG6RWKC1T+UortFYIkaONRluNzHOUkMlKTw3DbEqudZr8OJiHUePNkVLivUdIlUwefWrjWJ6z3+dJknAIHwyHquIUJ1nD0Hc/vyy/W/IYnymp2RVntubIcL3/B/T+SfjPm/10KPFxUK+vTJZbJtNFem36fvgl2K/iyfA2joxtS3u5cDk3yWfRpP+n9H8BlVBeh68OXYcAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_5.png"
+        title="img_5.png"
+        src="/static/fd1ebdd0d7e56d6a77bbe3bd6bef6767/1f09d/img_5.png"
+        srcset="/static/fd1ebdd0d7e56d6a77bbe3bd6bef6767/e9ff0/img_5.png 180w,
+/static/fd1ebdd0d7e56d6a77bbe3bd6bef6767/f21e7/img_5.png 360w,
+/static/fd1ebdd0d7e56d6a77bbe3bd6bef6767/1f09d/img_5.png 471w"
+        sizes="(max-width: 471px) 100vw, 471px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>Slack 에서 위에 Prometheus에서 확인했던 오류에 관한 내용이 전송된것을 확인하실 수 있습니다.
+route.repeat_interval 이 5m으로 설정되어 있으므로 이슈를 해결하지 않는다면 5분마다 같은 메세지를 계속 날려줄것입니다.
+5분마다 이슈 해결하라고 떠들어댄다고 생각하면 꽤나 씨끄러울거 같군요
+AlertManager에서 silence 처리가 가능합니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 76.66666666666666%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAYAAADkmO9VAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB40lEQVQ4y5WUz47UMAzG5/1fgQsvwoUz4r4HVishjZDYmTbNf8fJhz6nXTosHMjIcpI2v/izPb3UWpFzhg8Bt/sdr7c7ltXhdl/gtg2pFKRckAut7n7OY8pYnLOzKWa8XJ9xwT7GGBBpZjFmiKjNaxUzHgghIqWMFBNKishp7uVcDwwuBPGnqiilmK2rg1SBiOzAhhiS7edcsLiIb9cFPibcF4cQEyNCH30CjwhbawYhXFpHFkXTjjE65sVzfF8EH79sWIvCSUdRPhlkPgKrCEqpKLWiSEcoCtFut4+T2Un8Xvc+L3yTfAC7qj2cL/QjuQ+wPga0E/K4/wdwhtssjxkxRpNO+59B1uWQQKw0RfAeG9slRYQQTDIjomdUL77g62vE81bQqOak0IDHgoNFIYytQM9IK4EDqH2q+PzD48PTT3y6bnaRnoAm+bxgdZ3bsHkPt3nzbHoa24l+SAWGAq3aHv8Y5zpczgllMfgCjfkru69y6knOm77tMYh3wKMooooYApxbUfIszhh/Sf4/CvJOMnPovTcQPYsSGZV2ZEalHdIHoqjlL7dZsAfgWTLDX52z3LEonNt680g52/PW1NpLd+P6QfKZzhzGlOxw2iWnlGyPFuL8ODB39pGwghU7dwB/ARPJmN7hBV+TAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_6.png"
+        title="img_6.png"
+        src="/static/bce9e6da9cd67e530c54a0d8233cb743/37523/img_6.png"
+        srcset="/static/bce9e6da9cd67e530c54a0d8233cb743/e9ff0/img_6.png 180w,
+/static/bce9e6da9cd67e530c54a0d8233cb743/f21e7/img_6.png 360w,
+/static/bce9e6da9cd67e530c54a0d8233cb743/37523/img_6.png 720w,
+/static/bce9e6da9cd67e530c54a0d8233cb743/d9217/img_6.png 904w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span>
+AlertManager에 접속하셔서 오류를 보시면 옆에 Silence 메뉴가 있습니다. 접속해 줍시다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 111.11111111111111%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAWCAYAAADAQbwGAAAACXBIWXMAAAsTAAALEwEAmpwYAAACeUlEQVQ4y5VVS27bMBD1vXqwrrrMqmfoFZorZFmkaNGlWyAwECdOU8cSKYmf4Qz5iqEkx0ldJ6HxxI+k0ZvPGy+stVgul7jdbLBeX2P58xeurq4wOAcdpRToD3otp6FjkXNGCAFEhESEECKC99DzJ6PgxaFGF847tKatLKQIcsnIKHWWLNBdiAE3mw1614/PZfkHe4YpJzS2Qdu1dd42D3VNQkiS0FGHkAI6141nmeo83te9PmOr0WpQGQ5uqBtlVSZ2h9Cvy7SWrPvH9Yw9Q08e22YLO1iY3mBnGpjegiRVhn3qEFjgU0FIBcQFzcAwXuo6cMFAanQyqIw4M4gTiAkxUZ01nspKXeOsc0GaEFKumPdqOM8MhRneOaSUoGtOCcwMSlzPXpPdJ1n2IeD67jf+tBY72+O+MTDWYmgbeDfsY/O8gspco2Vkt48hF8Ckgl0UNFGwjRk2MoLziOqeZAQe4TkjckYmQtFEHGNIMhpoI6MnQRcIxhNM5Hqu6IjRTeuBGOIcMnM1oh9YNQksM8NcHl8mQVKVhFEpZUI+wOyiVCUV3NmEjxc7mCBzlsd45INYaHKc83DOVSkOUWAcow9yVMP5uZbVwFuyeTLLqtP15gY+hlr9WpPHtMoTjt2LEuu7Yx0WQec7eApVl7NO3wLV+95gljy2Lk5Vxy/1vP/1wacu366xa3dVburyW6GeHbQvrv1ORKZel8EylYieTaVyCkMaHttXDWyRPbvDIRO065xiGDnuO/wiTx0lMmnfwffVA86/3WK1XMFffgH9uZ/ik18XQ/XfBIMH14Ax4OzzD7w7u8D5p3NsP7yH/Xo5Pvz8P+ZIDSrDv5THvHUyfkVXAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_7.png"
+        title="img_7.png"
+        src="/static/d61f74d84f07a39ce318afeb2a826465/37523/img_7.png"
+        srcset="/static/d61f74d84f07a39ce318afeb2a826465/e9ff0/img_7.png 180w,
+/static/d61f74d84f07a39ce318afeb2a826465/f21e7/img_7.png 360w,
+/static/d61f74d84f07a39ce318afeb2a826465/37523/img_7.png 720w,
+/static/d61f74d84f07a39ce318afeb2a826465/898f6/img_7.png 798w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>Duration은 얼마나 silence를 지정할 것인지에 대한 것입니다. 시간과 Creator,  Comment 를 입력해주시고 Create 하면
+이 이슈에 대해서는 지정한 시간동안 조용히 하고 있을것입니다ㅎㅎ</p>
+<p>계속 이어서 Prometheus에서 감지되는 이슈중에 kube-controller-manager, kube-scheduler 에 대해서 자세히 보겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl get svc,ep -n kube-system kube-prometheus-stack-kube-controller-manager
+kubectl describe svc -n kube-system kube-prometheus-stack-kube-controller-manager</code></pre></div>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 67.77777777777777%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAABp0lEQVQ4y5WTWY+iUBCFeepWXEBREFTwstgajeIS//8/q85XSRFm2vRkHk5u3VvUqVML3perJSmPkqaZVGUpeZ7Ler2W3W7X2WC73cpms1Gbd/PzbkiSRDxXOlkuIlkulzKfzxVRFHX2YrGQ2WymRNzjOJaiKCQIAiUlCf66rtXnwRoGgZLg6MNIwzDUO0mxJ5OJDIdDmU6nMhqNxPd99ZPEc9tC1q6RvCikLEvNiHxU2Glvl8tF703TqHIUcZKIk+ReU9WS5U7iOJGmqaWqKu2NEWL3e4lCqjFYFVaJl2WZfH5+SBTN5fl8yuv1ksPhoD3Z7/cKbIAyVA0Gg67UPnjzxuOx+P5Is7XtVdq2ldPpJLfbTXG/3+V4POoAAN8RTNw7eJaJDx+Phyo8n8+qDEWcq9WqC+B7O83+g5C6MegBTQcoRBVk9BQfEwRM+B1RR0jDjRCFlHy9XrVcbEBPIWfaCPiV0DmnJbGPqCPQ1NhE2bd+4/ul/yDUxQ5DJUUJwUZGeX2Sv/v4lpBd6/eQ/UNVmqa6/f9DpoRMlF0EENpvBf5V3jvCb6OnYBVc1S0uAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_8.png"
+        title="img_8.png"
+        src="/static/cca9114acd3db90304de63857d154182/37523/img_8.png"
+        srcset="/static/cca9114acd3db90304de63857d154182/e9ff0/img_8.png 180w,
+/static/cca9114acd3db90304de63857d154182/f21e7/img_8.png 360w,
+/static/cca9114acd3db90304de63857d154182/37523/img_8.png 720w,
+/static/cca9114acd3db90304de63857d154182/2e694/img_8.png 1048w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>Prometheus가 kube-controller-manager 에 접근을 할 때에는 Cluster IP로 접속을 하는데 위 화면에서 보시면
+EndPoint가 존재하지 않아서 발생하는 이슈 입니다.</p>
+<p>해결해보도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">kubectl label <span class="token variable"><span class="token variable">$(</span>kubectl get pod -n kube-system -l k8s-app<span class="token operator">=</span>kube-controller-manager -oname<span class="token variable">)</span></span> -n kube-system <span class="token assign-left variable">component</span><span class="token operator">=</span>kube-controller-manager
+
+kubectl label <span class="token variable"><span class="token variable">$(</span>kubectl get pod -n kube-system -l k8s-app<span class="token operator">=</span>kube-scheduler -oname<span class="token variable">)</span></span> -n kube-system <span class="token assign-left variable">component</span><span class="token operator">=</span>kube-scheduler
+</code></pre></div>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 70.55555555555556%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAACPUlEQVQ4y63NWU8TURjG8fl+akIxFAFJ9EJvTEgMiRd+HI1BFodigahRMcY1bC5QaMHS0tLOdJZzZjqdrTB/01aw6gWa+CS/vM8755yM8vzlK54+e0F26QlTsypTMyrTc/NdM48yZLJLzD/+k7qwyMNZlVk1g5pZ5N70A+ayKsrE5B2Gxq8xev0Gw2PjpNIjDFweYXBojFR6jIGhUS6m0lxMDfdJd10avMKFVJrU8FUmJu9y89ZtFLMleFP/yEqpiFFcpn74Fn0tT1Kt0kkYRjiuRxTF3R4EIe32Mf0Jg5Cm7+P5PoofhpjSxnQcLGHRMA0sS2ALgS0lpi0wbBtL9LotZPeh67XwWj7NVosgjgm2doiqNRTfsjEOytiVKqKmIWsart7A0fQzzYaBZ5jd3jIs2m6TWDrE0iV23N5e12hbNoqf30dbeY31fhVn/VPvTzsFolyeKHc6fwpzeYKtXYLtH0575+7+AUp4VEN83cbdLdDaLxIfVn9V6Ztnjmj36ZxHpTLxUQ3F80MM4WAKF0s2Mexe102BbtoYlqRhCTTD6k7DlphCds87u25KXNdEfLtP6OygRG4JUV9Haps42iayvoHb+IJn5QhEnsjZI3L3CGWBQBZ6u7PX7b1vedpeEYIySXiE0pYb2AcqspxFlBawixncyjKBvsKxeAfeGjRXz5U4H8D7jHISmUTNQ2KvQtTR6a0qx0Gdk1AniRsk0TniBnTuxRYK5yTh36IkSUKSnPwmOUPf/BsK/znfAQAf+JyXuoRqAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_9.png"
+        title="img_9.png"
+        src="/static/9aa0d1b9f719d2e3095ee9dcd1d76727/37523/img_9.png"
+        srcset="/static/9aa0d1b9f719d2e3095ee9dcd1d76727/e9ff0/img_9.png 180w,
+/static/9aa0d1b9f719d2e3095ee9dcd1d76727/f21e7/img_9.png 360w,
+/static/9aa0d1b9f719d2e3095ee9dcd1d76727/37523/img_9.png 720w,
+/static/9aa0d1b9f719d2e3095ee9dcd1d76727/9b379/img_9.png 951w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>Prometheus 에서 해당 이슈가 없어진 것을 확인하실 수 있습니다.</p>
+<p>이번에는 고의적으로 시스템에 이슈를 만들어보겠습니다.
+노드를 하나 추가해주고 그 노드를 다운시켜보겠습니다.
+아래 명령어를 입력해서 노드를 1개 추가해주도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"> kops edit ig nodes-ap-northeast-2a --set spec.minSize<span class="token operator">=</span><span class="token number">2</span> --set spec.maxSize<span class="token operator">=</span><span class="token number">2</span>
+ kops update cluster --yes <span class="token operator">&amp;&amp;</span> <span class="token builtin class-name">echo</span> <span class="token operator">&amp;&amp;</span> <span class="token function">sleep</span> <span class="token number">3</span> <span class="token operator">&amp;&amp;</span> kops rolling-update cluster</code></pre></div>
+<p>다음 AWS Console에 접속해보시면 지역이 ap-norrheast-2a에 해당하는 EC2가 2개로 증가되어있는것을 확인하실 수 있습니다.</p>
+<p>신규 생성된 Node에 접속하여 Kubelet을 Down시켜 보도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token assign-left variable">WNODE3</span><span class="token operator">=</span><span class="token operator">&lt;</span>신규생성된 Worker Node의 Public IP<span class="token operator">></span>
+<span class="token function">ssh</span> -i ~/.ssh/id_rsa ubuntu@<span class="token variable">$WNODE3</span> <span class="token function">hostname</span>
+<span class="token function">ssh</span> -i ~/.ssh/id_rsa ubuntu@<span class="token variable">$WNODE3</span> <span class="token function">sudo</span> systemctl stop kubelet
+<span class="token function">ssh</span> -i ~/.ssh/id_rsa ubuntu@<span class="token variable">$WNODE3</span> <span class="token function">sudo</span> systemctl status kubelet</code></pre></div>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 83.88888888888889%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAARCAYAAADdRIy+AAAACXBIWXMAAAsTAAALEwEAmpwYAAACtklEQVQ4y5WTW2vcRhiG9ccaSNI0SUkCuXCgaSGlEHLX/1L6E3pb4hyg9KYXTuy49tbe7Np7kHat3bXjPWikGWl11nr1FI2d1N1CWw88PK+++UagT4zRt23apsl+44CdWo3aXp0/9urs1xs0Dlp0zJ6m3bX+wf77pu5ptU3e7myyXd/GePrsex6tPeGrx0+49eAbbt9f49bDNW7ee8j1L+5x484Drn3+5QV3tT+7eVdzrfKNO1y/fZ+vv3vG42+fYrw5/J2fdp6zvv2O9taPvHn7C/Wff8XerzM6HdPpWjQP23RMS9PumPT6R9iD4Se6Vh/THtPtDTCCLOQ4GDPxfbKgj1IO0ViwiGLOlkviJCWKE/K8IMtyzXJZasqypATOiph8vEmZfMAIfB/lSnwlceUc1/MQ0sNxXRxnphHCQUqPmTNDKUmSxERRSByFJGlK5I6ZvfiBdHKIUag60XSD3Ntl4e9B1IS4BfEhJK2/8mWigxWqXhOSHsa81WSytYF6v0fYalLYFoXd0yxWKFZycWSdU+XBiOKk+mQhcU4meBOBmrqomYeaetpy6mrUR+ua0A6EYu4qAuETuR5B7zXx6W41wwnCGeCKY1wxQsyGeO4JnjhByTHSO9X4akIQTHWtynnmU+SBZlH4FEGTRWxjLIIGibNFKrZJnHeaapZl2ITchNy68ApZF9LuuZMOZEeQjTCCMMaTAcoPNZ6q/rSPK32EK3GExPWUdvWs9zyFcJXOlcMwYD5aJ3Z2MCI1RM46+I6JLywCt08obSI1IPKH2rE/ouoL5d/zRxfxKYuwx1l8jJE6G6jBOmr4En/0inT2G2dyE6IahLUL7557NV+u6d4mRh5YhE6d2DsgEg1S1aaYW5Tp8AqMKNMBZfYBg39ZJVdfhr6P5fIS5Se45P+LwRUP/NcL/wQL7tog9BUKkQAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_11.png"
+        title="img_11.png"
+        src="/static/bea63bcc1edbef420fb754915a1924f2/37523/img_11.png"
+        srcset="/static/bea63bcc1edbef420fb754915a1924f2/e9ff0/img_11.png 180w,
+/static/bea63bcc1edbef420fb754915a1924f2/f21e7/img_11.png 360w,
+/static/bea63bcc1edbef420fb754915a1924f2/37523/img_11.png 720w,
+/static/bea63bcc1edbef420fb754915a1924f2/f79fa/img_11.png 940w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>kubelet을 Down시키면 처음 Prometheus 에서는 Pending 상태로 표시가 됩니다.
+이후 10분이 지나면 Firing 상태로 변하게 됩니다.</p>
+<p>kubectl get prometheusrules -n monitoring -o json | grep TargetDown -B1 -A11 명령어를 입력하시면 아래에 해당해당 내용이 나오는데
+아래에 정의되어있는 규칙으로 인하여 10분 뒤 Firing 상태로 변하게되는 원리 입니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token punctuation">{</span>
+                                <span class="token string">"alert"</span><span class="token builtin class-name">:</span> <span class="token string">"TargetDown"</span>,
+                                <span class="token string">"annotations"</span><span class="token builtin class-name">:</span> <span class="token punctuation">{</span>
+                                    <span class="token string">"description"</span><span class="token builtin class-name">:</span> <span class="token string">"{{ printf <span class="token entity" title="\&quot;">\"</span>%.4g<span class="token entity" title="\&quot;">\"</span> <span class="token variable">$value</span> }}% of the {{ <span class="token variable">$labels</span>.job }}/{{ <span class="token variable">$labels</span>.service }} targets in {{ <span class="token variable">$labels</span>.namespace }} namespace are down."</span>,
+                                    <span class="token string">"runbook_url"</span><span class="token builtin class-name">:</span> <span class="token string">"https://runbooks.prometheus-operator.dev/runbooks/general/targetdown"</span>,
+                                    <span class="token string">"summary"</span><span class="token builtin class-name">:</span> <span class="token string">"One or more targets are unreachable."</span>
+                                <span class="token punctuation">}</span>,
+                                <span class="token string">"expr"</span><span class="token builtin class-name">:</span> <span class="token string">"100 * (count(up == 0) BY (job, namespace, service) / count(up) BY (job, namespace, service)) <span class="token entity" title="\u003e">\u003e</span> 10"</span>,
+                                <span class="token string">"for"</span><span class="token builtin class-name">:</span> <span class="token string">"10m"</span>,
+                                <span class="token string">"labels"</span><span class="token builtin class-name">:</span> <span class="token punctuation">{</span>
+                                    <span class="token string">"severity"</span><span class="token builtin class-name">:</span> <span class="token string">"warning"</span>
+                                <span class="token punctuation">}</span>
+                            <span class="token punctuation">}</span>,</code></pre></div>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 475px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 73.88888888888889%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAYAAADkmO9VAAAACXBIWXMAAAsTAAALEwEAmpwYAAACrElEQVQ4y12T6W4bOwyF/f7/+h59iAL90V6gTRw3cRxvs0qafdPsXr5CshP0RgBBUjM6OiIPF0PgMLlv7LYHNqtnDpsN2/WaKAip0pQ8jqmynLHtGNrO+rbRZFlG0zSUZYnWDY3WzPPMQj98pf32hePThu+/1nz775mfj688rh1+vTj82QXUjWY+zUzTxDRP1pvDNv/H+r5nMc4Tg67wf/xg+bLhYbXmYfXC685htd6x3h8JRIDvufieh+97iFAgZIjnuoR+gJSSIAgZhoHFME70jUYtl3juAcc54B0PuM6BVEkbe57LbrfDPTrsd3u22x3H4/HDwiBEa30DPF8unMaROhSEaYNIa6K8QSQVKm+odc/F/HM6W3+5nDmdTpzO7/nNzLperixsMI6o3w+8HkNe9j7rvc8hSHhzJFFW0nUdbddSVTVN3Vg2piFVXVNXNyuK4lZDA3gZR+LlEtd17FOd4x4ZhqRxTJLE+L6PktICtrqla1t0o9FtS6u13TO5acwHYPL0hFKxLa4ptAGQUuF7AYHnIXyfJEkss7qsqMqKsqgoy8KyNgzrur4BnoeB7PkPKo7xXZ84ivA8j6qqmKeJtm2ZxpHOaHEYGPrBsmzbjq5r6U3edbYUHwzT1RNRkhL4IUIIvDujIi9odGOFnBc5ZVGSpRlVXVHkOZEpS5xYULP+ByiFRAplNZalCYeDkZFrD5j6jOPIPM2Mw8hoxDyOln3f9bbznwBX9qmBEJZhJBXqHqdJShwpyyZLMrI8tyyTNCNNU8qqoigLC/pPlx8RUhKGAqUihBR2MmQo6brejpph+D5272ZyA2Ti6/Wuw7MR9vaNUEhc10UE0o5YrBRxfJNNpJStn1Lm0pAoiS3Y53UT9vXK9ZPyjdn969Xefr5/N94wes8/zt/tL5FkbXGhpUh/AAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_12.png"
+        title="img_12.png"
+        src="/static/ff8803f6f187dba48491e83329d9c6dd/466da/img_12.png"
+        srcset="/static/ff8803f6f187dba48491e83329d9c6dd/e9ff0/img_12.png 180w,
+/static/ff8803f6f187dba48491e83329d9c6dd/f21e7/img_12.png 360w,
+/static/ff8803f6f187dba48491e83329d9c6dd/466da/img_12.png 475w"
+        sizes="(max-width: 475px) 100vw, 475px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span>
+이후 WebHook 에서도 확인하실 수 있습니다!</p>
+<p>##5. PLG Stack</p>
+<p>PLG(<code class="language-text">P</code>romtail, <code class="language-text">L</code>oki, <code class="language-text">G</code>rafana) 에 대해서 실습해보는 시간입니다.
+PLG는 위의 3가지의 요소를 묶어 여러 파드의 로그를 중앙 서버에 저장하고 조회하는 기능입니다.
+(<a href="https://www.infracloud.io/blogs/logging-in-kubernetes-efk-vs-plg-stack/">https://www.infracloud.io/blogs/logging-in-kubernetes-efk-vs-plg-stack/</a>)</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 631px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 22.77777777777778%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAFCAYAAABFA8wzAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAvklEQVQY03WQYU7DMBSDe//rwA12Bv4UFoFCMtqq0FZtmqQv+dA6sWUILFnye/5ju5qmiQsyP8j5pstf/scrUWmtdyEpscWANGq/U0oXiiApg3j4PF49yZDXmdho5sWxLDPrulK1bUuMkRA88+JZXx6Q6YkQBe89IQSGcaRrPuieH+m7N/r+i7Al0mhx6sCrNtR1jVKKyhhzF3kcTgz9+91PZMNYu9Nag3Pu10hF5XPM60Y74dzwdv+9WemX/Aau/oYWnw2zhgAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_13.png"
+        title="img_13.png"
+        src="/static/00ec095fa88635df71bb1a3792c541cd/4597d/img_13.png"
+        srcset="/static/00ec095fa88635df71bb1a3792c541cd/e9ff0/img_13.png 180w,
+/static/00ec095fa88635df71bb1a3792c541cd/f21e7/img_13.png 360w,
+/static/00ec095fa88635df71bb1a3792c541cd/4597d/img_13.png 631w"
+        sizes="(max-width: 631px) 100vw, 631px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>Promtail은 로그를 로컬 시스템에서 Loki로 전송하는 에이전트 입니다.
+Loki는 Promtail로 부터 로그를 받아 이것을 저장하고 분석하는데 적합합니다.
+Grfana는 Loki에서 로그를 가져와서 이것을 시각화 해주게 됩니다.</p>
+<p>먼저 실습을 위한 Nginx를 설치해주도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">helm repo <span class="token function">add</span> bitnami https://charts.bitnami.com/bitnami
+
+<span class="token function">cat</span> <span class="token operator">&lt;&lt;</span><span class="token string">EOT<span class="token bash punctuation"> <span class="token operator">></span> ~/nginx-values.yaml</span>
+metrics:
+  enabled: true
+
+  service:
+    port: 9113
+
+  serviceMonitor:
+    enabled: true
+    namespace: monitoring
+    interval: 10s
+EOT</span>
+
+helm <span class="token function">install</span> nginx bitnami/nginx --version <span class="token number">13.2</span>.27 -f nginx-values.yaml
+
+<span class="token comment">#CLB에 EnternalDNS로 도메인을 연결해주기</span>
+kubectl annotate <span class="token function">service</span> nginx <span class="token string">"external-dns.alpha.kubernetes.io/hostname=nginx.<span class="token variable">$KOPS_CLUSTER_NAME</span>"</span>
+</code></pre></div>
+<p>그렇다면 Loki, Promtail를 설치해보도록 하겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash">
+<span class="token comment">#Loki 생성</span>
+kubectl create ns loki
+helm repo <span class="token function">add</span> grafana https://grafana.github.io/helm-charts
+
+<span class="token function">cat</span> <span class="token operator">&lt;&lt;</span><span class="token string">EOT<span class="token bash punctuation"> <span class="token operator">></span> ~/loki-values.yaml</span>
+persistence:
+  enabled: true
+  size: 20Gi
+
+serviceMonitor:
+  enabled: true
+EOT</span>
+
+helm <span class="token function">install</span> loki grafana/loki --version <span class="token number">2.16</span>.0 -f loki-values.yaml --namespace loki</code></pre></div>
+<p>설치를 완료 하였다면 Curl 을 수행해줄 Test용 Pod를 생성해주어 로키 Gateway 접속확인을 해보도록 하겠습니다.
+kubectl apply -f ~/pkos/2/netshoot-2pods.yaml</p>
+<p>kubectl exec -it pod-1 — curl -s <a href="http://loki.loki.svc:3100/api/prom/label">http://loki.loki.svc:3100/api/prom/label</a></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 7.777777777777778%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAACCAYAAABYBvyLAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAZUlEQVQI14WMuw7EIBAD0wJCFIDgdnmtSJTu/v/vHGWLa68Y2dJYPvr9xb5uiCzsfWKMgVoriAhrLfTetZdSMOdUF2MEMyOlBBH5bVtrOMqHQMwIISjee+U9yDnDGAPn3F+stZoPO7Qx2WfUhGsAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_14.png"
+        title="img_14.png"
+        src="/static/3e91e1bb3d600c90206223d9684bb41d/37523/img_14.png"
+        srcset="/static/3e91e1bb3d600c90206223d9684bb41d/e9ff0/img_14.png 180w,
+/static/3e91e1bb3d600c90206223d9684bb41d/f21e7/img_14.png 360w,
+/static/3e91e1bb3d600c90206223d9684bb41d/37523/img_14.png 720w,
+/static/3e91e1bb3d600c90206223d9684bb41d/2a50c/img_14.png 925w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>위의 화면과 같이 나오면 정상적으로 접속이 완료된것입니다.</p>
+<p>이제 Promtail을 설치해보겠습니다.</p>
+<div class="gatsby-highlight" data-language="bash"><pre class="language-bash"><code class="language-bash"><span class="token comment">#Promtail 설치</span>
+
+<span class="token function">cat</span> <span class="token operator">&lt;&lt;</span><span class="token string">EOT<span class="token bash punctuation"> <span class="token operator">></span> ~/promtail-values.yaml</span>
+serviceMonitor:
+  enabled: true
+config:
+  serverPort: 3101
+  clients:
+    - url: http://loki-headless:3100/loki/api/v1/push
+#defaultVolumes:
+#  - name: pods
+#    hostPath:
+#      path: /var/log/pods
+EOT</span>
+</code></pre></div>
+<p>다음 Gragana 에 접속하여
+Configuration -> Data source -> Add data source 로 들어가서 Loki 를 추가해주도록 하겠습니다.
+이떄 URL은 <a href="http://loki-headless.loki:3100">http://loki-headless.loki:3100</a> 해보도록 하겠습니다.</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 131.66666666666666%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAaCAYAAAC3g3x9AAAACXBIWXMAAAsTAAALEwEAmpwYAAAC1UlEQVRIx5VUSXLTQBT1noJMtoaeJVmjJdvxkJCkEsIixQKKBRsWcA0WXIFDcD5u8ajfkoIcywOL599yd78/vf6DyChEwoWRAibMYUwCIUM4rsCbkyFOTkfW9oH2WpyeOTg5dTDgOoYSDFprRHEFEyTgIrCEdOjs3D0K9VkHAxUkGA49pEZBeAyvXp/XXs9G9uD5hfdfGEgdIMjv8PDtN2arJ6R5ibSYIytmSIsZdJhBBSl0uAn6T3XWJsrhMY0BFxxm+gnvf/7B/P4bllfvsLh+wurmAxZXjyiqJYpyiaJaNVg+Iy//2TibwecGA48r+DpDevsFUTUHNzGYSsB0AqbGYDIAV6G1HjfWMhk2tosQji8xoB9fKKRljDBP4HKJocMwcnkDYb99YWCizKblMgmXqS04nsDAJUJOhwt4zNg/RwS3QfNNUZgotcR02eN6C5aQIqRww7iwh7mKIHQEZWKQAsiSw5a4JeuStusNwvnyBtnkEmE8sTBBiiDMrB05HBdDBp91iDrrDUJKmYpNUrERNWAiAKdCe3UNidTx5DPB3gjpogpim1L3wstLfen2EvoiwGJ9hzitaiGbGEGUY3l1j7xcQEcZwnFha3lUDYlwdf2Acrq2itdBCqljBOMc0ozrRqlo4/JOwraG2WRuo6GGSOqsMM9dfVmCgylTA2rCS6s1x5e9OjsyQgWfa0wvr7FY39pnRi+BnmRfNPucbEVIaVL6LXaluJewq0OLfAoVlQjzNRyPb106TNgUm54eaVHosY2YNqkch0h2ymYypZlW2SFAeqNN2qsdyr3d7iE0GKcloqSwg0HqsZUOQdh1jXZNTg9EaDBfvrXzzjZGh/ClARMKXBrrhLrf4uUI661h65kOZ14IIxL40QK+zjupH5kyDYdyukReLVBVK/yQj/g4+Yz111+Y3H2H47FGSkc0pR7dmxEMucSIGuExuL7oHVm7ZPMXbBG9O0C96zAAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_15.png"
+        title="img_15.png"
+        src="/static/b9e377bc6fbc63dfd63d385af3206d1a/37523/img_15.png"
+        srcset="/static/b9e377bc6fbc63dfd63d385af3206d1a/e9ff0/img_15.png 180w,
+/static/b9e377bc6fbc63dfd63d385af3206d1a/f21e7/img_15.png 360w,
+/static/b9e377bc6fbc63dfd63d385af3206d1a/37523/img_15.png 720w,
+/static/b9e377bc6fbc63dfd63d385af3206d1a/302a4/img_15.png 1080w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>그 다음 Loki에서의 Log 확인을 위해
+while true; do curl -s <a href="http://nginx.$KOPS_CLUSTER_NAME">http://nginx.$KOPS_CLUSTER_NAME</a> -I | head -n 1; date; sleep 1; done
+명령어를 사용하여 Nginx에 반복 접속을 걸어주도록 하겠습니다.</p>
+<p>다음 Grafana에서 Exploer -> Loki 로 접속한 뒤 상단에 Prometheus가 아닌 Loki로 선택 후 Label filter는 nginx로 선택하시고
+상단에 파란색 Run query를 클릭해주시면 아래 화면과 같이 Log 확인이 가능합니다!
+<span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 124.44444444444444%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAZCAYAAAAxFw7TAAAACXBIWXMAAAsTAAALEwEAmpwYAAADeUlEQVQ4y41UWW7jRhTkHWJL4s7m0s1NlEiJWmzPIDlAgJwoxwnyFyCWZdkJMkh8gdyognoUFc9kAuij0Hv1e/UW6+3tDZ8+/Ynj6RW/Ph7weDji8ek4jGccnp5xOJ7wfHrF0/OL4PTyG56eTzieXvD7X3/j8PoHfv7lJ1gmDhFGGVRSwrZ9OG6Em4mLb25swc2tI6PtRgiVRqA0VFIgjA0cT8ELYvTf/4h09QNc14flBgkcP0Zer9C0W8RZhSjJ5YFKCwTKwAtTAe9+Ce6nmUFVL+Uzy48yzNwQXX+HulkjyaozkUZqaoSxhh8mCKJM9gaYd3ONMCmgi8VAaHSJqRMKkR+mYl1eLLHs9tjsv4Uu19DVBlm5Rqxr8eBrUGkpXllpajCxfcRpgVTXuJk4cri7+w5d/wBd72Caj9D1/vLwa+BZqAysmRvhduaJ0ATN9sLsjBSByhDFGlFi/pdsBKWwaJ0XJlhtHtAsN1h0W6w29yjqVub1Yi1Buwa2pwZCpoQuGkSxkQBw5CeSJlGK26l3NaypE2BqB1BpDi9IxH1+Mo4Es+BaCCEtFGLOvUgOVGpknF5JxHeOr2DROmY8F9wkSLzqd0h0CTeIL5fHh1+C+44fyV3RkBM+ZlT9aKgKrjNJbCOR5v6IoXKSz9a8Q08vGs4c6uaKZtyjhjcTe9ByNmTCuD/K8x4zJ5TxTOgjyhaIdQOVDLUbqgwqX0FJbZtLfdNqWkWvvHfWCukYlJkToGi2KOY9+u0DynmH1FRIig6hEGnRkG7FWXluFLEQjc1lDJ5oyB8zU0nqsDHQEjYNtqZBo0TWnNu+uhCSjCQ851v2ggshK4PdJdGVgN2F1mT5XOqcic99fkj3WaLRucU5XiR75LGGOs7R9feompVg0e3EZZbdqr+Xtial2W5QVu358wp5uURZd5I6/JyVZU1mnmg0X/YwRQNTLuQSreKcZLRuvuiFSOdzsVpJd6pkTdftqMLMS84WpgX63Qd5ROJ2tZdocr7efMB8ucFm9xHLbotq3glIWlStzIUwMLBJOFpI92gJQUsoMuejhRzzaikfETynpiRmBkydIX//o2FNDdutaMR1t76TkVqKhnV7CeAgTysRZ9dncgshI9Su95J/vExX+TvXdJ+acqQXebkQ8JyW02pXLBzy+d+gLHq5MAZFXRuUovmM8B+60OTHZe19iwAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_16.png"
+        title="img_16.png"
+        src="/static/3c02b51a0738291e82d64d86296553c2/37523/img_16.png"
+        srcset="/static/3c02b51a0738291e82d64d86296553c2/e9ff0/img_16.png 180w,
+/static/3c02b51a0738291e82d64d86296553c2/f21e7/img_16.png 360w,
+/static/3c02b51a0738291e82d64d86296553c2/37523/img_16.png 720w,
+/static/3c02b51a0738291e82d64d86296553c2/e24fe/img_16.png 1073w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>##6. 과제 1 교제 367 ~ 372 페이지 사용자 정의 Prometheusrules 정책 설정 : 파일 시스템 사용률 초과 80% 시 경고</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 28.888888888888886%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAGCAYAAADDl76dAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA+klEQVQY032QW2+EIBCFfRaMK4ig4AVtvOC660v3//+z0zDbbZNu0ocvhxngMIfEbA/M+4llmdF1HWzTwFkHrTU452ApA2ccWZYRnGdI0/SNeDaSNOGBMXxiWwNue8Dce9yOO479wHk/EZaAdd6wX3d47+GHEUbX9OALpRSZMsaQqG5GpQ1N56xFEydsHdq2Rdf3qJsGspQoioIQQpBKKX+IvTzPKUHyMU3wfsA4jmQ6TROtnXPotYFVFU1RliWMMYQoCqqr6rkXlfpCIOm7loq6rglrLSn1YiSlKNLLUEiJ4nJBxtjbP1JkPazkHC88P53/8l1nf/Q/vgCSyZa880hxTgAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_19.png"
+        title="img_19.png"
+        src="/static/07d243d0cd6095d9213231e738195ce1/37523/img_19.png"
+        srcset="/static/07d243d0cd6095d9213231e738195ce1/e9ff0/img_19.png 180w,
+/static/07d243d0cd6095d9213231e738195ce1/f21e7/img_19.png 360w,
+/static/07d243d0cd6095d9213231e738195ce1/37523/img_19.png 720w,
+/static/07d243d0cd6095d9213231e738195ce1/302a4/img_19.png 1080w,
+/static/07d243d0cd6095d9213231e738195ce1/62a6a/img_19.png 1122w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 49.44444444444444%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAKCAYAAAC0VX7mAAAACXBIWXMAAAsTAAALEwEAmpwYAAABoElEQVQoz53M3W7aQBCGYd//QcVvIKHtBfSgUi8hJ62gVdUQbMANhLT8BnvZXe/aEGO/VQxpEnFQqSM9mvlGo3Ea797zplqhVCpTqtQp1xrUGheF6tk51bOLY24V6s0W9fO31Jqtv3eVepNyvcmHj59w2v0rvny/pPv5Er/n4d/c4Ps+rtfnuufiuh6D4ZDB4LXh0Gc0Gh+Mb/nZHzLxRzhZIMlDDWYL2pDLqMAT9bx7CWnAJAfxDsKQLAxw1P2QYN5DLDzUvU+8mRDLo+OcyLtX+eCOXTQlNVNSu2QruiTSx/k9m7JYC1ahQMgNUkukkiitkFqxUYdc0AodHajiblP0YtYaY2Oc9XJOuJojgxVivUSJNboQoDcBVgmMkkRKktiIxJqi23iLjXcYY4kig7WWJI5xOiNFZ2xojyPao6iYO7em6F9vDd8mFncWM5jHeDOLNzN48y3TXx6rqUsgFFprhBAkSYJzvcz5sYCrR8uDl7m7BBFDtAO9e+4P2w1pIki2D+z3e7IsI01THIrK/8NpPT52sjznX/ITnOyeHv4BG7Lj9Apa11UAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_20.png"
+        title="img_20.png"
+        src="/static/1ff2b5936232d5b90f9680b101590efb/37523/img_20.png"
+        srcset="/static/1ff2b5936232d5b90f9680b101590efb/e9ff0/img_20.png 180w,
+/static/1ff2b5936232d5b90f9680b101590efb/f21e7/img_20.png 360w,
+/static/1ff2b5936232d5b90f9680b101590efb/37523/img_20.png 720w,
+/static/1ff2b5936232d5b90f9680b101590efb/302a4/img_20.png 1080w,
+/static/1ff2b5936232d5b90f9680b101590efb/07a9c/img_20.png 1440w,
+/static/1ff2b5936232d5b90f9680b101590efb/cb9f4/img_20.png 1903w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>##7. 과제 2 교제 386 ~ 389 페이지 - LogQL</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 51.66666666666666%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAKCAYAAAC0VX7mAAAACXBIWXMAAAsTAAALEwEAmpwYAAABr0lEQVQoz5WSy27TUBRF/QGIpqHE+P1+xq+kBKcgAoGoqBJ50Lgp0AljhBADPoEJX73QvSFInYXB0tnX3sc+Z+squ5tbtt1HNpuO98sPLFfXLNf3Wa23e726Zr3p6Haf2d3e0d18Ytvt+PLtF3dff/P9x0+U0zMNxx8y0Gx6/QEnp3se/ge9RzoPTlRevlqgBGHGsG7JyzFpXpFkFZYTYtrB0Qj/mWowf3OJYlg+fpRhuSG2G2G5EapuH8VAsySa4dDriwnfoqiaTZyV6Jb3z/jEcI7CdHzZJxDRzeYLFPEijHNsL0I3XTTTQZP1PqLpUA/a8WMM25e6/1hn9nqBIiYynAjd8tGsANONZYNhB9IsfrivrlzvsKr6d13hdYNUZignNEyXIKmIkpwkKwnTmigtiJICL8xw/UTiB5HMWGxiezGOF0vthamMTOjF5RWK5wTSUDcNLy5ayqalOZ9SNc+ox1PGT5+TF2Omk5o0b8iGI3kj9reiIc7E8xrLS5gvrlBCTwQbkBcVk0lLNWrlh8pmQj1qGZ1fyIaiGBImBVFaEguySp4F4qxZIbP5O/4As9oja3HPWT8AAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_17.png"
+        title="img_17.png"
+        src="/static/65e4a9cca737f2c6de4ce3d906f7ddeb/37523/img_17.png"
+        srcset="/static/65e4a9cca737f2c6de4ce3d906f7ddeb/e9ff0/img_17.png 180w,
+/static/65e4a9cca737f2c6de4ce3d906f7ddeb/f21e7/img_17.png 360w,
+/static/65e4a9cca737f2c6de4ce3d906f7ddeb/37523/img_17.png 720w,
+/static/65e4a9cca737f2c6de4ce3d906f7ddeb/302a4/img_17.png 1080w,
+/static/65e4a9cca737f2c6de4ce3d906f7ddeb/07a9c/img_17.png 1440w,
+/static/65e4a9cca737f2c6de4ce3d906f7ddeb/91bda/img_17.png 1867w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 52.222222222222214%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAKCAYAAAC0VX7mAAAACXBIWXMAAAsTAAALEwEAmpwYAAABcklEQVQoz42RWU7DMBCGfQNoK5rGjePEdhJnISxCHIKyNG1BIB5445ULcAhu/KOZNGURIB4+/TOexX8csdncolvd4fpmhYvFEovLJRZXHXPJutxqx7Wr6xVWm3usbx9Yl90aj8+veHp5Q7d+gBhNZtC2RqgMKB6NA+yPA+yNfmH8A5MQk0AjjAyEsQWq9hxVewpftfBlC6Ud5rFBFFvM/4XBXPWIMEqQ2IKXqKQnkDGCMO71L0L1JT8IIoiZ1KjbE0iVYir7htlcYxYlPRT/As2QoQEyIWSUIvcN25afigTlNPQd7lUpIm1Zh+XTUEGQbRm7bZOBSord+9EALR4W/PTZVNMmR6Rd75AGbNHC5jVj8gap8zBZCZNV/L6J9TxEMV3CP2FLnGZIXcmz9P4iNhlcUaNsTtG0Z8h8g7xsmWLQ6gi+Poavjnb50MP4Q9jiEFI5iNRZaFNwU1kfsxu6kSCXg5Jb48qPOmsf07m2JaYywTveHhz0AXP8WgAAAABJRU5ErkJggg=='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_18.png"
+        title="img_18.png"
+        src="/static/06560e1cd277a80719c9d300cb54bc3d/37523/img_18.png"
+        srcset="/static/06560e1cd277a80719c9d300cb54bc3d/e9ff0/img_18.png 180w,
+/static/06560e1cd277a80719c9d300cb54bc3d/f21e7/img_18.png 360w,
+/static/06560e1cd277a80719c9d300cb54bc3d/37523/img_18.png 720w,
+/static/06560e1cd277a80719c9d300cb54bc3d/302a4/img_18.png 1080w,
+/static/06560e1cd277a80719c9d300cb54bc3d/07a9c/img_18.png 1440w,
+/static/06560e1cd277a80719c9d300cb54bc3d/bfd4b/img_18.png 1871w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p>##8. 과제 3 스터디에서 배우지 않은 Alert Rule 생성 및 적용</p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 38.33333333333333%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAICAYAAAD5nd/tAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA6UlEQVQoz63QS0vDQBSG4fnTgouCt0RbUnEjrvxH7txIEcTQJE46Y5vLpGkxyStOkrZqXSie4WHOdzjMYsShe8Tx4IDTgcPIu8K9GOMOx5w4I87OPZudPfq9Nnu4w0uub24RaqkxhaJcFlSbU1NWa1bVmjeqH33s9dUAcqURD8GEycsTz6/Blp7izwP8L7O+9zthKpFGWVEecxffIx5nIdOFJM41MlPf5Z2dHHezmdEbsdEEmUSEUqHmKYskwxhj5d3d9/tyK/+kMAUiiiK0VqRJQpq2j5Zl+WfCfmjTWHVd23t39luCf6534uBQjfS5jGYAAAAASUVORK5CYII='); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_21.png"
+        title="img_21.png"
+        src="/static/78943f94dedc9196277e5a2fa15f000b/37523/img_21.png"
+        srcset="/static/78943f94dedc9196277e5a2fa15f000b/e9ff0/img_21.png 180w,
+/static/78943f94dedc9196277e5a2fa15f000b/f21e7/img_21.png 360w,
+/static/78943f94dedc9196277e5a2fa15f000b/37523/img_21.png 720w,
+/static/78943f94dedc9196277e5a2fa15f000b/302a4/img_21.png 1080w,
+/static/78943f94dedc9196277e5a2fa15f000b/07a9c/img_21.png 1440w,
+/static/78943f94dedc9196277e5a2fa15f000b/91bda/img_21.png 1867w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<p><span
+      class="gatsby-resp-image-wrapper"
+      style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 720px; "
+    >
+      <span
+    class="gatsby-resp-image-background-image"
+    style="padding-bottom: 17.77777777777778%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAECAYAAACOXx+WAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAtElEQVQY03WNy27DMAwEfWwtkpKbOhCdxA+grYQE7rX//2UT2MglaHsYYJcAZ5taCrVWSims64q77/THI70aEgSR34QQ/rw3OQ+oKiklohkpxh0zI26PbfvMJvpHtgvflm8ul4lpntEUkRjRTdglWjVsG+rS3mNKiBqtCG0IvD7Y8ssjN339wefCkp1rdm5+4ssH1vNIie9cfeJjGLn5wJSdz9hzVuMgHaMYgygHERYxTqLcAbpOYRch382JAAAAAElFTkSuQmCC'); background-size: cover; display: block;"
+  ></span>
+  <img
+        class="gatsby-resp-image-image"
+        alt="img_22.png"
+        title="img_22.png"
+        src="/static/92ab53f2fd20971e48e0a1323915696b/37523/img_22.png"
+        srcset="/static/92ab53f2fd20971e48e0a1323915696b/e9ff0/img_22.png 180w,
+/static/92ab53f2fd20971e48e0a1323915696b/f21e7/img_22.png 360w,
+/static/92ab53f2fd20971e48e0a1323915696b/37523/img_22.png 720w,
+/static/92ab53f2fd20971e48e0a1323915696b/914c7/img_22.png 978w"
+        sizes="(max-width: 720px) 100vw, 720px"
+        style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;"
+        loading="lazy"
+        decoding="async"
+      />
+    </span></p>
+<div class="table-of-contents">
+<ul>
+<li><a href="#1-alert-manager">1. Alert Manager??</a></li>
+<li><a href="#2-%EC%8B%A4%EC%8A%B5%ED%99%98%EA%B2%BD-%EB%B0%B0%ED%8F%AC-%EC%A4%91-%EC%9D%B4%EC%8A%88-%EB%B0%9C%EC%83%9D">2. 실습환경 배포 중 이슈 발생</a></li>
+<li><a href="#3-prometheus-grafana-alert-manager-%EB%B0%B0%ED%8F%AC">3. Prometheus, Grafana, Alert Manager 배포</a></li>
+</ul>
+</div></div></div><div class="post-navigator"><div class="post-navigator-card-wrapper"><a class="post-card prev" href="/Kubernetes/Gasida_Study_homework_5/"><div class="direction">이전 글</div><div class="title">Gasida Kubernetes Study 5주차</div></a></div><div class="post-navigator-card-wrapper"></div></div></main><footer class="page-footer-wrapper"><p class="page-footer">© <!-- -->2023<!-- --> <a href="https://www.github.com">장우석</a> powered by<a href="https://github.com/zoomKoding/zoomkoding-gatsby-blog"> zoomkoding-gatsby-blog</a></p></footer><div class="dark-mode-button-wrapper"><button class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium dark-mode-button css-1yxmbwk" tabindex="0" type="button"><svg class="MuiSvgIcon-root MuiSvgIcon-fontSizeLarge dark-mode-icon css-6flbmm" focusable="false" viewBox="0 0 24 24" aria-hidden="true" data-testid="DarkModeIcon"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path></svg></button></div></div></div><div id="gatsby-announcer" style="position:absolute;top:0;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0" aria-live="assertive" aria-atomic="true"></div></div><script id="gatsby-script-loader">/*<![CDATA[*/window.pagePath="/Kubernetes/Gasida_Study_homework_6/";window.___webpackCompilationHash="be3df79066420fcf8434";/*]]>*/</script><script id="gatsby-chunk-mapping">/*<![CDATA[*/window.___chunkMapping={"polyfill":["/polyfill-9b356b5dc44213e24f34.js"],"app":["/app-0f9980b68d4a425d9725.js"],"component---cache-caches-gatsby-plugin-offline-app-shell-js":["/component---cache-caches-gatsby-plugin-offline-app-shell-js-0b8a70f65d0cff4a7a25.js"],"component---src-pages-404-js":["/component---src-pages-404-js-bc51420b294b9123f97d.js"],"component---src-pages-about-js":["/component---src-pages-about-js-39e57401fb032eafb2fb.js"],"component---src-pages-index-js":["/component---src-pages-index-js-0a6bbda26eb501968935.js"],"component---src-templates-blog-template-js":["/component---src-templates-blog-template-js-e3a4bb3c9603d1ed8af7.js"],"component---src-templates-category-template-js":["/component---src-templates-category-template-js-a0af7e239c6cf28d9bb9.js"]};/*]]>*/</script><script src="/polyfill-9b356b5dc44213e24f34.js" nomodule=""></script><script src="/component---src-templates-blog-template-js-e3a4bb3c9603d1ed8af7.js" async=""></script><script src="/f9d3028dbef90a6e9b8db85387d63dd9f4edf538-07f7733d8d97d93498cb.js" async=""></script><script src="/app-0f9980b68d4a425d9725.js" async=""></script><script src="/framework-043f1197be387cb18d15.js" async=""></script><script src="/webpack-runtime-121beace0d37eb670f34.js" async=""></script></body></html>
