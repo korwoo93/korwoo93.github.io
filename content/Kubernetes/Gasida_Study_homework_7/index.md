@@ -1,7 +1,7 @@
 ---
 emoji: 🔮
-title: Gasida Kubernetes Study 6주차
-date: '2023-02-25 00:07:00'
+title: Gasida Kubernetes Study 7주차
+date: '2023-03-04 11:10:00'
 author: KORWOO
 tags: Kubernetes
 categories: Kubernetes
